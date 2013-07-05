@@ -151,6 +151,7 @@
       <file>$PROJ_DIR$\..\..\..\..\Volt2Serial\Libraries\STM8S_StdPeriph_Driver\src\stm8s_tim2.c</file>
       <file>$PROJ_DIR$\..\..\..\..\Volt2Serial\Project\STM8S_StdPeriph_Template\stm8s_it.c</file>
       <file>$PROJ_DIR$\..\..\..\..\Volt2Serial\Libraries\STM8S_StdPeriph_Driver\src\stm8s_gpio.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\Volt2Serial\Libraries\STM8S_StdPeriph_Driver\src\stm8s_i2c.c</file>
     </outputs>
     <file>
       <name>$PROJ_DIR$\STM8S105\Exe\Project.out</name>

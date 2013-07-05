@@ -59,6 +59,8 @@ char data[data_size];
 u16  measure[data_size];
 u8 line_lcd;
 u8 count;
+u8 seconds;
+u8 minutes;
 //u8 index=0;
 float  result;
 int volatile k=0;
@@ -75,6 +77,8 @@ void InitHardware();
 void GpioConfiguration();
 void InitClk();
 void InitAdc();
+void InitI2C();
+void ReadDS1307();
 void InitUart();
 void InitLcd();
 void InitDelayTimer();
@@ -104,7 +108,8 @@ void main(void)
     GPIO_WriteLow(GPIOD,GPIO_PIN_7); //R/W Line Read Mode
     InitLcd();
     InitAdc();
-    printf("\n   Hello I am here!");
+    InitI2C();
+    printf("Hello");
     Send_Hello();
      //UART2_Cmd(DISABLE);  // Disable UART for the moment
 
@@ -116,12 +121,10 @@ void main(void)
 
      GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
 
-     result= Average()*(5.00/1024.0);
+     ReadDS1307();
 
-     //result= adcdata*(5.00/1024.0);
-     //sprintf(data, "%1.4f", result);
      line_lcd=1;
-     printf("\n Voltage:%1.3f  ",result);
+     printf("\n %d:%d",minutes,seconds);
      //line_lcd=2;
      //printf("\n Just Test:%X", timer2);
       if (rx_data==SpecialSymbol) SendData();
@@ -133,7 +136,48 @@ void main(void)
 
 }
 
+void InitI2C(void)
+{
+   I2C_DeInit();
+   I2C_Init(100000, 0xA2, I2C_DUTYCYCLE_2, I2C_ACK_CURR, I2C_ADDMODE_7BIT, 2);
+   I2C_Cmd(ENABLE);
 
+
+
+   // Test DS1307
+    I2C_GenerateSTART(ENABLE);
+    while(!I2C_CheckEvent(I2C_EVENT_MASTER_MODE_SELECT));
+    I2C_Send7bitAddress(0xD0, I2C_DIRECTION_TX);
+
+    I2C_SendData(0x00);   // set register pointer 00h
+    I2C_SendData(0x00);   // write 0x00 to 00h (oscillator enabled)
+    I2C_GenerateSTOP(ENABLE);
+}
+
+void ReadDS1307(void)
+{
+
+     I2C_GenerateSTART(ENABLE);
+     I2C_Send7bitAddress(0xD0, I2C_DIRECTION_TX);
+     I2C_SendData(0x00);   // set register pointer 00h
+     I2C_GenerateSTOP(ENABLE);
+
+     I2C_GenerateSTART(ENABLE);
+     I2C_Send7bitAddress(0xD0, I2C_DIRECTION_RX);
+     I2C_AcknowledgeConfig(I2C_ACK_CURR);
+     seconds = I2C_ReceiveData();
+     I2C_AcknowledgeConfig(I2C_ACK_NEXT);
+     minutes = I2C_ReceiveData();
+     I2C_GenerateSTOP(ENABLE);
+
+
+
+
+
+
+
+
+}
 
 void GpioConfiguration()
 {
@@ -163,6 +207,7 @@ void InitClk()
   CLK_PeripheralClockConfig(CLK_PERIPHERAL_TIMER2 , ENABLE);
   CLK_PeripheralClockConfig(CLK_PERIPHERAL_UART2,ENABLE);
   CLK_PeripheralClockConfig(CLK_PERIPHERAL_ADC,ENABLE);
+  CLK_PeripheralClockConfig(CLK_PERIPHERAL_I2C,ENABLE);
 
 }
 
