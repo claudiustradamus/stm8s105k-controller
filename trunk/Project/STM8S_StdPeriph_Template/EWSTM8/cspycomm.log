@@ -1,0 +1,7 @@
+Mon Mar 04 18:21:13 2013: Log started
+Mon Mar 04 18:21:15 2013: DiGdiOpen(VersionH = 294, VersionL = 294, Parameters = -stlink3 -mcuname STM8S105C6)
+Mon Mar 04 18:21:15 2013: DiGdiInitIO(DeviceFile = usb://usb)
+Mon Mar 04 18:21:15 2013: Failed to initialize communcation with hardware: SWIM error [30200]: ST-Link connection error
+Mon Mar 04 18:22:25 2013: DiGdiOpen(VersionH = 294, VersionL = 294, Parameters = -stlink3 -mcuname STM8S105C6)
+Mon Mar 04 18:22:25 2013: DiGdiInitIO(DeviceFile = usb://usb)
+Mon Mar 04 18:22:25 2013: Failed to initialize communcation with hardware: SWIM error [200]: ST-Link connection error

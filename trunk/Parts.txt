@@ -1,0 +1,14 @@
+
+
+ STM8S105C4T6    - 1.86
+ STM8S105K4T6C  - ˆ1.68  
+ LQFP-32 to DIP Adapter - ?
+ LQFP-48 to DIP Adapter - ?
+ KIT-SIRIUS 160113 LQFP32
+ ZXCT1021E5TA     -  0.90
+ ZXCT1081E5TA    -  0.81
+ ZXCT1081E5         -  0.5481
+
+ ST485EBDR          -  0.86
+  
+   Euro bez DDS
