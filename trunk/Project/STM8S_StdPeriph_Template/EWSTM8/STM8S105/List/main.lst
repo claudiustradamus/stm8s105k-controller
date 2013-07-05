@@ -1,6 +1,6 @@
 ###############################################################################
 #                                                                             #
-# IAR C/C++ Compiler V1.30.1.50036 for STM8             05/Jul/2013  11:02:31 #
+# IAR C/C++ Compiler V1.30.1.50036 for STM8             05/Jul/2013  20:29:55 #
 # Copyright 2010-2011 IAR Systems AB.                                         #
 #                                                                             #
 #    Source file  =  C:\Documents and Settings\Administrator\Desktop\stm8s105 #
@@ -44,12 +44,10 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
       8             */
       9          
      10          /** New Device STM8S105K4  */
-     11          /** Controller LCD DS1307,DS18B20
+     11          /* Controller LCD DS1307,DS18B20 */
      12          
      13          
      14          /* Includes ------------------------------------------------------------------*/
-                 ^
-Warning[Pe009]: nested comment is not allowed
      15          #include "stm8s.h"
      16          #include "stdio.h"
      17          #include "string.h"
@@ -59,11 +57,11 @@ Warning[Pe009]: nested comment is not allowed
      21          
      22          #define LCD_GPIO_PIN (GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7)
      23          #define LCD_PORT (GPIOC)
-     24          #define LCD_GPIO_COTROL_PIN (GPIO_PIN_3 | GPIO_PIN_5 |GPIO_PIN_7)
-     25          #define DATA4 GPIO_PIN_1
-     26          #define DATA5 GPIO_PIN_2
-     27          #define DATA6 GPIO_PIN_4
-     28          #define DATA7 GPIO_PIN_6
+     24          #define LCD_GPIO_COTROL_PIN (GPIO_PIN_3 | GPIO_PIN_1 |GPIO_PIN_2)
+     25          #define DATA4 GPIO_PIN_4
+     26          #define DATA5 GPIO_PIN_5
+     27          #define DATA6 GPIO_PIN_6
+     28          #define DATA7 GPIO_PIN_7
      29          #define EN  GPIO_PIN_3
      30          #define RW  GPIO_PIN_1
      31          #define RS  GPIO_PIN_2
@@ -135,7 +133,11 @@ Warning[Pe009]: nested comment is not allowed
      63          float  result;
    \                     result:
    \   000000                       DS8 4
-     64          
+
+   \                                 In section .near.bss, align 1
+     64          int volatile k=0;
+   \                     k:
+   \   000000                       DS8 2
      65          
      66          
      67          
@@ -143,93 +145,95 @@ Warning[Pe009]: nested comment is not allowed
      69          
      70          
      71          
-     72          /* Private function prototypes -----------------------------------------------*/
-     73          void InitHardware();
-     74          void GpioConfiguration();
-     75          void InitClk();
-     76          void InitAdc();
-     77          void InitUart();
-     78          void InitLcd();
-     79          void InitDelayTimer();
-     80          void Delay1( u16 Delay);
-     81          void LCDInstrNibble (u8 Instr);
-     82          void LCDInstr(u8 Instr);
-     83          void LCDDataOut(u8 data);
-     84          void PulseEnable();
-     85          void SendData();
-     86          void SendChar(u8 Char);
-     87          void Send_Hello();
-     88          u16  Average();
-     89          
-     90          /* Private functions ---------------------------------------------------------*/
+     72          
+     73          /* Private function prototypes -----------------------------------------------*/
+     74          void InitHardware();
+     75          void GpioConfiguration();
+     76          void InitClk();
+     77          void InitAdc();
+     78          void InitUart();
+     79          void InitLcd();
+     80          void InitDelayTimer();
+     81          void Delay1( u16 Delay);
+     82          void LCDInstrNibble (u8 Instr);
+     83          void LCDInstr(u8 Instr);
+     84          void LCDDataOut(u8 data);
+     85          void LCD_Busy();
+     86          void PulseEnable();
+     87          void SendData();
+     88          void SendChar(u8 Char);
+     89          void Send_Hello();
+     90          u16  Average();
      91          
+     92          /* Private functions ---------------------------------------------------------*/
+     93          
 
-   \                                 In section .far_func.text, align 1, keep-with-next
+   \                                 In section .far_func.text, align 1
    \                     ?Subroutine8:
    \   000000 A680                  LD        A, #0x80
    \   000002 AE500F                LDW       X, #0x500f
    \   000005 AC000000              JPF       GPIO_WriteLow
 
    \                                 In section .far_func.text, align 1
-     92          void main(void)
-     93          {
-     94              /*High speed internal clock prescaler: 1*/
-     95              //CLK_HSIPrescalerConfig(CLK_PRESCALER_HSIDIV1);
-     96          
-     97              InitClk();
+     94          void main(void)
+     95          {
+     96              /*High speed internal clock prescaler: 1*/
+     97              //CLK_HSIPrescalerConfig(CLK_PRESCALER_HSIDIV1);
+     98          
+     99              InitClk();
    \                     main:
    \   000000 8D000000              CALLF     InitClk
-     98              InitDelayTimer();
+    100              InitDelayTimer();
    \   000004 8D000000              CALLF     InitDelayTimer
-     99              GpioConfiguration();
+    101              GpioConfiguration();
    \   000008 8D000000              CALLF     GpioConfiguration
-    100              InitUart();
+    102              InitUart();
    \   00000C 8D000000              CALLF     InitUart
-    101              enableInterrupts();
+    103              enableInterrupts();
    \   000010 9A                    RIM
-    102              GPIO_WriteLow(GPIOD,GPIO_PIN_7); //R/W Line Read Mode
+    104              GPIO_WriteLow(GPIOD,GPIO_PIN_7); //R/W Line Read Mode
    \   000011 8D000000              CALLF     ?Subroutine8
-    103              InitLcd();
-   \                     ??CrossCallReturnLabel_12:
+    105              InitLcd();
+   \                     ??CrossCallReturnLabel_14:
    \   000015 8D000000              CALLF     InitLcd
-    104              InitAdc();
+    106              InitAdc();
    \   000019 8D000000              CALLF     InitAdc
-    105              printf("\n   Hello I am here!");
+    107              printf("\n   Hello I am here!");
    \   00001D AE0000                LDW       X, #`?<Constant "\\n   Hello I am here!">`
    \   000020 8D000000              CALLF     printf
-    106              Send_Hello();
+    108              Send_Hello();
    \   000024 8D000000              CALLF     Send_Hello
-    107               //UART2_Cmd(DISABLE);  // Disable UART for the moment
-    108          
-    109              while(1)
-    110              {
-    111                ADC1_Cmd (ENABLE);
+    109               //UART2_Cmd(DISABLE);  // Disable UART for the moment
+    110          
+    111              while(1)
+    112              {
+    113                ADC1_Cmd (ENABLE);
    \                     ??main_0:
    \   000028 A601                  LD        A, #0x1
    \   00002A 8D000000              CALLF     ADC1_Cmd
-    112          
-    113              Delay1(500);
+    114          
+    115              Delay1(500);
    \   00002E AE01F4                LDW       X, #0x1f4
    \   000031 8D000000              CALLF     Delay1
-    114          
-    115               GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
+    116          
+    117               GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
    \   000035 A601                  LD        A, #0x1
    \   000037 AE500F                LDW       X, #0x500f
    \   00003A 8D000000              CALLF     GPIO_WriteReverse
-    116          
-    117               result= Average()*(5.00/1024.0);
+    118          
+    119               result= Average()*(5.00/1024.0);
    \   00003E 8D000000              CALLF     Average
    \   000042 8D000000              CALLF     L:?fcastf32u16_l0_x
    \   000046 8D000000              CALLF     L:?fmul32_l0_l0_dc32
    \   00004A 3BA00000              DC32      0x3ba00000
    \   00004E AE0000                LDW       X, #result
    \   000051 8D000000              CALLF     L:?load32_0x_l0
-    118          
-    119               //result= adcdata*(5.00/1024.0);
-    120               //sprintf(data, "%1.4f", result);
-    121               line_lcd=1;
+    120          
+    121               //result= adcdata*(5.00/1024.0);
+    122               //sprintf(data, "%1.4f", result);
+    123               line_lcd=1;
    \   000055 35010000              MOV       L:line_lcd, #0x1
-    122               printf("\n Voltage:%1.3f  ",result);
+    124               printf("\n Voltage:%1.3f  ",result);
    \   000059 CE0000                LDW       X, L:result + 2
    \   00005C 89                    PUSHW     X
    \   00005D 3B0000                PUSH      L:result + 1
@@ -237,157 +241,157 @@ Warning[Pe009]: nested comment is not allowed
    \   000063 AE0000                LDW       X, #`?<Constant "\\n Voltage:%1.3f  ">`
    \   000066 8D000000              CALLF     printf
    \   00006A 5B04                  ADD       SP, #0x4
-    123               //line_lcd=2;
-    124               //printf("\n Just Test:%X", timer2);
-    125                if (rx_data==SpecialSymbol) SendData();
+    125               //line_lcd=2;
+    126               //printf("\n Just Test:%X", timer2);
+    127                if (rx_data==SpecialSymbol) SendData();
    \   00006C C60000                LD        A, L:rx_data
    \   00006F A11B                  CP        A, #0x1b
    \   000071 26B5                  JRNE      L:??main_0
    \   000073 8D000000              CALLF     SendData
    \   000077 20AF                  JRA       L:??main_0
-    126                //SendData();
-    127          
-    128              }
+    128                //SendData();
     129          
-    130          
+    130              }
     131          
-    132          }
+    132          
     133          
-    134          
+    134          }
     135          
+    136          
+    137          
 
    \                                 In section .far_func.text, align 1
-    136          void GpioConfiguration()
-    137          {
-    138          
-    139            GPIO_Init(LCD_PORT,(GPIO_Pin_TypeDef)LCD_GPIO_PIN,GPIO_MODE_OUT_PP_HIGH_FAST);
+    138          void GpioConfiguration()
+    139          {
+    140          
+    141            GPIO_Init(LCD_PORT,(GPIO_Pin_TypeDef)LCD_GPIO_PIN,GPIO_MODE_OUT_PP_HIGH_FAST);
    \                     GpioConfiguration:
    \   000000 35F00000              MOV       S:?b0, #0xf0
    \   000004 A6FE                  LD        A, #0xfe
    \   000006 AE500A                LDW       X, #0x500a
    \   000009 8D000000              CALLF     GPIO_Init
-    140          
-    141            // ADC PE6 NEW PB0
-    142            GPIO_Init(GPIOB,GPIO_PIN_0,GPIO_MODE_IN_FL_NO_IT);
+    142          
+    143            // ADC PE6 NEW PB0
+    144            GPIO_Init(GPIOB,GPIO_PIN_0,GPIO_MODE_IN_FL_NO_IT);
    \   00000D 3F00                  CLR       S:?b0
    \   00000F A601                  LD        A, #0x1
    \   000011 AE5005                LDW       X, #0x5005
    \   000014 8D000000              CALLF     GPIO_Init
-    143          
-    144            // PD6/UART2_RX   PD5/UART2_TX  No need to init  PD7 485 R/W;
-    145            GPIO_Init(GPIOD,GPIO_PIN_7,GPIO_MODE_OUT_PP_HIGH_FAST);
+    145          
+    146            // PD6/UART2_RX   PD5/UART2_TX  No need to init  PD7 485 R/W;
+    147            GPIO_Init(GPIOD,GPIO_PIN_7,GPIO_MODE_OUT_PP_HIGH_FAST);
    \   000018 35F00000              MOV       S:?b0, #0xf0
    \   00001C A680                  LD        A, #0x80
    \   00001E AE500F                LDW       X, #0x500f
    \   000021 8D000000              CALLF     GPIO_Init
-    146          
-    147            //PD0 Led
-    148            GPIO_Init(GPIOD,GPIO_PIN_0,GPIO_MODE_OUT_PP_HIGH_FAST);
+    148          
+    149            //PD0 Led
+    150            GPIO_Init(GPIOD,GPIO_PIN_0,GPIO_MODE_OUT_PP_HIGH_FAST);
    \   000025 35F00000              MOV       S:?b0, #0xf0
    \   000029 A601                  LD        A, #0x1
    \   00002B AE500F                LDW       X, #0x500f
    \   00002E AC000000              JPF       GPIO_Init
-    149          }
-    150          
+    151          }
+    152          
 
    \                                 In section .far_func.text, align 1
-    151          void InitClk()
-    152          {
-    153            CLK_DeInit();
+    153          void InitClk()
+    154          {
+    155            CLK_DeInit();
    \                     InitClk:
    \   000000 8D000000              CALLF     CLK_DeInit
-    154            CLK_SYSCLKConfig(CLK_PRESCALER_CPUDIV1);    // CPU Prescalar = 1.
+    156            CLK_SYSCLKConfig(CLK_PRESCALER_CPUDIV1);    // CPU Prescalar = 1.
    \   000004 A680                  LD        A, #0x80
    \   000006 8D000000              CALLF     CLK_SYSCLKConfig
-    155            CLK_SYSCLKConfig(CLK_PRESCALER_HSIDIV1);    // Prescalar = 1, 16 MHz.
+    157            CLK_SYSCLKConfig(CLK_PRESCALER_HSIDIV1);    // Prescalar = 1, 16 MHz.
    \   00000A 4F                    CLR       A
    \   00000B 8D000000              CALLF     CLK_SYSCLKConfig
-    156            CLK_ClockSwitchConfig(CLK_SWITCHMODE_AUTO,  // Automatically switch
-    157            CLK_SOURCE_HSI,       // Switch to internal timer.
-    158            DISABLE,              // Disable the clock switch interrupt.
-    159            CLK_CURRENTCLOCKSTATE_DISABLE);   // Disable the previous clock.
+    158            CLK_ClockSwitchConfig(CLK_SWITCHMODE_AUTO,  // Automatically switch
+    159            CLK_SOURCE_HSI,       // Switch to internal timer.
+    160            DISABLE,              // Disable the clock switch interrupt.
+    161            CLK_CURRENTCLOCKSTATE_DISABLE);   // Disable the previous clock.
    \   00000F 3F00                  CLR       S:?b2
    \   000011 3F00                  CLR       S:?b1
    \   000013 35E10000              MOV       S:?b0, #0xe1
    \   000017 A601                  LD        A, #0x1
    \   000019 8D000000              CALLF     CLK_ClockSwitchConfig
-    160          
-    161            CLK_PeripheralClockConfig(CLK_PERIPHERAL_TIMER2 , ENABLE);
+    162          
+    163            CLK_PeripheralClockConfig(CLK_PERIPHERAL_TIMER2 , ENABLE);
    \   00001D 35010000              MOV       S:?b0, #0x1
    \   000021 A605                  LD        A, #0x5
    \   000023 8D000000              CALLF     CLK_PeripheralClockConfig
-    162            CLK_PeripheralClockConfig(CLK_PERIPHERAL_UART2,ENABLE);
+    164            CLK_PeripheralClockConfig(CLK_PERIPHERAL_UART2,ENABLE);
    \   000027 35010000              MOV       S:?b0, #0x1
    \   00002B A603                  LD        A, #0x3
    \   00002D 8D000000              CALLF     CLK_PeripheralClockConfig
-    163            CLK_PeripheralClockConfig(CLK_PERIPHERAL_ADC,ENABLE);
+    165            CLK_PeripheralClockConfig(CLK_PERIPHERAL_ADC,ENABLE);
    \   000031 35010000              MOV       S:?b0, #0x1
    \   000035 A613                  LD        A, #0x13
    \   000037 AC000000              JPF       CLK_PeripheralClockConfig
-    164          
-    165          }
     166          
-    167          
+    167          }
+    168          
+    169          
 
    \                                 In section .far_func.text, align 1
-    168          void InitAdc()
-    169          {
-    170               ADC1_DeInit();
+    170          void InitAdc()
+    171          {
+    172               ADC1_DeInit();
    \                     InitAdc:
    \   000000 8D000000              CALLF     ADC1_DeInit
-    171               ADC1_StartConversion();
+    173               ADC1_StartConversion();
    \   000004 8D000000              CALLF     ADC1_StartConversion
-    172               /*
-    173               ADC1_Init(ADC1_CONVERSIONMODE_SINGLE,
-    174                          ADC1_CHANNEL_0,
-    175                          ADC1_PRESSEL_FCPU_D4,
-    176                           ADC1_EXTTRIG_TIM,
-    177          
-    178                 */
-    179               ADC1_PrescalerConfig(ADC1_PRESSEL_FCPU_D3);
+    174               /*
+    175               ADC1_Init(ADC1_CONVERSIONMODE_SINGLE,
+    176                          ADC1_CHANNEL_0,
+    177                          ADC1_PRESSEL_FCPU_D4,
+    178                           ADC1_EXTTRIG_TIM,
+    179          
+    180                 */
+    181               ADC1_PrescalerConfig(ADC1_PRESSEL_FCPU_D3);
    \   000008 A610                  LD        A, #0x10
    \   00000A 8D000000              CALLF     ADC1_PrescalerConfig
-    180               ADC1_ConversionConfig( ADC1_CONVERSIONMODE_SINGLE,
-    181                                      ADC1_CHANNEL_0,
-    182                                      ADC1_ALIGN_RIGHT
-    183                                     );
+    182               ADC1_ConversionConfig( ADC1_CONVERSIONMODE_SINGLE,
+    183                                      ADC1_CHANNEL_0,
+    184                                      ADC1_ALIGN_RIGHT
+    185                                     );
    \   00000E 35080000              MOV       S:?b1, #0x8
    \   000012 3F00                  CLR       S:?b0
    \   000014 4F                    CLR       A
    \   000015 8D000000              CALLF     ADC1_ConversionConfig
-    184          
-    185          
-    186               ADC1_SchmittTriggerConfig(ADC1_SCHMITTTRIG_CHANNEL0,DISABLE);
+    186          
+    187          
+    188               ADC1_SchmittTriggerConfig(ADC1_SCHMITTTRIG_CHANNEL0,DISABLE);
    \   000019 3F00                  CLR       S:?b0
    \   00001B 4F                    CLR       A
    \   00001C 8D000000              CALLF     ADC1_SchmittTriggerConfig
-    187          
-    188          
-    189               //ADC1_Cmd (ENABLE);
-    190               //ADC1->CR1 |= ADC1_CR1_ADON ;
-    191               ADC1_StartConversion();
+    189          
+    190          
+    191               //ADC1_Cmd (ENABLE);
+    192               //ADC1->CR1 |= ADC1_CR1_ADON ;
+    193               ADC1_StartConversion();
    \   000020 8D000000              CALLF     ADC1_StartConversion
-    192               ADC1_ITConfig (ADC1_IT_EOCIE,ENABLE);
+    194               ADC1_ITConfig (ADC1_IT_EOCIE,ENABLE);
    \   000024 A601                  LD        A, #0x1
    \   000026 AE0020                LDW       X, #0x20
    \   000029 AC000000              JPF       ADC1_ITConfig
-    193          
-    194          }
     195          
+    196          }
+    197          
 
    \                                 In section .far_func.text, align 1
-    196          void InitUart()
-    197          {
-    198             UART2_DeInit();
+    198          void InitUart()
+    199          {
+    200             UART2_DeInit();
    \                     InitUart:
    \   000000 8D000000              CALLF     UART2_DeInit
-    199             UART2_Init((u32)9600,
-    200                        UART2_WORDLENGTH_8D,
-    201                        UART2_STOPBITS_1,
-    202                        UART2_PARITY_NO,
-    203                        UART2_SYNCMODE_CLOCK_DISABLE,
-    204                        UART2_MODE_TXRX_ENABLE
-    205                          );
+    201             UART2_Init((u32)9600,
+    202                        UART2_WORDLENGTH_8D,
+    203                        UART2_STOPBITS_1,
+    204                        UART2_PARITY_NO,
+    205                        UART2_SYNCMODE_CLOCK_DISABLE,
+    206                        UART2_MODE_TXRX_ENABLE
+    207                          );
    \   000004 350C0000              MOV       S:?b7, #0xc
    \   000008 35800000              MOV       S:?b6, #0x80
    \   00000C 3F00                  CLR       S:?b5
@@ -398,90 +402,89 @@ Warning[Pe009]: nested comment is not allowed
    \   000016 5F                    CLRW      X
    \   000017 BF00                  LDW       S:?w0, X
    \   000019 8D000000              CALLF     UART2_Init
-    206          
-    207             UART2_ITConfig( UART2_IT_RXNE,ENABLE);
+    208          
+    209             UART2_ITConfig( UART2_IT_RXNE,ENABLE);
    \   00001D A601                  LD        A, #0x1
    \   00001F AE0255                LDW       X, #0x255
    \   000022 8D000000              CALLF     UART2_ITConfig
-    208             UART2_Cmd(ENABLE);
+    210             UART2_Cmd(ENABLE);
    \   000026 A601                  LD        A, #0x1
    \   000028 AC000000              JPF       UART2_Cmd
-    209          
-    210            // UART2_ITConfig(UART2_IT_RXNE,ENABLE);
-    211          }
-    212          
+    211          
+    212            // UART2_ITConfig(UART2_IT_RXNE,ENABLE);
+    213          }
+    214          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    213          void SendChar( u8 Char)
-    214          {
-    215             UART2->DR = Char;
+    215          void SendChar( u8 Char)
+    216          {
+    217             UART2->DR = Char;
    \                     SendChar:
    \   000000 C75241                LD        L:0x5241, A
-    216            while (UART2_GetFlagStatus(UART2_FLAG_TXE) == RESET);;
+    218            while (UART2_GetFlagStatus(UART2_FLAG_TXE) == RESET);;
    \                     ??SendChar_0:
    \   000003 AE0080                LDW       X, #0x80
    \   000006 8D000000              CALLF     UART2_GetFlagStatus
    \   00000A A100                  CP        A, #0x0
    \   00000C 27F5                  JREQ      L:??SendChar_0
-    217          }
+    219          }
    \   00000E 87                    RETF
-    218          
+    220          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    219          void Send_Hello()
-    220          {
+   \                     ?Subroutine7:
+   \   000000 A680                  LD        A, #0x80
+   \   000002 AE500F                LDW       X, #0x500f
+   \   000005 8D000000              CALLF     GPIO_WriteHigh
+   \   000009                       REQUIRE ??Subroutine14_0
+   \   000009                       ;               // Fall through to label ??Subroutine14_0
+
+   \                                 In section .far_func.text, align 1
+   \                     ??Subroutine14_0:
+   \   000000 AE000A                LDW       X, #0xa
+   \   000003 AC000000              JPF       Delay1
+
+   \                                 In section .far_func.text, align 1
+    221          void Send_Hello()
+    222          {
    \                     Send_Hello:
    \   000000 3B0000                PUSH      S:?b8
-    221            GPIO_WriteHigh(GPIOD,GPIO_PIN_7); //R_W Line
-   \   000003 8D000000              CALLF     ?Subroutine6
-    222             Delay1(10);
-    223             sprintf(data,"Hello");
-   \                     ??CrossCallReturnLabel_7:
+    223            GPIO_WriteHigh(GPIOD,GPIO_PIN_7); //R_W Line
+   \   000003 8D000000              CALLF     ?Subroutine7
+    224             Delay1(10);
+    225             sprintf(data,"Hello");
+   \                     ??CrossCallReturnLabel_38:
    \   000007 90AE0000              LDW       Y, #`?<Constant "Hello">`
    \   00000B AE0000                LDW       X, #data
    \   00000E 8D000000              CALLF     sprintf
-    224              u8 i=0;
+    226              u8 i=0;
    \   000012 3F00                  CLR       S:?b8
-    225            do
-    226           {
-    227            SendChar(data[i++]);
+    227            do
+    228           {
+    229            SendChar(data[i++]);
    \                     ??Send_Hello_0:
-   \   000014 8D000000              CALLF     ?Subroutine1
-    228           } while (data[i]!=0);
-   \                     ??CrossCallReturnLabel_1:
+   \   000014 8D000000              CALLF     ?Subroutine2
+    230           } while (data[i]!=0);
+   \                     ??CrossCallReturnLabel_3:
    \   000018 26FA                  JRNE      L:??Send_Hello_0
-    229            while (UART2_GetFlagStatus(UART2_FLAG_TC) == RESET);;  //Wait to send last byte
+    231            while (UART2_GetFlagStatus(UART2_FLAG_TC) == RESET);;  //Wait to send last byte
    \                     ??Send_Hello_1:
    \   00001A AE0040                LDW       X, #0x40
    \   00001D 8D000000              CALLF     UART2_GetFlagStatus
    \   000021 A100                  CP        A, #0x0
    \   000023 27F5                  JREQ      L:??Send_Hello_1
-    230            GPIO_WriteLow(GPIOD,GPIO_PIN_7); //R_W Line
+    232            GPIO_WriteLow(GPIOD,GPIO_PIN_7); //R_W Line
    \   000025 8D000000              CALLF     ?Subroutine8
-    231          
-    232          
     233          
-    234          }
-   \                     ??CrossCallReturnLabel_13:
+    234          
+    235          
+    236          }
+   \                     ??CrossCallReturnLabel_15:
    \   000029 320000                POP       S:?b8
    \   00002C 87                    RETF
 
-   \                                 In section .far_func.text, align 1, keep-with-next
-   \                     ?Subroutine6:
-   \   000000 A680                  LD        A, #0x80
-   \   000002 AE500F                LDW       X, #0x500f
-   \   000005 8D000000              CALLF     GPIO_WriteHigh
-   \   000009 8D000000              CALLF     ?Subroutine11
-   \                     ??CrossCallReturnLabel_15:
-   \   00000D 87                    RETF
-
    \                                 In section .far_func.text, align 1
-   \                     ?Subroutine11:
-   \   000000 AE000A                LDW       X, #0xa
-   \   000003 AC000000              JPF       Delay1
-
-   \                                 In section .far_func.text, align 1
-   \                     ?Subroutine1:
+   \                     ?Subroutine2:
    \   000000 5F                    CLRW      X
    \   000001 41                    EXG       A, XL
    \   000002 B600                  LD        A, S:?b8
@@ -496,24 +499,24 @@ Warning[Pe009]: nested comment is not allowed
    \   000013 B600                  LD        A, S:?b8
    \   000015 724D0000              TNZ       (L:data,X)
    \   000019 87                    RETF
-    235          
-    236          
     237          
     238          
     239          
+    240          
+    241          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    240          void SendData()
-    241          {
+    242          void SendData()
+    243          {
    \                     SendData:
    \   000000 3B0000                PUSH      S:?b8
-    242           GPIO_WriteHigh(GPIOD,GPIO_PIN_7); //R_W Line
-   \   000003 8D000000              CALLF     ?Subroutine6
-    243            Delay1(10);
-    244            u8 i=0;
-   \                     ??CrossCallReturnLabel_6:
+    244           GPIO_WriteHigh(GPIOD,GPIO_PIN_7); //R_W Line
+   \   000003 8D000000              CALLF     ?Subroutine7
+    245            Delay1(10);
+    246            u8 i=0;
+   \                     ??CrossCallReturnLabel_39:
    \   000007 3F00                  CLR       S:?b8
-    245            sprintf(data,"%d %c",adcdata,0x0d);
+    247            sprintf(data,"%d %c",adcdata,0x0d);
    \   000009 4B0D                  PUSH      #0xd
    \   00000B 4B00                  PUSH      #0x0
    \   00000D 3B0000                PUSH      L:adcdata + 1
@@ -522,217 +525,213 @@ Warning[Pe009]: nested comment is not allowed
    \   000017 AE0000                LDW       X, #data
    \   00001A 8D000000              CALLF     sprintf
    \   00001E 5B04                  ADD       SP, #0x4
-    246           do
-    247           {
-    248             SendChar(data[i++]);
+    248           do
+    249           {
+    250             SendChar(data[i++]);
    \                     ??SendData_0:
-   \   000020 8D000000              CALLF     ?Subroutine1
-    249          
-    250           } while (data[i]!=0);
-   \                     ??CrossCallReturnLabel_0:
+   \   000020 8D000000              CALLF     ?Subroutine2
+    251          
+    252           } while (data[i]!=0);
+   \                     ??CrossCallReturnLabel_2:
    \   000024 26FA                  JRNE      L:??SendData_0
-    251             while (UART2_GetFlagStatus(UART2_FLAG_TC) == RESET);;  //Wait to send last byte
+    253             while (UART2_GetFlagStatus(UART2_FLAG_TC) == RESET);;  //Wait to send last byte
    \                     ??SendData_1:
    \   000026 AE0040                LDW       X, #0x40
    \   000029 8D000000              CALLF     UART2_GetFlagStatus
    \   00002D A100                  CP        A, #0x0
    \   00002F 27F5                  JREQ      L:??SendData_1
-    252            GPIO_WriteLow(GPIOD,GPIO_PIN_7); //R_W Line
+    254            GPIO_WriteLow(GPIOD,GPIO_PIN_7); //R_W Line
    \   000031 8D000000              CALLF     ?Subroutine8
-    253            rx_data=0;
-   \                     ??CrossCallReturnLabel_14:
+    255            rx_data=0;
+   \                     ??CrossCallReturnLabel_16:
    \   000035 725F0000              CLR       L:rx_data
-    254          }
+    256          }
    \   000039 320000                POP       S:?b8
    \   00003C 87                    RETF
-    255          
+    257          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    256          void LCDDataOut(u8 data)
-    257          {
+    258          void LCDDataOut(u8 data)
+    259          {
    \                     LCDDataOut:
    \   000000 3B0000                PUSH      S:?b8
    \   000003 B700                  LD        S:?b8, A
-    258            (data&0x1)? GPIO_WriteHigh(LCD_PORT,DATA4):GPIO_WriteLow(LCD_PORT,DATA4);
+    260            (data&0x1)? GPIO_WriteHigh(LCD_PORT,DATA4):GPIO_WriteLow(LCD_PORT,DATA4);
    \   000005 A501                  BCP       A, #0x1
    \   000007 2708                  JREQ      L:??LCDDataOut_0
-   \   000009 A602                  LD        A, #0x2
-   \   00000B 8D000000              CALLF     ??Subroutine12_0
-   \                     ??CrossCallReturnLabel_20:
-   \   00000F 2006                  JRA       L:??CrossCallReturnLabel_31
+   \   000009 A610                  LD        A, #0x10
+   \   00000B 8D000000              CALLF     ?Subroutine3
+   \                     ??CrossCallReturnLabel_9:
+   \   00000F 2006                  JRA       L:??CrossCallReturnLabel_27
    \                     ??LCDDataOut_0:
-   \   000011 A602                  LD        A, #0x2
-   \   000013 8D000000              CALLF     ??Subroutine14_0
-    259            (data&0x2)? GPIO_WriteHigh(LCD_PORT,DATA5):GPIO_WriteLow(LCD_PORT,DATA5);
-   \                     ??CrossCallReturnLabel_31:
+   \   000011 A610                  LD        A, #0x10
+   \   000013 8D000000              CALLF     ??Subroutine13_0
+    261            (data&0x2)? GPIO_WriteHigh(LCD_PORT,DATA5):GPIO_WriteLow(LCD_PORT,DATA5);
+   \                     ??CrossCallReturnLabel_27:
    \   000017 B600                  LD        A, S:?b8
    \   000019 A502                  BCP       A, #0x2
-   \   00001B 2706                  JREQ      L:??LCDDataOut_1
-   \   00001D 8D000000              CALLF     ?Subroutine2
-   \                     ??CrossCallReturnLabel_23:
-   \   000021 2004                  JRA       L:??CrossCallReturnLabel_26
+   \   00001B 2708                  JREQ      L:??LCDDataOut_1
+   \   00001D A620                  LD        A, #0x20
+   \   00001F 8D000000              CALLF     ?Subroutine3
+   \                     ??CrossCallReturnLabel_8:
+   \   000023 2006                  JRA       L:??CrossCallReturnLabel_28
    \                     ??LCDDataOut_1:
-   \   000023 8D000000              CALLF     ?Subroutine5
-    260            (data&0x4)? GPIO_WriteHigh(LCD_PORT,DATA6):GPIO_WriteLow(LCD_PORT,DATA6);
-   \                     ??CrossCallReturnLabel_26:
-   \   000027 B600                  LD        A, S:?b8
-   \   000029 A504                  BCP       A, #0x4
-   \   00002B 2708                  JREQ      L:??LCDDataOut_2
-   \   00002D A610                  LD        A, #0x10
-   \   00002F 8D000000              CALLF     ??Subroutine12_0
-   \                     ??CrossCallReturnLabel_19:
-   \   000033 2006                  JRA       L:??CrossCallReturnLabel_32
+   \   000025 A620                  LD        A, #0x20
+   \   000027 8D000000              CALLF     ??Subroutine13_0
+    262            (data&0x4)? GPIO_WriteHigh(LCD_PORT,DATA6):GPIO_WriteLow(LCD_PORT,DATA6);
+   \                     ??CrossCallReturnLabel_28:
+   \   00002B B600                  LD        A, S:?b8
+   \   00002D A504                  BCP       A, #0x4
+   \   00002F 2708                  JREQ      L:??LCDDataOut_2
+   \   000031 A640                  LD        A, #0x40
+   \   000033 8D000000              CALLF     ?Subroutine3
+   \                     ??CrossCallReturnLabel_7:
+   \   000037 2006                  JRA       L:??CrossCallReturnLabel_29
    \                     ??LCDDataOut_2:
-   \   000035 A610                  LD        A, #0x10
-   \   000037 8D000000              CALLF     ??Subroutine14_0
-    261            (data&0x8)? GPIO_WriteHigh(LCD_PORT,DATA7):GPIO_WriteLow(LCD_PORT,DATA7);
-   \                     ??CrossCallReturnLabel_32:
-   \   00003B B600                  LD        A, S:?b8
-   \   00003D A508                  BCP       A, #0x8
-   \   00003F 2708                  JREQ      L:??LCDDataOut_3
-   \   000041 A640                  LD        A, #0x40
-   \   000043 8D000000              CALLF     ??Subroutine12_0
-   \                     ??CrossCallReturnLabel_18:
-   \   000047 2006                  JRA       L:??CrossCallReturnLabel_33
+   \   000039 A640                  LD        A, #0x40
+   \   00003B 8D000000              CALLF     ??Subroutine13_0
+    263            (data&0x8)? GPIO_WriteHigh(LCD_PORT,DATA7):GPIO_WriteLow(LCD_PORT,DATA7);
+   \                     ??CrossCallReturnLabel_29:
+   \   00003F B600                  LD        A, S:?b8
+   \   000041 A508                  BCP       A, #0x8
+   \   000043 2708                  JREQ      L:??LCDDataOut_3
+   \   000045 A680                  LD        A, #0x80
+   \   000047 8D000000              CALLF     ?Subroutine3
+   \                     ??CrossCallReturnLabel_6:
+   \   00004B 2006                  JRA       L:??CrossCallReturnLabel_30
    \                     ??LCDDataOut_3:
-   \   000049 A640                  LD        A, #0x40
-   \   00004B 8D000000              CALLF     ??Subroutine14_0
-    262          }
-   \                     ??CrossCallReturnLabel_33:
-   \   00004F 320000                POP       S:?b8
-   \   000052 87                    RETF
+   \   00004D A680                  LD        A, #0x80
+   \   00004F 8D000000              CALLF     ??Subroutine13_0
+    264          }
+   \                     ??CrossCallReturnLabel_30:
+   \   000053 320000                POP       S:?b8
+   \   000056 87                    RETF
 
    \                                 In section .far_func.text, align 1, keep-with-next
-   \                     ?Subroutine2:
-   \   000000 A604                  LD        A, #0x4
-   \   000002                       REQUIRE ??Subroutine12_0
-   \   000002                       ;               // Fall through to label ??Subroutine12_0
-
-   \                                 In section .far_func.text, align 1, keep-with-next
-   \                     ??Subroutine12_0:
+   \                     ?Subroutine3:
    \   000000 AE500A                LDW       X, #0x500a
    \   000003 AC000000              JPF       GPIO_WriteHigh
 
    \                                 In section .far_func.text, align 1, keep-with-next
-   \                     ?Subroutine5:
-   \   000000 A604                  LD        A, #0x4
-   \   000002                       REQUIRE ??Subroutine14_0
-   \   000002                       ;               // Fall through to label ??Subroutine14_0
-
-   \                                 In section .far_func.text, align 1, keep-with-next
-   \                     ??Subroutine14_0:
+   \                     ??Subroutine13_0:
    \   000000 8D000000              CALLF     ?Subroutine10
-   \                     ??CrossCallReturnLabel_37:
+   \                     ??CrossCallReturnLabel_36:
    \   000004 87                    RETF
 
    \                                 In section .far_func.text, align 1, keep-with-next
    \                     ?Subroutine10:
    \   000000 AE500A                LDW       X, #0x500a
    \   000003 AC000000              JPF       GPIO_WriteLow
-    263          
+    265          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    264          void InitLcd()
-    265          {
-    266            LCD_EN(0);
+   \                     ?Subroutine6:
+   \   000000 A604                  LD        A, #0x4
+   \   000002                       REQUIRE ??Subroutine13_0
+   \   000002                       ;               // Fall through to label ??Subroutine13_0
+
+   \                                 In section .far_func.text, align 1, keep-with-next
+    266          void InitLcd()
+    267          {
+    268           LCD_EN(0);
    \                     InitLcd:
    \   000000 A608                  LD        A, #0x8
-   \   000002 8D000000              CALLF     ?Subroutine4
-    267            LCD_RW(0);
-    268            LCD_RS(0);
-   \                     ??CrossCallReturnLabel_5:
-   \   000006 8D000000              CALLF     ?Subroutine5
-    269            Delay1(4000); // 40ms
-   \                     ??CrossCallReturnLabel_28:
+   \   000002 8D000000              CALLF     ?Subroutine5
+    269            LCD_RW(0);
+    270            LCD_RS(0);
+   \                     ??CrossCallReturnLabel_13:
+   \   000006 8D000000              CALLF     ?Subroutine6
+    271            Delay1(4000); // 40ms
+   \                     ??CrossCallReturnLabel_25:
    \   00000A AE0FA0                LDW       X, #0xfa0
-   \   00000D 8D000000              CALLF     ?Subroutine3
-    270          
-    271            LCDInstrNibble(0x03);
-    272             Delay1(10);
+   \   00000D 8D000000              CALLF     ?Subroutine4
+    272          
     273            LCDInstrNibble(0x03);
-   \                     ??CrossCallReturnLabel_2:
+    274             Delay1(10);
+    275            LCDInstrNibble(0x03);
+   \                     ??CrossCallReturnLabel_11:
    \   000011 A603                  LD        A, #0x3
    \   000013 8D000000              CALLF     LCDInstrNibble
-    274             Delay1(10);
-   \   000017 AE000A                LDW       X, #0xa
-   \   00001A 8D000000              CALLF     ?Subroutine3
-    275            LCDInstrNibble(0x03);
     276             Delay1(10);
-    277          
-    278             //Line 4
-    279            LCDInstrNibble(0x02);
-   \                     ??CrossCallReturnLabel_3:
+   \   000017 AE000A                LDW       X, #0xa
+   \   00001A 8D000000              CALLF     ?Subroutine4
+    277            LCDInstrNibble(0x03);
+    278             Delay1(10);
+    279          
+    280             //Line 4
+    281            LCDInstrNibble(0x02);
+   \                     ??CrossCallReturnLabel_10:
    \   00001E A602                  LD        A, #0x2
    \   000020 8D000000              CALLF     LCDInstrNibble
-    280            LCDInstrNibble(0x02);
+    282            LCDInstrNibble(0x02);
    \   000024 A602                  LD        A, #0x2
    \   000026 8D000000              CALLF     LCDInstrNibble
-    281            LCDInstrNibble(0x08);
+    283            LCDInstrNibble(0x08);
    \   00002A A608                  LD        A, #0x8
    \   00002C 8D000000              CALLF     LCDInstrNibble
-    282            Delay1(100);
+    284            Delay1(100);
    \   000030 AE0064                LDW       X, #0x64
    \   000033 8D000000              CALLF     Delay1
-    283          
-    284            LCDInstr(0x0C);
+    285          
+    286            LCDInstr(0x0C);
    \   000037 A60C                  LD        A, #0xc
    \   000039 8D000000              CALLF     LCDInstr
-    285            Delay1(10);
-   \   00003D 8D000000              CALLF     ?Subroutine11
-    286          
-    287            LCDInstr(0x01) ;
-   \                     ??CrossCallReturnLabel_17:
+    287            Delay1(10);
+   \   00003D 8D000000              CALLF     ??Subroutine14_0
+    288          
+    289            LCDInstr(0x01) ;
+   \                     ??CrossCallReturnLabel_37:
    \   000041 A601                  LD        A, #0x1
    \   000043 8D000000              CALLF     LCDInstr
-    288            Delay1(250);
+    290            Delay1(250);
    \   000047 AE00FA                LDW       X, #0xfa
    \   00004A 8D000000              CALLF     Delay1
-    289          
-    290            LCDInstr(0x06);
+    291          
+    292            LCDInstr(0x06);
    \   00004E A606                  LD        A, #0x6
    \   000050 8D000000              CALLF     LCDInstr
-    291            Delay1(10);
+    293            Delay1(10);
    \   000054 AE000A                LDW       X, #0xa
    \   000057 AC000000              JPF       Delay1
-    292          
-    293          }
+    294          
+    295          
+    296          }
 
    \                                 In section .far_func.text, align 1, keep-with-next
-   \                     ?Subroutine4:
+   \                     ?Subroutine5:
    \   000000 8D000000              CALLF     ?Subroutine10
-   \                     ??CrossCallReturnLabel_36:
+   \                     ??CrossCallReturnLabel_34:
    \   000004 A602                  LD        A, #0x2
    \   000006 8D000000              CALLF     ?Subroutine10
-   \                     ??CrossCallReturnLabel_35:
+   \                     ??CrossCallReturnLabel_33:
    \   00000A 87                    RETF
 
    \                                 In section .far_func.text, align 1, keep-with-next
-   \                     ?Subroutine3:
+   \                     ?Subroutine4:
    \   000000 8D000000              CALLF     Delay1
    \   000004 A603                  LD        A, #0x3
    \   000006 8D000000              CALLF     LCDInstrNibble
-   \   00000A 8D000000              CALLF     ?Subroutine11
-   \                     ??CrossCallReturnLabel_16:
-   \   00000E 87                    RETF
-    294          
+   \   00000A AE000A                LDW       X, #0xa
+   \   00000D AC000000              JPF       Delay1
+    297          
 
    \                                 In section .far_func.text, align 1, keep-with-next
    \                     ?Subroutine0:
    \   000000 A602                  LD        A, #0x2
-   \   000002 8D000000              CALLF     ??Subroutine14_0
-   \                     ??CrossCallReturnLabel_34:
+   \   000002 8D000000              CALLF     ??Subroutine13_0
+   \                     ??CrossCallReturnLabel_31:
    \   000006 B600                  LD        A, S:?b8
    \   000008 4E                    SWAP      A
    \   000009 8D000000              CALLF     ?Subroutine9
-   \                     ??CrossCallReturnLabel_25:
-   \   00000D                       REQUIRE ??Subroutine13_0
-   \   00000D                       ;               // Fall through to label ??Subroutine13_0
+   \                     ??CrossCallReturnLabel_22:
+   \   00000D                       REQUIRE ??Subroutine12_0
+   \   00000D                       ;               // Fall through to label ??Subroutine12_0
 
    \                                 In section .far_func.text, align 1, keep-with-next
-   \                     ??Subroutine13_0:
+   \                     ??Subroutine12_0:
    \   000000 B600                  LD        A, S:?b8
    \   000002 8D000000              CALLF     ?Subroutine9
-   \                     ??CrossCallReturnLabel_24:
+   \                     ??CrossCallReturnLabel_21:
    \   000006 320000                POP       S:?b8
    \   000009 87                    RETF
 
@@ -743,110 +742,173 @@ Warning[Pe009]: nested comment is not allowed
    \   000006 AC000000              JPF       PulseEnable
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    295          void LCDInstr(u8 Instr)
-    296          {
+    298          void LCDInstr(u8 Instr)
+    299          {
    \                     LCDInstr:
    \   000000 3B0000                PUSH      S:?b8
    \   000003 B700                  LD        S:?b8, A
-    297            LCD_RS(0);
-   \   000005 8D000000              CALLF     ?Subroutine5
-    298            LCD_RW(0);
-   \                     ??CrossCallReturnLabel_27:
+    300            LCD_RS(0);
+   \   000005 8D000000              CALLF     ?Subroutine6
+    301            LCD_RW(0);
+   \                     ??CrossCallReturnLabel_23:
    \   000009 2000                  JRA       ?Subroutine0
-    299            LCDDataOut(Instr>>4);
-    300            PulseEnable();
-    301            LCDDataOut(Instr & 0x0F);
-    302            PulseEnable();
-    303          }
-    304          
+    302            LCDDataOut(Instr>>4);
+    303            PulseEnable();
+    304            LCDDataOut(Instr & 0x0F);
+    305            PulseEnable();
+    306          }
+    307          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    305          void LCDData(u8 Data)
-    306          {
+    308          void LCDData(u8 Data)
+    309          {
    \                     LCDData:
    \   000000 3B0000                PUSH      S:?b8
    \   000003 B700                  LD        S:?b8, A
-    307            LCD_RS(1);
-   \   000005 8D000000              CALLF     ?Subroutine2
-    308            LCD_RW(0);
-   \                     ??CrossCallReturnLabel_22:
-   \   000009                       REQUIRE ?Subroutine0
-   \   000009                       ;               // Fall through to label ?Subroutine0
-    309            LCDDataOut(Data>>4);
-    310            PulseEnable() ;
-    311            LCDDataOut(Data & 0x0F) ;
-    312            PulseEnable();
-    313          }
-    314          
+    310            LCD_RS(1);
+   \   000005 A604                  LD        A, #0x4
+   \   000007 8D000000              CALLF     ?Subroutine3
+    311            LCD_RW(0);
+   \                     ??CrossCallReturnLabel_5:
+   \   00000B                       REQUIRE ?Subroutine0
+   \   00000B                       ;               // Fall through to label ?Subroutine0
+    312            LCDDataOut(Data>>4);
+    313            PulseEnable() ;
+    314            LCDDataOut(Data & 0x0F) ;
+    315            PulseEnable();
+    316          }
+    317          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    315          void LCDInstrNibble(u8 Instr)
-    316          {
+    318          void LCDInstrNibble(u8 Instr)
+    319          {
    \                     LCDInstrNibble:
    \   000000 3B0000                PUSH      S:?b8
    \   000003 B700                  LD        S:?b8, A
-    317            LCD_RS(0);
+    320            LCD_RS(0);
    \   000005 A604                  LD        A, #0x4
-   \   000007 8D000000              CALLF     ?Subroutine4
-    318            LCD_RW(0);
-    319            LCDDataOut(Instr & 0x0F);
-   \                     ??CrossCallReturnLabel_4:
-   \   00000B AC000000              JPF       ??Subroutine13_0
-    320            PulseEnable();
-    321          }
-    322          
+   \   000007 8D000000              CALLF     ?Subroutine5
+    321            LCD_RW(0);
+    322            LCDDataOut(Instr & 0x0F);
+   \                     ??CrossCallReturnLabel_12:
+   \   00000B AC000000              JPF       ??Subroutine12_0
+    323            PulseEnable();
+    324          }
+    325          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    323          void PulseEnable(void)
-    324          {
-    325            LCD_EN(0);
+    326          void PulseEnable(void)
+    327          {
+    328            LCD_EN(0);
    \                     PulseEnable:
-   \   000000 A608                  LD        A, #0x8
-   \   000002 8D000000              CALLF     ??Subroutine14_0
-    326             Delay1(1);
-   \                     ??CrossCallReturnLabel_29:
-   \   000006 8D000000              CALLF     ?Subroutine7
-    327            LCD_EN(1);
-   \                     ??CrossCallReturnLabel_11:
-   \   00000A A608                  LD        A, #0x8
-   \   00000C 8D000000              CALLF     ??Subroutine12_0
-    328             Delay1(1);
-   \                     ??CrossCallReturnLabel_21:
-   \   000010 8D000000              CALLF     ?Subroutine7
-    329            LCD_EN(0);
-   \                     ??CrossCallReturnLabel_10:
-   \   000014 A608                  LD        A, #0x8
-   \   000016 8D000000              CALLF     ??Subroutine14_0
-    330             Delay1(1);
-   \                     ??CrossCallReturnLabel_30:
-   \   00001A 5F                    CLRW      X
-   \   00001B 5C                    INCW      X
-   \   00001C AC000000              JPF       Delay1
-    331          }
+   \   000000 8D000000              CALLF     ?Subroutine1
+    329             Delay1(1);
+    330            LCD_EN(1);
+    331             Delay1(1);
+    332            LCD_EN(0);
+   \                     ??CrossCallReturnLabel_0:
+   \   000004 A608                  LD        A, #0x8
+   \   000006 8D000000              CALLF     ??Subroutine13_0
+    333             Delay1(1);
+   \                     ??CrossCallReturnLabel_26:
+   \   00000A 5F                    CLRW      X
+   \   00000B 5C                    INCW      X
+   \   00000C AC000000              JPF       Delay1
+    334          }
 
    \                                 In section .far_func.text, align 1, keep-with-next
-   \                     ?Subroutine7:
+   \                     ?Subroutine1:
+   \   000000 A608                  LD        A, #0x8
+   \   000002 8D000000              CALLF     ?Subroutine10
+   \                     ??CrossCallReturnLabel_35:
+   \   000006 8D000000              CALLF     ?Subroutine11
+   \                     ??CrossCallReturnLabel_18:
+   \   00000A A608                  LD        A, #0x8
+   \   00000C AE500A                LDW       X, #0x500a
+   \   00000F 8D000000              CALLF     GPIO_WriteHigh
+   \   000013 8D000000              CALLF     ?Subroutine11
+   \                     ??CrossCallReturnLabel_17:
+   \   000017 87                    RETF
+
+   \                                 In section .far_func.text, align 1, keep-with-next
+   \                     ?Subroutine11:
    \   000000 5F                    CLRW      X
    \   000001 5C                    INCW      X
    \   000002 AC000000              JPF       Delay1
-    332          
-    333          
+    335          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    334          void LCD(u8 data)
-    335           {
+    336          void LCD_Busy(void)
+    337          {
+    338             //set Port D7 as Input
+    339             GPIO_Init(LCD_PORT,DATA7,GPIO_MODE_IN_PU_NO_IT);
+   \                     LCD_Busy:
+   \   000000 35400000              MOV       S:?b0, #0x40
+   \   000004 A680                  LD        A, #0x80
+   \   000006 AE500A                LDW       X, #0x500a
+   \   000009 8D000000              CALLF     GPIO_Init
+    340             //Set Read
+    341             LCD_RW(1);
+   \   00000D A602                  LD        A, #0x2
+   \   00000F 8D000000              CALLF     ?Subroutine3
+    342             LCD_RS(0);
+   \                     ??CrossCallReturnLabel_4:
+   \   000013 8D000000              CALLF     ?Subroutine6
+    343             // Read Busy Flag
+    344                timer2=0;
+   \                     ??CrossCallReturnLabel_24:
+   \   000017 5F                    CLRW      X
+   \   000018 CF0000                LDW       L:timer2, X
+    345             do
+    346             {
+    347             // Enable set
+    348               LCD_EN(0);
+   \                     ??LCD_Busy_0:
+   \   00001B 8D000000              CALLF     ?Subroutine1
+    349                Delay1(1);
+    350               LCD_EN(1);
+    351                Delay1(1);
+    352             } while (GPIO_ReadInputPin(LCD_PORT, DATA7));
+   \                     ??CrossCallReturnLabel_1:
+   \   00001F A680                  LD        A, #0x80
+   \   000021 AE500A                LDW       X, #0x500a
+   \   000024 8D000000              CALLF     GPIO_ReadInputPin
+   \   000028 A100                  CP        A, #0x0
+   \   00002A 26EF                  JRNE      L:??LCD_Busy_0
+    353                k=timer2;
+   \   00002C CE0000                LDW       X, L:timer2
+   \   00002F CF0000                LDW       L:k, X
+    354                //Clear read
+    355              LCD_RW(0);
+   \   000032 A602                  LD        A, #0x2
+   \   000034 8D000000              CALLF     ??Subroutine13_0
+    356             //set Port D7 as Output
+    357             GPIO_Init(LCD_PORT,DATA7,GPIO_MODE_OUT_PP_HIGH_FAST);
+   \                     ??CrossCallReturnLabel_32:
+   \   000038 35F00000              MOV       S:?b0, #0xf0
+   \   00003C A680                  LD        A, #0x80
+   \   00003E AE500A                LDW       X, #0x500a
+   \   000041 AC000000              JPF       GPIO_Init
+    358          
+    359          }
+    360          
+    361          
+
+   \                                 In section .far_func.text, align 1, keep-with-next
+    362          void LCD(u8 data)
+    363           {
    \                     LCD:
    \   000000 3B0000                PUSH      S:?b8
    \   000003 B700                  LD        S:?b8, A
-    336             //  static u8 linet=0;
-    337          
-    338          
-    339               if (data =='\n')     //r
+    364             //  static u8 linet=0;
+    365          
+    366          
+    367               if (data =='\n')     //r
    \   000005 A10A                  CP        A, #0xa
-   \   000007 265E                  JRNE      L:??CrossCallReturnLabel_9
-    340               {
-    341          
-    342                   switch(line_lcd)
+   \   000007 265E                  JRNE      L:??CrossCallReturnLabel_20
+    368               {
+    369          
+    370                   switch(line_lcd)
    \   000009 C60000                LD        A, L:line_lcd
    \   00000C 270B                  JREQ      L:??LCD_0
    \   00000E 4A                    DEC       A
@@ -856,208 +918,208 @@ Warning[Pe009]: nested comment is not allowed
    \   000014 4A                    DEC       A
    \   000015 2726                  JREQ      L:??LCD_3
    \   000017 202E                  JRA       L:??LCD_4
-    343                   {
-    344                   case 0:
-    345                     LCDInstr(0x80 | 0x00);
+    371                   {
+    372                   case 0:
+    373                     LCDInstr(0x80 | 0x00);
    \                     ??LCD_0:
    \   000019 A680                  LD        A, #0x80
    \   00001B 8D000000              CALLF     LCDInstr
-    346                     count=0;
+    374                     count=0;
    \   00001F 725F0000              CLR       L:count
-    347                     break;
+    375                     break;
    \   000023 2022                  JRA       L:??LCD_4
-    348                   case 1:
-    349                     LCDInstr(0x80 | 0x40);
+    376                   case 1:
+    377                     LCDInstr(0x80 | 0x40);
    \                     ??LCD_1:
    \   000025 A6C0                  LD        A, #0xc0
    \   000027 8D000000              CALLF     LCDInstr
-    350                     count=20;
+    378                     count=20;
    \   00002B 35140000              MOV       L:count, #0x14
-    351                     break;
+    379                     break;
    \   00002F 2016                  JRA       L:??LCD_4
-    352                   case 2:
-    353                     LCDInstr(0x80 | 0x14);
+    380                   case 2:
+    381                     LCDInstr(0x80 | 0x14);
    \                     ??LCD_2:
    \   000031 A694                  LD        A, #0x94
    \   000033 8D000000              CALLF     LCDInstr
-    354                     count=40;
+    382                     count=40;
    \   000037 35280000              MOV       L:count, #0x28
-    355                     break;
+    383                     break;
    \   00003B 200A                  JRA       L:??LCD_4
-    356                   case 3:
-    357                     LCDInstr(0x80 | 0x54);
+    384                   case 3:
+    385                     LCDInstr(0x80 | 0x54);
    \                     ??LCD_3:
    \   00003D A6D4                  LD        A, #0xd4
    \   00003F 8D000000              CALLF     LCDInstr
-    358                     count=60;
+    386                     count=60;
    \   000043 353C0000              MOV       L:count, #0x3c
-    359                     break;
-    360                   //default:
-    361                    //  LCDInstr(0x80 |0x40);    //Line 1
-    362                    }
-    363                   line_lcd++;
+    387                     break;
+    388                   //default:
+    389                    //  LCDInstr(0x80 |0x40);    //Line 1
+    390                    }
+    391                   line_lcd++;
    \                     ??LCD_4:
    \   000047 C60000                LD        A, L:line_lcd
    \   00004A 4C                    INC       A
    \   00004B C70000                LD        L:line_lcd, A
-    364                   if (line_lcd>=5)
+    392                   if (line_lcd>=5)
    \   00004E A105                  CP        A, #0x5
    \   000050 2511                  JRC       L:??LCD_5
-    365                   {
-    366                    line_lcd=1;   //line >=5
+    393                   {
+    394                    line_lcd=1;   //line >=5
    \   000052 35010000              MOV       L:line_lcd, #0x1
-    367                    LCDInstr(0x01); //Clear LCD
+    395                    LCDInstr(0x01); //Clear LCD
    \   000056 A601                  LD        A, #0x1
    \   000058 8D000000              CALLF     LCDInstr
-    368                    Delay1(2500);
+    396                    Delay1(2500);
    \   00005C AE09C4                LDW       X, #0x9c4
    \   00005F 8D000000              CALLF     Delay1
-    369                   }
-    370          
-    371                   Delay1(1);
+    397                   }
+    398          
+    399                   Delay1(1);
    \                     ??LCD_5:
-   \   000063 8D000000              CALLF     ?Subroutine7
-    372          
-    373          
-    374               }
-    375          
-    376          
-    377               if (count==20)
-   \                     ??CrossCallReturnLabel_9:
+   \   000063 8D000000              CALLF     ?Subroutine11
+    400          
+    401          
+    402               }
+    403          
+    404          
+    405               if (count==20)
+   \                     ??CrossCallReturnLabel_20:
    \   000067 C60000                LD        A, L:count
    \   00006A A114                  CP        A, #0x14
    \   00006C 260A                  JRNE      L:??LCD_6
-    378                {
-    379                  LCDInstr(0x80 | 0x40);
+    406                {
+    407                  LCDInstr(0x80 | 0x40);
    \   00006E A6C0                  LD        A, #0xc0
    \                     ??LCD_7:
    \   000070 8D000000              CALLF     LCDInstr
-    380                  Delay1(1);
+    408                  Delay1(1);
    \                     ??LCD_8:
    \   000074 5F                    CLRW      X
    \   000075 5C                    INCW      X
    \   000076 2029                  JRA       ??LCD_9
-    381                }
-    382                   else if(count==40)
+    409                }
+    410                   else if(count==40)
    \                     ??LCD_6:
    \   000078 A128                  CP        A, #0x28
    \   00007A 2604                  JRNE      L:??LCD_10
-    383                  {
-    384                    LCDInstr(0x80 | 0x14);
+    411                  {
+    412                    LCDInstr(0x80 | 0x14);
    \   00007C A694                  LD        A, #0x94
    \   00007E 20F0                  JRA       ??LCD_7
-    385                    Delay1(1);
-    386                  }
-    387                    else if(count==60)
+    413                    Delay1(1);
+    414                  }
+    415                    else if(count==60)
    \                     ??LCD_10:
    \   000080 A13C                  CP        A, #0x3c
    \   000082 260C                  JRNE      L:??LCD_11
-    388                    {
-    389                      LCDInstr(0x80 | 0x54);
+    416                    {
+    417                      LCDInstr(0x80 | 0x54);
    \   000084 A6D4                  LD        A, #0xd4
    \   000086 8D000000              CALLF     LCDInstr
-    390                      count=0;
+    418                      count=0;
    \   00008A 725F0000              CLR       L:count
-    391                      Delay1(1);
+    419                      Delay1(1);
    \   00008E 20E4                  JRA       ??LCD_8
-    392                    }
-    393                      else if(count >80)
+    420                    }
+    421                      else if(count >80)
    \                     ??LCD_11:
    \   000090 A151                  CP        A, #0x51
    \   000092 2511                  JRC       L:??LCD_12
-    394                        {
-    395                          count=0;
+    422                        {
+    423                          count=0;
    \   000094 725F0000              CLR       L:count
-    396                          LCDInstr(0x01); //Clear LCD
+    424                          LCDInstr(0x01); //Clear LCD
    \   000098 A601                  LD        A, #0x1
    \   00009A 8D000000              CALLF     LCDInstr
-    397                          Delay1(250);
+    425                          Delay1(250);
    \   00009E AE00FA                LDW       X, #0xfa
    \                     ??LCD_9:
    \   0000A1 8D000000              CALLF     Delay1
-    398                        }
-    399          
-    400          
-    401              /*
-    402                   line++;
-    403                   if (line>3)
-    404                   {
-    405                     line=1;  //Line 0 for Time
-    406                   }
-    407                 switch(line)
-    408                   {
-    409                   case 1 :LCDInstr(0x80 | 0x40);break;  //Line 1
-    410                   case 2 :LCDInstr(0x80 | 0x14);break;  //Line 2
-    411                   case 3 :LCDInstr(0x80 | 0x54);break;  //Line 3
-    412                   default : LCDInstr(0x80 | 0x40); // Line 1
-    413                   }
-    414                   Delay(1);
-    415                   count=0;
-    416                }
-    417          
-    418               */
-    419          
-    420               if (data > 0x1b)   //Display only valid data
+    426                        }
+    427          
+    428          
+    429              /*
+    430                   line++;
+    431                   if (line>3)
+    432                   {
+    433                     line=1;  //Line 0 for Time
+    434                   }
+    435                 switch(line)
+    436                   {
+    437                   case 1 :LCDInstr(0x80 | 0x40);break;  //Line 1
+    438                   case 2 :LCDInstr(0x80 | 0x14);break;  //Line 2
+    439                   case 3 :LCDInstr(0x80 | 0x54);break;  //Line 3
+    440                   default : LCDInstr(0x80 | 0x40); // Line 1
+    441                   }
+    442                   Delay(1);
+    443                   count=0;
+    444                }
+    445          
+    446               */
+    447          
+    448               if (data > 0x1b)   //Display only valid data
    \                     ??LCD_12:
    \   0000A5 B600                  LD        A, S:?b8
    \   0000A7 A11C                  CP        A, #0x1c
    \   0000A9 250F                  JRC       L:??LCD_13
-    421               {
-    422                 LCDData(data);
+    449               {
+    450                 LCDData(data);
    \   0000AB 8D000000              CALLF     LCDData
-    423                  Delay1(1);
-   \   0000AF 8D000000              CALLF     ?Subroutine7
-    424                 count++;
-   \                     ??CrossCallReturnLabel_8:
+    451                  Delay1(1);
+   \   0000AF 8D000000              CALLF     ?Subroutine11
+    452                 count++;
+   \                     ??CrossCallReturnLabel_19:
    \   0000B3 C60000                LD        A, L:count
    \   0000B6 4C                    INC       A
    \   0000B7 C70000                LD        L:count, A
-    425               }
-    426           }
+    453               }
+    454           }
    \                     ??LCD_13:
    \   0000BA 320000                POP       S:?b8
    \   0000BD 87                    RETF
-    427          
+    455          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    428          void InitDelayTimer()
-    429          {
-    430             //Timer 2 use for Delay  long Delay is 40ms for lcd
-    431             //Tclock 16/8=2Mhz  /20 10us
-    432                 TIM2_DeInit();
+    456          void InitDelayTimer()
+    457          {
+    458             //Timer 2 use for Delay  long Delay is 40ms for lcd
+    459             //Tclock 16/8=2Mhz  /20 10us
+    460                 TIM2_DeInit();
    \                     InitDelayTimer:
    \   000000 8D000000              CALLF     TIM2_DeInit
-    433                 TIM2_TimeBaseInit(TIM2_PRESCALER_2,0X0050);
+    461                 TIM2_TimeBaseInit(TIM2_PRESCALER_2,0X0050);
    \   000004 AE0050                LDW       X, #0x50
    \   000007 A601                  LD        A, #0x1
    \   000009 8D000000              CALLF     TIM2_TimeBaseInit
-    434                 //TIM2_PrescalerConfig(TIM2_PRESCALER_1, TIM2_PSCRELOADMODE_IMMEDIATE);
-    435                 TIM2_ITConfig(TIM2_IT_UPDATE, ENABLE);
+    462                 //TIM2_PrescalerConfig(TIM2_PRESCALER_1, TIM2_PSCRELOADMODE_IMMEDIATE);
+    463                 TIM2_ITConfig(TIM2_IT_UPDATE, ENABLE);
    \   00000D 35010000              MOV       S:?b0, #0x1
    \   000011 A601                  LD        A, #0x1
    \   000013 8D000000              CALLF     TIM2_ITConfig
-    436            //Enable TIM2
-    437                 TIM2_Cmd(ENABLE);
+    464            //Enable TIM2
+    465                 TIM2_Cmd(ENABLE);
    \   000017 A601                  LD        A, #0x1
    \   000019 AC000000              JPF       TIM2_Cmd
-    438          
-    439          }
-    440          
-    441          
+    466          
+    467          }
+    468          
+    469          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    442          u16 Average()
-    443          {
-    444           //Find average in measure
-    445            u8 i=0;
+    470          u16 Average()
+    471          {
+    472           //Find average in measure
+    473            u8 i=0;
    \                     Average:
    \   000000 3F00                  CLR       S:?b0
-    446            u16 Summa=0;
+    474            u16 Summa=0;
    \   000002 3F00                  CLR       S:?b3
    \   000004 3F00                  CLR       S:?b2
-    447            do
-    448            {
-    449             Summa+=measure[i++];
+    475            do
+    476            {
+    477             Summa+=measure[i++];
    \                     ??Average_0:
    \   000006 5F                    CLRW      X
    \   000007 41                    EXG       A, XL
@@ -1070,14 +1132,14 @@ Warning[Pe009]: nested comment is not allowed
    \   000015 B600                  LD        A, S:?b0
    \   000017 4C                    INC       A
    \   000018 B700                  LD        S:?b0, A
-    450            } while ( measure[i]!=0);
+    478            } while ( measure[i]!=0);
    \   00001A 5F                    CLRW      X
    \   00001B 41                    EXG       A, XL
    \   00001C B600                  LD        A, S:?b0
    \   00001E 58                    SLLW      X
    \   00001F DE0000                LDW       X, (L:measure,X)
    \   000022 26E2                  JRNE      L:??Average_0
-    451             if(i!=0) Summa=Summa/i;
+    479             if(i!=0) Summa=Summa/i;
    \   000024 3D00                  TNZ       S:?b0
    \   000026 2708                  JREQ      L:??Average_1
    \   000028 905F                  CLRW      Y
@@ -1085,84 +1147,84 @@ Warning[Pe009]: nested comment is not allowed
    \   00002B BE00                  LDW       X, S:?w1
    \   00002D 65                    DIVW      X, Y
    \   00002E BF00                  LDW       S:?w1, X
-    452             return Summa;
+    480             return Summa;
    \                     ??Average_1:
    \   000030 BE00                  LDW       X, S:?w1
    \   000032 87                    RETF
-    453          }
-    454          
+    481          }
+    482          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    455          PUTCHAR_PROTOTYPE
-    456          {
+    483          PUTCHAR_PROTOTYPE
+    484          {
    \                     fputc:
    \   000000 8D000000              CALLF     L:?push_w4
    \   000004 BF00                  LDW       S:?w4, X
-    457            /* Place your implementation of fputc here */
-    458            /* e.g. write a character to the USART */
-    459                //USART_SendData(USART3, (u8) ch);
-    460               LCD(ch);
+    485            /* Place your implementation of fputc here */
+    486            /* e.g. write a character to the USART */
+    487                //USART_SendData(USART3, (u8) ch);
+    488               LCD(ch);
    \   000006 B600                  LD        A, S:?b9
    \   000008 8D000000              CALLF     LCD
-    461             /* Loop until the end of transmission */
-    462              //while(USART_GetFlagStatus(USART3, USART_FLAG_TC) == RESET);;
-    463            return ch;
+    489             /* Loop until the end of transmission */
+    490              //while(USART_GetFlagStatus(USART3, USART_FLAG_TC) == RESET);;
+    491            return ch;
    \   00000C BE00                  LDW       X, S:?w4
    \   00000E AC000000              JPF       L:?epilogue_w4
-    464          }
-    465          
-    466          
+    492          }
+    493          
+    494          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    467          void Delay1(u16 Delay)
-    468          {
+    495          void Delay1(u16 Delay)
+    496          {
    \                     Delay1:
    \   000000 BF00                  LDW       S:?w0, X
-    469            timer1=0;
+    497            timer1=0;
    \   000002 5F                    CLRW      X
    \   000003 CF0000                LDW       L:timer1, X
-    470            while ( timer1 < Delay); ;
+    498            while ( timer1 < Delay); ;
    \                     ??Delay1_0:
    \   000006 CE0000                LDW       X, L:timer1
    \   000009 B300                  CPW       X, S:?w0
    \   00000B 25F9                  JRC       L:??Delay1_0
-    471          }
+    499          }
    \   00000D 87                    RETF
-    472          
-    473          /*
-    474          void Delay12 (u16 Delay)
-    475          {
-    476            timer2=0;
-    477            while ( timer2 < Delay); ;
-    478          }
-    479          */
-    480          
-    481          
-    482          #ifdef USE_FULL_ASSERT
-    483          
-    484          /**
-    485            * @brief  Reports the name of the source file and the source line number
-    486            *   where the assert_param error has occurred.
-    487            * @param file: pointer to the source file name
-    488            * @param line: assert_param error line source number
-    489            * @retval : None
-    490            */
+    500          
+    501          /*
+    502          void Delay12 (u16 Delay)
+    503          {
+    504            timer2=0;
+    505            while ( timer2 < Delay); ;
+    506          }
+    507          */
+    508          
+    509          
+    510          #ifdef USE_FULL_ASSERT
+    511          
+    512          /**
+    513            * @brief  Reports the name of the source file and the source line number
+    514            *   where the assert_param error has occurred.
+    515            * @param file: pointer to the source file name
+    516            * @param line: assert_param error line source number
+    517            * @retval : None
+    518            */
 
    \                                 In section .far_func.text, align 1
-    491          void assert_failed(u8* file, u32 line)
-    492          {
-    493            /* User can add his own implementation to report the file name and line number,
-    494               ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-    495          
-    496            /* Infinite loop */
-    497            while (1)
+    519          void assert_failed(u8* file, u32 line)
+    520          {
+    521            /* User can add his own implementation to report the file name and line number,
+    522               ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+    523          
+    524            /* Infinite loop */
+    525            while (1)
    \                     assert_failed:
    \                     ??assert_failed_0:
    \   000000 20FE                  JRA       L:??assert_failed_0
-    498            {
-    499          
-    500            }
-    501          }
+    526            {
+    527          
+    528            }
+    529          }
 
    \                                 In section .near.rodata, align 1
    \                     `?<Constant "\\n   Hello I am here!">`:
@@ -1179,9 +1241,9 @@ Warning[Pe009]: nested comment is not allowed
    \                                 In section .near.rodata, align 1
    \                     `?<Constant "%d %c">`:
    \   000000 256420256300          DC8 "%d %c"
-    502          #endif
-    503          
-    504          /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+    530          #endif
+    531          
+    532          /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
 
    Section sizes:
 
@@ -1196,6 +1258,7 @@ Warning[Pe009]: nested comment is not allowed
      line_lcd                               1
      count                                  1
      result                                 4
+     k                                      2
      ?Subroutine8                           9
      main                                 121
      GpioConfiguration                     50
@@ -1203,28 +1266,29 @@ Warning[Pe009]: nested comment is not allowed
      InitAdc                               45
      InitUart                              44
      SendChar                              15
+     ?Subroutine7                           9
+     ??Subroutine14_0                       7
      Send_Hello                            45
-     ?Subroutine6                          14
-     ?Subroutine11                          7
-     ?Subroutine1                          26
+     ?Subroutine2                          26
      SendData                              61
-     LCDDataOut                            83
-     ?Subroutine2                           2
-     ??Subroutine12_0                       7
-     ?Subroutine5                           2
-     ??Subroutine14_0                       5
+     LCDDataOut                            87
+     ?Subroutine3                           7
+     ??Subroutine13_0                       5
      ?Subroutine10                          7
+     ?Subroutine6                           2
      InitLcd                               91
-     ?Subroutine4                          11
-     ?Subroutine3                          15
+     ?Subroutine5                          11
+     ?Subroutine4                          17
      ?Subroutine0                          13
-     ??Subroutine13_0                      10
+     ??Subroutine12_0                      10
      ?Subroutine9                          10
      LCDInstr                              11
-     LCDData                                9
+     LCDData                               11
      LCDInstrNibble                        15
-     PulseEnable                           32
-     ?Subroutine7                           6
+     PulseEnable                           16
+     ?Subroutine1                          24
+     ?Subroutine11                          6
+     LCD_Busy                              69
      LCD                                  190
      InitDelayTimer                        29
      Average                               51
@@ -1237,13 +1301,13 @@ Warning[Pe009]: nested comment is not allowed
      ?<Constant "%d %c">                    6
 
  
- 1 129 bytes in section .far_func.text
-    73 bytes in section .near.bss
+ 1 207 bytes in section .far_func.text
+    75 bytes in section .near.bss
     51 bytes in section .near.rodata
  
- 1 129 bytes of CODE  memory
+ 1 207 bytes of CODE  memory
     51 bytes of CONST memory
-    73 bytes of DATA  memory
+    75 bytes of DATA  memory
 
 Errors: none
-Warnings: 1
+Warnings: none
