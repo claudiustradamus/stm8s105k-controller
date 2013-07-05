@@ -8,7 +8,7 @@
    */
 
 /** New Device STM8S105K4  */
-/** Controller LCD DS1307,DS18B20
+/* Controller LCD DS1307,DS18B20 */
 
 
 /* Includes ------------------------------------------------------------------*/
@@ -21,11 +21,11 @@
 
 #define LCD_GPIO_PIN (GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7)
 #define LCD_PORT (GPIOC)
-#define LCD_GPIO_COTROL_PIN (GPIO_PIN_3 | GPIO_PIN_5 |GPIO_PIN_7)
-#define DATA4 GPIO_PIN_1
-#define DATA5 GPIO_PIN_2
-#define DATA6 GPIO_PIN_4
-#define DATA7 GPIO_PIN_6
+#define LCD_GPIO_COTROL_PIN (GPIO_PIN_3 | GPIO_PIN_1 |GPIO_PIN_2)
+#define DATA4 GPIO_PIN_4
+#define DATA5 GPIO_PIN_5
+#define DATA6 GPIO_PIN_6
+#define DATA7 GPIO_PIN_7
 #define EN  GPIO_PIN_3
 #define RW  GPIO_PIN_1
 #define RS  GPIO_PIN_2
@@ -61,6 +61,7 @@ u8 line_lcd;
 u8 count;
 //u8 index=0;
 float  result;
+int volatile k=0;
 
 
 
@@ -81,6 +82,7 @@ void Delay1( u16 Delay);
 void LCDInstrNibble (u8 Instr);
 void LCDInstr(u8 Instr);
 void LCDDataOut(u8 data);
+void LCD_Busy();
 void PulseEnable();
 void SendData();
 void SendChar(u8 Char);
@@ -263,7 +265,7 @@ void LCDDataOut(u8 data)
 
 void InitLcd()
 {
-  LCD_EN(0);
+ LCD_EN(0);
   LCD_RW(0);
   LCD_RS(0);
   Delay1(4000); // 40ms
@@ -289,6 +291,7 @@ void InitLcd()
 
   LCDInstr(0x06);
   Delay1(10);
+
 
 }
 
@@ -328,6 +331,31 @@ void PulseEnable(void)
    Delay1(1);
   LCD_EN(0);
    Delay1(1);
+}
+
+void LCD_Busy(void)
+{
+   //set Port D7 as Input
+   GPIO_Init(LCD_PORT,DATA7,GPIO_MODE_IN_PU_NO_IT);
+   //Set Read
+   LCD_RW(1);
+   LCD_RS(0);
+   // Read Busy Flag
+      timer2=0;
+   do
+   {
+   // Enable set
+     LCD_EN(0);
+      Delay1(1);
+     LCD_EN(1);
+      Delay1(1);
+   } while (GPIO_ReadInputPin(LCD_PORT, DATA7));
+      k=timer2;
+      //Clear read
+    LCD_RW(0);
+   //set Port D7 as Output
+   GPIO_Init(LCD_PORT,DATA7,GPIO_MODE_OUT_PP_HIGH_FAST);
+
 }
 
 

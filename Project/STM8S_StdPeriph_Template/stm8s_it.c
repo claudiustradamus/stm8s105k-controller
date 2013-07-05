@@ -283,6 +283,7 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
   */
  timer2++;
  timer1++;
+
  //ADC1_Cmd (ENABLE); //Start convert
  TIM2_ClearITPendingBit(TIM2_IT_UPDATE);
 

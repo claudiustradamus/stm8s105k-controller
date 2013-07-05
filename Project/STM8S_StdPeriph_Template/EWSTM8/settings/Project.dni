@@ -1,5 +1,5 @@
 [DebugChecksum]
-Checksum=-1743144422
+Checksum=1597145884
 [StackPlugin]
 Enabled=1
 OverflowWarningsEnabled=1
@@ -59,6 +59,8 @@ Trace Non Event=1
 [TraceHelper]
 Enabled=0
 ShowSource=1
+[Breakpoints]
+Count=0
 [Log file]
 LoggingEnabled=_ 0
 LogFile=_ ""
@@ -66,8 +68,6 @@ Category=_ 0
 [TermIOLog]
 LoggingEnabled=_ 0
 LogFile=_ ""
-[Breakpoints]
-Count=0
 [Aliases]
 Count=0
 SuppressDialog=0
