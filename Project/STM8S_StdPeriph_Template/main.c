@@ -52,6 +52,7 @@
 /* Private variables ---------------------------------------------------------*/
 volatile u16 timer1;
 volatile u16 timer2;
+volatile u8 timeout;
 volatile u16 adcdata;
 volatile u8 rx_data;
 #define data_size 20
@@ -61,6 +62,7 @@ u8 line_lcd;
 u8 count;
 u8 seconds;
 u8 minutes;
+u8 error;
 //u8 index=0;
 float  result;
 int volatile k=0;
@@ -78,11 +80,12 @@ void GpioConfiguration();
 void InitClk();
 void InitAdc();
 void InitI2C();
-void ReadDS1307();
+bool ReadDS1307();
 void InitUart();
 void InitLcd();
 void InitDelayTimer();
 void Delay1( u16 Delay);
+void Delay2( u16 Delay);
 void LCDInstrNibble (u8 Instr);
 void LCDInstr(u8 Instr);
 void LCDDataOut(u8 data);
@@ -91,6 +94,7 @@ void PulseEnable();
 void SendData();
 void SendChar(u8 Char);
 void Send_Hello();
+bool Init_DS1307(void);
 u16  Average();
 
 /* Private functions ---------------------------------------------------------*/
@@ -109,7 +113,7 @@ void main(void)
     InitLcd();
     InitAdc();
     InitI2C();
-    printf("Hello");
+    if (!Init_DS1307())printf("E1:%d",error);
     Send_Hello();
      //UART2_Cmd(DISABLE);  // Disable UART for the moment
 
@@ -117,11 +121,13 @@ void main(void)
     {
       ADC1_Cmd (ENABLE);
 
-    Delay1(500);
+       GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
+         Delay2(30000);
+       GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
+         Delay2(30000);
 
-     GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
-
-     ReadDS1307();
+      line_lcd=0;
+     if (!ReadDS1307())printf("\n E2:%d",error);
 
      line_lcd=1;
      printf("\n %d:%d",minutes,seconds);
@@ -141,35 +147,77 @@ void InitI2C(void)
    I2C_DeInit();
    I2C_Init(100000, 0xA2, I2C_DUTYCYCLE_2, I2C_ACK_CURR, I2C_ADDMODE_7BIT, 2);
    I2C_Cmd(ENABLE);
-
-
-
-   // Test DS1307
-    I2C_GenerateSTART(ENABLE);
-    while(!I2C_CheckEvent(I2C_EVENT_MASTER_MODE_SELECT));
-    I2C_Send7bitAddress(0xD0, I2C_DIRECTION_TX);
-
-    I2C_SendData(0x00);   // set register pointer 00h
-    I2C_SendData(0x00);   // write 0x00 to 00h (oscillator enabled)
-    I2C_GenerateSTOP(ENABLE);
 }
 
-void ReadDS1307(void)
+bool Init_DS1307(void)
+{
+   // Test DS1307
+    I2C_GenerateSTART(ENABLE);
+       timeout=100; error=1;
+    	while(!(I2C_CheckEvent(I2C_EVENT_MASTER_MODE_SELECT))&&timeout);
+         if (!timeout)return FALSE ;
+    //while(!I2C_CheckEvent(I2C_EVENT_MASTER_START_SENT));
+    I2C_Send7bitAddress(0xD0, I2C_DIRECTION_TX);
+       timeout=100; error=2;
+        while(!(I2C_CheckEvent(I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))&&timeout);
+         if (!timeout)return FALSE ;
+    I2C_SendData(0x00);   // set register pointer 00h
+       timeout=100;  error=3;
+        while(!(I2C_CheckEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED))&&timeout);
+         if (!timeout)return FALSE ;
+    I2C_SendData(0x00);   // write 0x00 to 00h (oscillator enabled)
+       timeout=100;  error=4;
+        while(!(I2C_CheckEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED))&&timeout);
+         if (!timeout)return FALSE ;
+    I2C_GenerateSTOP(ENABLE);
+
+    // timeout=100;  error=4;
+    ///   while(!(I2C_CheckEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED))&&timeout);
+    //    if (!timeout)return FALSE ;
+     return TRUE;
+}
+
+bool  ReadDS1307(void)
 {
 
      I2C_GenerateSTART(ENABLE);
+       timeout=100; error=1;
+    	while(!(I2C_CheckEvent(I2C_EVENT_MASTER_MODE_SELECT))&&timeout);
+         if (!timeout)return FALSE ;
      I2C_Send7bitAddress(0xD0, I2C_DIRECTION_TX);
+       timeout=100; error=2;
+        while(!(I2C_CheckEvent(I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))&&timeout);
+         if (!timeout)return FALSE ;
      I2C_SendData(0x00);   // set register pointer 00h
+         timeout=100;  error=3;
+          while(!(I2C_CheckEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED))&&timeout);
+           if (!timeout)return FALSE ;
      I2C_GenerateSTOP(ENABLE);
+           Delay1(1000);
+
+
 
      I2C_GenerateSTART(ENABLE);
+       timeout=100; error=4;
+    	while(!(I2C_CheckEvent(I2C_EVENT_MASTER_MODE_SELECT))&&timeout);
+         if (!timeout)return FALSE ;
      I2C_Send7bitAddress(0xD0, I2C_DIRECTION_RX);
+       timeout=100; error=5;
+        while(!(I2C_CheckEvent(I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED))&&timeout);
+         if (!timeout)return FALSE ;
      I2C_AcknowledgeConfig(I2C_ACK_CURR);
-     seconds = I2C_ReceiveData();
-     I2C_AcknowledgeConfig(I2C_ACK_NEXT);
+      seconds = I2C_ReceiveData();
+       timeout=100;  error=6;
+       while(!(I2C_CheckEvent(I2C_EVENT_MASTER_BYTE_RECEIVED))&&timeout);
+        if (!timeout)return FALSE ;
+    I2C_AcknowledgeConfig(I2C_ACK_NEXT);
      minutes = I2C_ReceiveData();
-     I2C_GenerateSTOP(ENABLE);
-
+      timeout=100;  error=7;
+       while(!(I2C_CheckEvent(I2C_EVENT_MASTER_BYTE_RECEIVED))&&timeout);
+        if (!timeout)return FALSE ;
+      I2C_GenerateSTOP(ENABLE);
+           Delay1(1000);
+      return TRUE;
 
 
 
@@ -192,6 +240,12 @@ void GpioConfiguration()
 
   //PD0 Led
   GPIO_Init(GPIOD,GPIO_PIN_0,GPIO_MODE_OUT_PP_HIGH_FAST);
+  //I2C
+  GPIO_Init(GPIOB,GPIO_PIN_4 ,GPIO_MODE_OUT_OD_HIZ_FAST);
+  GPIO_Init(GPIOB,GPIO_PIN_5 ,GPIO_MODE_OUT_OD_HIZ_FAST);
+  // Remap Pins pb4,pb5  sda,scl ;
+
+
 }
 
 void InitClk()
@@ -208,6 +262,7 @@ void InitClk()
   CLK_PeripheralClockConfig(CLK_PERIPHERAL_UART2,ENABLE);
   CLK_PeripheralClockConfig(CLK_PERIPHERAL_ADC,ENABLE);
   CLK_PeripheralClockConfig(CLK_PERIPHERAL_I2C,ENABLE);
+
 
 }
 
@@ -542,6 +597,14 @@ void Delay1(u16 Delay)
   timer1=0;
   while ( timer1 < Delay); ;
 }
+
+ void Delay2(u16 Delay)
+{
+  timer2=0;
+  while ( timer2 < Delay); ;
+}
+
+
 
 /*
 void Delay12 (u16 Delay)

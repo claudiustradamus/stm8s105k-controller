@@ -36,6 +36,7 @@
 extern  volatile u16 timer1;
 extern  volatile u16 timer2;
 extern  volatile u16 adcdata;
+extern  volatile u8 timeout;
 extern  volatile u8 rx_data;
 extern  volatile u8 index=0;
 extern   u16  measure[data_size];
@@ -283,6 +284,10 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
   */
  timer2++;
  timer1++;
+ timeout--;
+  if (timeout<=0) timeout=0;
+
+
 
  //ADC1_Cmd (ENABLE); //Start convert
  TIM2_ClearITPendingBit(TIM2_IT_UPDATE);
