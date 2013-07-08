@@ -95,7 +95,13 @@ void SendData();
 void SendChar(u8 Char);
 void Send_Hello();
 bool Init_DS1307(void);
+bool I2C_Start(void);
+bool I2C_WA(u8 address);
+bool I2C_WD(u8 data);
+bool I2C_RA(u8 address);
+
 u16  Average();
+
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -113,7 +119,7 @@ void main(void)
     InitLcd();
     InitAdc();
     InitI2C();
-    if (!Init_DS1307())printf("E1:%d",error);
+    //if (!Init_DS1307())printf("E1:%d",error);
     Send_Hello();
      //UART2_Cmd(DISABLE);  // Disable UART for the moment
 
@@ -127,10 +133,13 @@ void main(void)
          Delay2(30000);
 
       line_lcd=0;
-     if (!ReadDS1307())printf("\n E2:%d",error);
-
+     if (!ReadDS1307())
+     {
+       printf("\n E2:%d",error);
+     }
+       else  printf("\n      ");
      line_lcd=1;
-     printf("\n %d:%d",minutes,seconds);
+     printf("\n %02x:%02x",minutes,seconds);
      //line_lcd=2;
      //printf("\n Just Test:%X", timer2);
       if (rx_data==SpecialSymbol) SendData();
@@ -149,26 +158,55 @@ void InitI2C(void)
    I2C_Cmd(ENABLE);
 }
 
+bool I2C_Start(void)
+{
+   I2C_GenerateSTART(ENABLE);
+       timeout=100;
+    	while(!(I2C_CheckEvent(I2C_EVENT_MASTER_MODE_SELECT))&&timeout);
+         if (!timeout)return FALSE;
+          else return TRUE;
+}
+
+bool I2C_WA(u8 address)
+{
+  I2C_Send7bitAddress(address, I2C_DIRECTION_TX);
+       timeout=100;
+        while(!(I2C_CheckEvent(I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))&&timeout);
+         if (!timeout)return FALSE ;
+          else return TRUE;
+}
+
+bool I2C_RA(u8 address)
+{
+  I2C_Send7bitAddress(address, I2C_DIRECTION_RX);
+       timeout=100;
+        while(!(I2C_CheckEvent(I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED))&&timeout);
+         if (!timeout)return FALSE ;
+          else return TRUE;
+}
+
+
+bool I2C_WD(u8 data)
+{
+ I2C_SendData(data);   // set register pointer 00h
+   timeout=100;
+   while(!(I2C_CheckEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED))&&timeout);
+    if (!timeout)return FALSE ;
+     else return TRUE;
+}
+
+
 bool Init_DS1307(void)
 {
    // Test DS1307
-    I2C_GenerateSTART(ENABLE);
-       timeout=100; error=1;
-    	while(!(I2C_CheckEvent(I2C_EVENT_MASTER_MODE_SELECT))&&timeout);
-         if (!timeout)return FALSE ;
-    //while(!I2C_CheckEvent(I2C_EVENT_MASTER_START_SENT));
-    I2C_Send7bitAddress(0xD0, I2C_DIRECTION_TX);
-       timeout=100; error=2;
-        while(!(I2C_CheckEvent(I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))&&timeout);
-         if (!timeout)return FALSE ;
-    I2C_SendData(0x00);   // set register pointer 00h
-       timeout=100;  error=3;
-        while(!(I2C_CheckEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED))&&timeout);
-         if (!timeout)return FALSE ;
-    I2C_SendData(0x00);   // write 0x00 to 00h (oscillator enabled)
-       timeout=100;  error=4;
-        while(!(I2C_CheckEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED))&&timeout);
-         if (!timeout)return FALSE ;
+    error=1;
+    if (!I2C_Start()) return FALSE;
+    error++;
+    if(!I2C_WA(0xD0)) return FALSE;
+     error++;
+    if(!I2C_WD(0x00)) return FALSE;
+     error++;
+    if(!I2C_WD(0x00)) return FALSE;
     I2C_GenerateSTOP(ENABLE);
 
     // timeout=100;  error=4;
@@ -180,41 +218,40 @@ bool Init_DS1307(void)
 bool  ReadDS1307(void)
 {
 
-     I2C_GenerateSTART(ENABLE);
-       timeout=100; error=1;
-    	while(!(I2C_CheckEvent(I2C_EVENT_MASTER_MODE_SELECT))&&timeout);
-         if (!timeout)return FALSE ;
-     I2C_Send7bitAddress(0xD0, I2C_DIRECTION_TX);
-       timeout=100; error=2;
-        while(!(I2C_CheckEvent(I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))&&timeout);
-         if (!timeout)return FALSE ;
-     I2C_SendData(0x00);   // set register pointer 00h
-         timeout=100;  error=3;
-          while(!(I2C_CheckEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED))&&timeout);
-           if (!timeout)return FALSE ;
-     I2C_GenerateSTOP(ENABLE);
-           Delay1(1000);
+      error=1;
+       if (!I2C_Start()) return FALSE;
+      error++;
+       if(!I2C_WA(0xD0))return FALSE;
+      error++;
+       if(!I2C_WD(0x00)) return FALSE;
+      error++;
+      I2C_GenerateSTOP(ENABLE);
+      Delay1(1000);
 
 
 
-     I2C_GenerateSTART(ENABLE);
-       timeout=100; error=4;
-    	while(!(I2C_CheckEvent(I2C_EVENT_MASTER_MODE_SELECT))&&timeout);
-         if (!timeout)return FALSE ;
-     I2C_Send7bitAddress(0xD0, I2C_DIRECTION_RX);
-       timeout=100; error=5;
-        while(!(I2C_CheckEvent(I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED))&&timeout);
-         if (!timeout)return FALSE ;
-     I2C_AcknowledgeConfig(I2C_ACK_CURR);
-      seconds = I2C_ReceiveData();
+        if (!I2C_Start()) return FALSE;
+      error++;
+
+         if(!I2C_RA(0xD0))return FALSE;
+      error++;
+
+
+          //I2C_AcknowledgeConfig(I2C_ACK_CURR);
+         I2C_AcknowledgeConfig(I2C_ACK_NONE);
        timeout=100;  error=6;
        while(!(I2C_CheckEvent(I2C_EVENT_MASTER_BYTE_RECEIVED))&&timeout);
         if (!timeout)return FALSE ;
-    I2C_AcknowledgeConfig(I2C_ACK_NEXT);
-     minutes = I2C_ReceiveData();
+       seconds = I2C_ReceiveData();
+
+
+          I2C_AcknowledgeConfig(I2C_ACK_NONE);
       timeout=100;  error=7;
        while(!(I2C_CheckEvent(I2C_EVENT_MASTER_BYTE_RECEIVED))&&timeout);
         if (!timeout)return FALSE ;
+          minutes = I2C_ReceiveData();
+
+
       I2C_GenerateSTOP(ENABLE);
            Delay1(1000);
       return TRUE;
