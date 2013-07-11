@@ -99,6 +99,7 @@ bool I2C_Start(void);
 bool I2C_WA(u8 address);
 bool I2C_WD(u8 data);
 bool I2C_RA(u8 address);
+u8 I2C_RD(void);
 
 u16  Average();
 
@@ -154,7 +155,7 @@ void main(void)
 void InitI2C(void)
 {
    I2C_DeInit();
-   I2C_Init(100000, 0xA2, I2C_DUTYCYCLE_2, I2C_ACK_CURR, I2C_ADDMODE_7BIT, 2);
+   I2C_Init(10000, 0xA2, I2C_DUTYCYCLE_2, I2C_ACK_CURR, I2C_ADDMODE_7BIT, 2);
    I2C_Cmd(ENABLE);
 }
 
@@ -170,7 +171,7 @@ bool I2C_Start(void)
 bool I2C_WA(u8 address)
 {
   I2C_Send7bitAddress(address, I2C_DIRECTION_TX);
-       timeout=100;
+       timeout=255;
         while(!(I2C_CheckEvent(I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))&&timeout);
          if (!timeout)return FALSE ;
           else return TRUE;
@@ -179,7 +180,7 @@ bool I2C_WA(u8 address)
 bool I2C_RA(u8 address)
 {
   I2C_Send7bitAddress(address, I2C_DIRECTION_RX);
-       timeout=100;
+       timeout=255;
         while(!(I2C_CheckEvent(I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED))&&timeout);
          if (!timeout)return FALSE ;
           else return TRUE;
@@ -189,10 +190,20 @@ bool I2C_RA(u8 address)
 bool I2C_WD(u8 data)
 {
  I2C_SendData(data);   // set register pointer 00h
-   timeout=100;
+   timeout=255;
    while(!(I2C_CheckEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED))&&timeout);
     if (!timeout)return FALSE ;
      else return TRUE;
+}
+
+u8 I2C_RD(void)
+{
+ timeout=255;
+  while( !I2C_GetFlagStatus(I2C_FLAG_TRANSFERFINISHED)&& timeout);
+ //while((!(I2C->SR1 & 0x40))&&timeout);
+ if (!timeout) return FALSE ;
+ u8 data=I2C_ReceiveData();
+ return data;
 }
 
 
@@ -226,7 +237,7 @@ bool  ReadDS1307(void)
        if(!I2C_WD(0x00)) return FALSE;
       error++;
       I2C_GenerateSTOP(ENABLE);
-      Delay1(1000);
+      //Delay1(1000);
 
 
 
@@ -236,24 +247,17 @@ bool  ReadDS1307(void)
          if(!I2C_RA(0xD0))return FALSE;
       error++;
 
-
-          //I2C_AcknowledgeConfig(I2C_ACK_CURR);
-         I2C_AcknowledgeConfig(I2C_ACK_NONE);
-       timeout=100;  error=6;
-       while(!(I2C_CheckEvent(I2C_EVENT_MASTER_BYTE_RECEIVED))&&timeout);
-        if (!timeout)return FALSE ;
-       seconds = I2C_ReceiveData();
+       I2C_AcknowledgeConfig(I2C_ACK_CURR);
+       seconds = I2C_RD();
 
 
-          I2C_AcknowledgeConfig(I2C_ACK_NONE);
-      timeout=100;  error=7;
-       while(!(I2C_CheckEvent(I2C_EVENT_MASTER_BYTE_RECEIVED))&&timeout);
-        if (!timeout)return FALSE ;
-          minutes = I2C_ReceiveData();
 
+      //Last read byte by I2C slave
+       I2C_AcknowledgeConfig(I2C_ACK_NONE);
+       I2C_GenerateSTOP(ENABLE);
+       minutes = I2C_RD();
+       //I2C_AcknowledgeConfig(I2C_ACK_CURR);
 
-      I2C_GenerateSTOP(ENABLE);
-           Delay1(1000);
       return TRUE;
 
 
