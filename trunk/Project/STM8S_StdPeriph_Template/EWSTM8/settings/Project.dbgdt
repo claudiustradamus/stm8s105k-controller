@@ -19,7 +19,7 @@
           
           
           
-        <Column0>63</Column0><Column1>27</Column1><Column2>27</Column2><Column3>27</Column3></ColumnWidths>
+        <Column0>10</Column0><Column1>27</Column1><Column2>27</Column2><Column3>27</Column3></ColumnWidths>
       </Workspace>
       <Disassembly>
         
@@ -42,7 +42,7 @@
       
       
       
-    <Wnd5>
+    <Wnd1>
         <Tabs>
           <Tab>
             <Identity>TabID-28715-4007</Identity>
@@ -58,7 +58,7 @@
           </Tab>
         </Tabs>
         
-      <SelectedTab>0</SelectedTab></Wnd5><Wnd6>
+      <SelectedTab>0</SelectedTab></Wnd1><Wnd2>
         <Tabs>
           <Tab>
             <Identity>TabID-6696-4010</Identity>
@@ -70,20 +70,20 @@
           </Tab>
         </Tabs>
         
-      <SelectedTab>0</SelectedTab></Wnd6><Wnd7><Tabs><Tab><Identity>TabID-8105-7175</Identity><TabName>Call Stack</TabName><Factory>CallStack</Factory><Session/></Tab></Tabs><SelectedTab>0</SelectedTab></Wnd7><Wnd8><Tabs><Tab><Identity>TabID-15225-20146</Identity><TabName>Disassembly</TabName><Factory>Disassembly</Factory><Session/></Tab></Tabs><SelectedTab>0</SelectedTab></Wnd8><Wnd9><Tabs><Tab><Identity>TabID-30782-14316</Identity><TabName>Watch</TabName><Factory>Watch</Factory><Session><Expressions><Expression><Expression>timer2</Expression></Expression><Expression><Expression>timeout</Expression></Expression></Expressions><TabId>0</TabId><Column0>100</Column0><Column1>100</Column1><Column2>100</Column2><Column3>100</Column3></Session></Tab></Tabs><SelectedTab>0</SelectedTab></Wnd9></Windows>
+      <SelectedTab>0</SelectedTab></Wnd2><Wnd3><Tabs><Tab><Identity>TabID-8105-7175</Identity><TabName>Call Stack</TabName><Factory>CallStack</Factory><Session/></Tab></Tabs><SelectedTab>0</SelectedTab></Wnd3><Wnd4><Tabs><Tab><Identity>TabID-15225-20146</Identity><TabName>Disassembly</TabName><Factory>Disassembly</Factory><Session/></Tab></Tabs><SelectedTab>0</SelectedTab></Wnd4><Wnd10><Tabs><Tab><Identity>TabID-30782-14316</Identity><TabName>Watch</TabName><Factory>Watch</Factory><Session><Expressions><Expression><Expression>timer2</Expression></Expression><Expression><Expression>timeout</Expression></Expression></Expressions><TabId>0</TabId><Column0>100</Column0><Column1>100</Column1><Column2>100</Column2><Column3>100</Column3></Session></Tab></Tabs><SelectedTab>0</SelectedTab></Wnd10><Wnd11><Tabs><Tab><Identity>TabID-5878-32157</Identity><TabName>Register</TabName><Factory>Register</Factory><Session><REG1>0</REG1><REG2>0</REG2><Group>9</Group><States>1</States><State0>I2C_FREQR</State0></Session></Tab></Tabs><SelectedTab>0</SelectedTab></Wnd11></Windows>
     <Editor>
       
       
       
       
-    <Pane><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\main.c</Filename><XPos>0</XPos><YPos>194</YPos><SelStart>4931</SelStart><SelEnd>4935</SelEnd></Tab><ActiveTab>0</ActiveTab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\stm8s_it.c</Filename><XPos>0</XPos><YPos>275</YPos><SelStart>7659</SelStart><SelEnd>7659</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\..\..\..\Volt2Serial\Libraries\STM8S_StdPeriph_Driver\src\stm8s_i2c.c</Filename><XPos>0</XPos><YPos>332</YPos><SelStart>10824</SelStart><SelEnd>10824</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\..\..\Libraries\STM8S_StdPeriph_Driver\inc\stm8s_i2c.h</Filename><XPos>0</XPos><YPos>344</YPos><SelStart>15455</SelStart><SelEnd>15467</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\..\..\..\Volt2Serial\Libraries\STM8S_StdPeriph_Driver\src\stm8s_tim2.c</Filename><XPos>0</XPos><YPos>1183</YPos><SelStart>41087</SelStart><SelEnd>41087</SelEnd></Tab></Pane><ActivePane>0</ActivePane><Sizes><Pane><X>1000000</X><Y>1000000</Y></Pane></Sizes><SplitMode>1</SplitMode></Editor>
+    <Pane><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\..\..\..\Volt2Serial\Libraries\STM8S_StdPeriph_Driver\src\stm8s_i2c.c</Filename><XPos>0</XPos><YPos>98</YPos><SelStart>4174</SelStart><SelEnd>4174</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\main.c</Filename><XPos>0</XPos><YPos>103</YPos><SelStart>2883</SelStart><SelEnd>2883</SelEnd></Tab><ActiveTab>1</ActiveTab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\stm8s_it.c</Filename><XPos>0</XPos><YPos>275</YPos><SelStart>7692</SelStart><SelEnd>7692</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\..\..\Libraries\STM8S_StdPeriph_Driver\inc\stm8s_i2c.h</Filename><XPos>0</XPos><YPos>89</YPos><SelStart>3442</SelStart><SelEnd>3467</SelEnd></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\..\..\..\Volt2Serial\Libraries\STM8S_StdPeriph_Driver\src\stm8s_tim2.c</Filename><XPos>0</XPos><YPos>1183</YPos><SelStart>40976</SelStart><SelEnd>40976</SelEnd></Tab></Pane><ActivePane>0</ActivePane><Sizes><Pane><X>1000000</X><Y>1000000</Y></Pane></Sizes><SplitMode>1</SplitMode></Editor>
     <Positions>
       
       
       
       
       
-    <Top><Row0><Sizes><Toolbar-012b1908><key>iaridepm.enu1</key></Toolbar-012b1908></Sizes></Row0><Row1><Sizes><Toolbar-045ef798><key>debuggergui.enu1</key></Toolbar-045ef798></Sizes></Row1></Top><Left><Row0><Sizes><Wnd6><Rect><Top>-2</Top><Left>-2</Left><Bottom>464</Bottom><Right>155</Right><x>-2</x><y>-2</y><xscreen>143</xscreen><yscreen>193</yscreen><sizeHorzCX>111719</sizeHorzCX><sizeHorzCY>265475</sizeHorzCY><sizeVertCX>122656</sizeVertCX><sizeVertCY>640990</sizeVertCY></Rect></Wnd6></Sizes></Row0><Row1><Sizes><Wnd7><Rect><Top>-2</Top><Left>153</Left><Bottom>464</Bottom><Right>262</Right><x>153</x><y>-2</y><xscreen>160</xscreen><yscreen>185</yscreen><sizeHorzCX>125000</sizeHorzCX><sizeHorzCY>254470</sizeHorzCY><sizeVertCX>85156</sizeVertCX><sizeVertCY>640990</sizeVertCY></Rect></Wnd7></Sizes></Row1></Left><Right><Row0><Sizes><Wnd8><Rect><Top>-2</Top><Left>-2</Left><Bottom>464</Bottom><Right>181</Right><x>-2</x><y>-2</y><xscreen>200</xscreen><yscreen>200</yscreen><sizeHorzCX>156250</sizeHorzCX><sizeHorzCY>275103</sizeHorzCY><sizeVertCX>142969</sizeVertCX><sizeVertCY>640990</sizeVertCY></Rect></Wnd8></Sizes></Row0><Row1><Sizes><Wnd9><Rect><Top>-2</Top><Left>179</Left><Bottom>464</Bottom><Right>335</Right><x>179</x><y>-2</y><xscreen>200</xscreen><yscreen>200</yscreen><sizeHorzCX>156250</sizeHorzCX><sizeHorzCY>275103</sizeHorzCY><sizeVertCX>121875</sizeVertCX><sizeVertCY>640990</sizeVertCY></Rect></Wnd9></Sizes></Row1></Right><Bottom><Row0><Sizes><Wnd5><Rect><Top>-2</Top><Left>-2</Left><Bottom>193</Bottom><Right>1282</Right><x>-2</x><y>-2</y><xscreen>1284</xscreen><yscreen>195</yscreen><sizeHorzCX>1003125</sizeHorzCX><sizeHorzCY>268226</sizeHorzCY><sizeVertCX>111719</sizeVertCX><sizeVertCY>265475</sizeVertCY></Rect></Wnd5></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
+    <Top><Row0><Sizes><Toolbar-012b1908><key>iaridepm.enu1</key></Toolbar-012b1908></Sizes></Row0><Row1><Sizes><Toolbar-05e41bd8><key>debuggergui.enu1</key></Toolbar-05e41bd8></Sizes></Row1></Top><Left><Row0><Sizes><Wnd2><Rect><Top>-2</Top><Left>-2</Left><Bottom>456</Bottom><Right>102</Right><x>-2</x><y>-2</y><xscreen>95</xscreen><yscreen>183</yscreen><sizeHorzCX>79698</sizeHorzCX><sizeHorzCY>258110</sizeHorzCY><sizeVertCX>87248</sizeVertCX><sizeVertCY>645980</sizeVertCY></Rect></Wnd2></Sizes></Row0><Row1><Sizes><Wnd3><Rect><Top>-2</Top><Left>100</Left><Bottom>456</Bottom><Right>373</Right><x>100</x><y>-2</y><xscreen>106</xscreen><yscreen>176</yscreen><sizeHorzCX>88926</sizeHorzCX><sizeHorzCY>248237</sizeHorzCY><sizeVertCX>229027</sizeVertCX><sizeVertCY>645980</sizeVertCY></Rect></Wnd3></Sizes></Row1></Left><Right><Row0><Sizes><Wnd4><Rect><Top>-2</Top><Left>-2</Left><Bottom>456</Bottom><Right>31</Right><x>-2</x><y>-2</y><xscreen>132</xscreen><yscreen>189</yscreen><sizeHorzCX>110738</sizeHorzCX><sizeHorzCY>266573</sizeHorzCY><sizeVertCX>27685</sizeVertCX><sizeVertCY>645980</sizeVertCY></Rect></Wnd4></Sizes></Row0><Row1><Sizes><Wnd10><Rect><Top>-2</Top><Left>29</Left><Bottom>456</Bottom><Right>132</Right><x>29</x><y>-2</y><xscreen>132</xscreen><yscreen>189</yscreen><sizeHorzCX>110738</sizeHorzCX><sizeHorzCY>266573</sizeHorzCY><sizeVertCX>86409</sizeVertCX><sizeVertCY>645980</sizeVertCY></Rect></Wnd10></Sizes></Row1><Row2><Sizes><Wnd11><Rect><Top>-2</Top><Left>130</Left><Bottom>456</Bottom><Right>354</Right><x>130</x><y>-2</y><xscreen>186</xscreen><yscreen>195</yscreen><sizeHorzCX>156040</sizeHorzCX><sizeHorzCY>275035</sizeHorzCY><sizeVertCX>187919</sizeVertCX><sizeVertCY>645980</sizeVertCY></Rect></Wnd11></Sizes></Row2></Right><Bottom><Row0><Sizes><Wnd1><Rect><Top>-2</Top><Left>-2</Left><Bottom>183</Bottom><Right>1194</Right><x>-2</x><y>-2</y><xscreen>1196</xscreen><yscreen>185</yscreen><sizeHorzCX>1003356</sizeHorzCX><sizeHorzCY>260931</sizeHorzCY><sizeVertCX>79698</sizeVertCX><sizeVertCY>258110</sizeVertCY></Rect></Wnd1></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
   </Desktop>
 </Project>
 
