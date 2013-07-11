@@ -62,6 +62,7 @@ u8 line_lcd;
 u8 count;
 u8 seconds;
 u8 minutes;
+u8 hours;
 u8 error;
 //u8 index=0;
 float  result;
@@ -140,7 +141,7 @@ void main(void)
      }
        else  printf("\n      ");
      line_lcd=1;
-     printf("\n %02x:%02x",minutes,seconds);
+     printf("\n%02x:%02x:%02x",hours,minutes,seconds);
      //line_lcd=2;
      //printf("\n Just Test:%X", timer2);
       if (rx_data==SpecialSymbol) SendData();
@@ -250,12 +251,13 @@ bool  ReadDS1307(void)
        I2C_AcknowledgeConfig(I2C_ACK_CURR);
        seconds = I2C_RD();
 
-
+       I2C_AcknowledgeConfig(I2C_ACK_CURR);
+       minutes = I2C_RD();
 
       //Last read byte by I2C slave
        I2C_AcknowledgeConfig(I2C_ACK_NONE);
        I2C_GenerateSTOP(ENABLE);
-       minutes = I2C_RD();
+       hours = I2C_RD();
        //I2C_AcknowledgeConfig(I2C_ACK_CURR);
 
       return TRUE;

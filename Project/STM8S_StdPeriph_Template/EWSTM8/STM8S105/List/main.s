@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                            /
-// IAR C/C++ Compiler V1.30.1.50036 for STM8            11/Jul/2013  22:03:55 /
+// IAR C/C++ Compiler V1.30.1.50036 for STM8            11/Jul/2013  22:08:38 /
 // Copyright 2010-2011 IAR Systems AB.                                        /
 //                                                                            /
 //    Source file  =  C:\Documents and Settings\Administrator\Desktop\stm8s10 /
@@ -128,6 +128,7 @@
         PUBLIC data
         PUBLIC error
         PUBLIC fputc
+        PUBLIC hours
         PUBLIC k
         PUBLIC line_lcd
         PUBLIC main
@@ -327,18 +328,23 @@ minutes:
         DS8 1
 
         SECTION `.near.bss`:DATA:REORDER:NOROOT(0)
-//   65 u8 error;
-error:
+//   65 u8 hours;
+hours:
         DS8 1
-//   66 //u8 index=0;
 
         SECTION `.near.bss`:DATA:REORDER:NOROOT(0)
-//   67 float  result;
+//   66 u8 error;
+error:
+        DS8 1
+//   67 //u8 index=0;
+
+        SECTION `.near.bss`:DATA:REORDER:NOROOT(0)
+//   68 float  result;
 result:
         DS8 4
 
         SECTION `.near.bss`:DATA:REORDER:NOROOT(0)
-//   68 int volatile k=0;
+//   69 int volatile k=0;
 k:
         DS8 2
 
@@ -380,13 +386,12 @@ PulseEnable:
         CALLF     ?Subroutine1
 ??CrossCallReturnLabel_0:
         LD        A, #0x8
-        CALLF     ??Subroutine22_0
-??CrossCallReturnLabel_53:
+        CALLF     ??Subroutine23_0
+??CrossCallReturnLabel_55:
         CLRW      X
         INCW      X
         JPF       Delay1
         CFI EndBlock cfiBlock2
-//   69 
 //   70 
 //   71 
 //   72 
@@ -394,388 +399,390 @@ PulseEnable:
 //   74 
 //   75 
 //   76 
-//   77 /* Private function prototypes -----------------------------------------------*/
-//   78 void InitHardware();
-//   79 void GpioConfiguration();
-//   80 void InitClk();
-//   81 void InitAdc();
-//   82 void InitI2C();
-//   83 bool ReadDS1307();
-//   84 void InitUart();
-//   85 void InitLcd();
-//   86 void InitDelayTimer();
-//   87 void Delay1( u16 Delay);
-//   88 void Delay2( u16 Delay);
-//   89 void LCDInstrNibble (u8 Instr);
-//   90 void LCDInstr(u8 Instr);
-//   91 void LCDDataOut(u8 data);
-//   92 void LCD_Busy();
-//   93 void PulseEnable();
-//   94 void SendData();
-//   95 void SendChar(u8 Char);
-//   96 void Send_Hello();
-//   97 bool Init_DS1307(void);
-//   98 bool I2C_Start(void);
-//   99 bool I2C_WA(u8 address);
-//  100 bool I2C_WD(u8 data);
-//  101 bool I2C_RA(u8 address);
-//  102 u8 I2C_RD(void);
-//  103 
-//  104 u16  Average();
-//  105 
+//   77 
+//   78 /* Private function prototypes -----------------------------------------------*/
+//   79 void InitHardware();
+//   80 void GpioConfiguration();
+//   81 void InitClk();
+//   82 void InitAdc();
+//   83 void InitI2C();
+//   84 bool ReadDS1307();
+//   85 void InitUart();
+//   86 void InitLcd();
+//   87 void InitDelayTimer();
+//   88 void Delay1( u16 Delay);
+//   89 void Delay2( u16 Delay);
+//   90 void LCDInstrNibble (u8 Instr);
+//   91 void LCDInstr(u8 Instr);
+//   92 void LCDDataOut(u8 data);
+//   93 void LCD_Busy();
+//   94 void PulseEnable();
+//   95 void SendData();
+//   96 void SendChar(u8 Char);
+//   97 void Send_Hello();
+//   98 bool Init_DS1307(void);
+//   99 bool I2C_Start(void);
+//  100 bool I2C_WA(u8 address);
+//  101 bool I2C_WD(u8 data);
+//  102 bool I2C_RA(u8 address);
+//  103 u8 I2C_RD(void);
+//  104 
+//  105 u16  Average();
 //  106 
-//  107 /* Private functions ---------------------------------------------------------*/
-//  108 
-//  109 void main(void)
-//  110 {
-//  111     /*High speed internal clock prescaler: 1*/
-//  112     //CLK_HSIPrescalerConfig(CLK_PRESCALER_HSIDIV1);
-//  113 
-//  114     InitClk();
-//  115     InitDelayTimer();
-//  116     GpioConfiguration();
-//  117     InitUart();
-//  118     enableInterrupts();
-//  119     GPIO_WriteLow(GPIOD,GPIO_PIN_7); //R/W Line Read Mode
-//  120     InitLcd();
-//  121     InitAdc();
-//  122     InitI2C();
-//  123     //if (!Init_DS1307())printf("E1:%d",error);
-//  124     Send_Hello();
-//  125      //UART2_Cmd(DISABLE);  // Disable UART for the moment
-//  126 
-//  127     while(1)
-//  128     {
-//  129       ADC1_Cmd (ENABLE);
-//  130 
-//  131        GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
-//  132          Delay2(30000);
-//  133        GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
-//  134          Delay2(30000);
-//  135 
-//  136       line_lcd=0;
-//  137      if (!ReadDS1307())
-//  138      {
-//  139        printf("\n E2:%d",error);
-//  140      }
-//  141        else  printf("\n      ");
-//  142      line_lcd=1;
-//  143      printf("\n %02x:%02x",minutes,seconds);
-//  144      //line_lcd=2;
-//  145      //printf("\n Just Test:%X", timer2);
-//  146       if (rx_data==SpecialSymbol) SendData();
-//  147       //SendData();
-//  148 
-//  149     }
-//  150 
+//  107 
+//  108 /* Private functions ---------------------------------------------------------*/
+//  109 
+//  110 void main(void)
+//  111 {
+//  112     /*High speed internal clock prescaler: 1*/
+//  113     //CLK_HSIPrescalerConfig(CLK_PRESCALER_HSIDIV1);
+//  114 
+//  115     InitClk();
+//  116     InitDelayTimer();
+//  117     GpioConfiguration();
+//  118     InitUart();
+//  119     enableInterrupts();
+//  120     GPIO_WriteLow(GPIOD,GPIO_PIN_7); //R/W Line Read Mode
+//  121     InitLcd();
+//  122     InitAdc();
+//  123     InitI2C();
+//  124     //if (!Init_DS1307())printf("E1:%d",error);
+//  125     Send_Hello();
+//  126      //UART2_Cmd(DISABLE);  // Disable UART for the moment
+//  127 
+//  128     while(1)
+//  129     {
+//  130       ADC1_Cmd (ENABLE);
+//  131 
+//  132        GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
+//  133          Delay2(30000);
+//  134        GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
+//  135          Delay2(30000);
+//  136 
+//  137       line_lcd=0;
+//  138      if (!ReadDS1307())
+//  139      {
+//  140        printf("\n E2:%d",error);
+//  141      }
+//  142        else  printf("\n      ");
+//  143      line_lcd=1;
+//  144      printf("\n%02x:%02x:%02x",hours,minutes,seconds);
+//  145      //line_lcd=2;
+//  146      //printf("\n Just Test:%X", timer2);
+//  147       if (rx_data==SpecialSymbol) SendData();
+//  148       //SendData();
+//  149 
+//  150     }
 //  151 
 //  152 
-//  153 }
-//  154 
-//  155 void InitI2C(void)
-//  156 {
-//  157    I2C_DeInit();
-//  158    I2C_Init(10000, 0xA2, I2C_DUTYCYCLE_2, I2C_ACK_CURR, I2C_ADDMODE_7BIT, 2);
-//  159    I2C_Cmd(ENABLE);
-//  160 }
-//  161 
-//  162 bool I2C_Start(void)
-//  163 {
-//  164    I2C_GenerateSTART(ENABLE);
-//  165        timeout=100;
-//  166     	while(!(I2C_CheckEvent(I2C_EVENT_MASTER_MODE_SELECT))&&timeout);
-//  167          if (!timeout)return FALSE;
-//  168           else return TRUE;
-//  169 }
-//  170 
-//  171 bool I2C_WA(u8 address)
-//  172 {
-//  173   I2C_Send7bitAddress(address, I2C_DIRECTION_TX);
-//  174        timeout=255;
-//  175         while(!(I2C_CheckEvent(I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))&&timeout);
-//  176          if (!timeout)return FALSE ;
-//  177           else return TRUE;
-//  178 }
-//  179 
-//  180 bool I2C_RA(u8 address)
-//  181 {
-//  182   I2C_Send7bitAddress(address, I2C_DIRECTION_RX);
-//  183        timeout=255;
-//  184         while(!(I2C_CheckEvent(I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED))&&timeout);
-//  185          if (!timeout)return FALSE ;
-//  186           else return TRUE;
-//  187 }
-//  188 
+//  153 
+//  154 }
+//  155 
+//  156 void InitI2C(void)
+//  157 {
+//  158    I2C_DeInit();
+//  159    I2C_Init(10000, 0xA2, I2C_DUTYCYCLE_2, I2C_ACK_CURR, I2C_ADDMODE_7BIT, 2);
+//  160    I2C_Cmd(ENABLE);
+//  161 }
+//  162 
+//  163 bool I2C_Start(void)
+//  164 {
+//  165    I2C_GenerateSTART(ENABLE);
+//  166        timeout=100;
+//  167     	while(!(I2C_CheckEvent(I2C_EVENT_MASTER_MODE_SELECT))&&timeout);
+//  168          if (!timeout)return FALSE;
+//  169           else return TRUE;
+//  170 }
+//  171 
+//  172 bool I2C_WA(u8 address)
+//  173 {
+//  174   I2C_Send7bitAddress(address, I2C_DIRECTION_TX);
+//  175        timeout=255;
+//  176         while(!(I2C_CheckEvent(I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))&&timeout);
+//  177          if (!timeout)return FALSE ;
+//  178           else return TRUE;
+//  179 }
+//  180 
+//  181 bool I2C_RA(u8 address)
+//  182 {
+//  183   I2C_Send7bitAddress(address, I2C_DIRECTION_RX);
+//  184        timeout=255;
+//  185         while(!(I2C_CheckEvent(I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED))&&timeout);
+//  186          if (!timeout)return FALSE ;
+//  187           else return TRUE;
+//  188 }
 //  189 
-//  190 bool I2C_WD(u8 data)
-//  191 {
-//  192  I2C_SendData(data);   // set register pointer 00h
-//  193    timeout=255;
-//  194    while(!(I2C_CheckEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED))&&timeout);
-//  195     if (!timeout)return FALSE ;
-//  196      else return TRUE;
-//  197 }
-//  198 
-//  199 u8 I2C_RD(void)
-//  200 {
-//  201  timeout=255;
-//  202   while( !I2C_GetFlagStatus(I2C_FLAG_TRANSFERFINISHED)&& timeout);
-//  203  //while((!(I2C->SR1 & 0x40))&&timeout);
-//  204  if (!timeout) return FALSE ;
-//  205  u8 data=I2C_ReceiveData();
-//  206  return data;
-//  207 }
-//  208 
+//  190 
+//  191 bool I2C_WD(u8 data)
+//  192 {
+//  193  I2C_SendData(data);   // set register pointer 00h
+//  194    timeout=255;
+//  195    while(!(I2C_CheckEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED))&&timeout);
+//  196     if (!timeout)return FALSE ;
+//  197      else return TRUE;
+//  198 }
+//  199 
+//  200 u8 I2C_RD(void)
+//  201 {
+//  202  timeout=255;
+//  203   while( !I2C_GetFlagStatus(I2C_FLAG_TRANSFERFINISHED)&& timeout);
+//  204  //while((!(I2C->SR1 & 0x40))&&timeout);
+//  205  if (!timeout) return FALSE ;
+//  206  u8 data=I2C_ReceiveData();
+//  207  return data;
+//  208 }
 //  209 
-//  210 bool Init_DS1307(void)
-//  211 {
-//  212    // Test DS1307
-//  213     error=1;
-//  214     if (!I2C_Start()) return FALSE;
-//  215     error++;
-//  216     if(!I2C_WA(0xD0)) return FALSE;
-//  217      error++;
-//  218     if(!I2C_WD(0x00)) return FALSE;
-//  219      error++;
-//  220     if(!I2C_WD(0x00)) return FALSE;
-//  221     I2C_GenerateSTOP(ENABLE);
-//  222 
-//  223     // timeout=100;  error=4;
-//  224     ///   while(!(I2C_CheckEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED))&&timeout);
-//  225     //    if (!timeout)return FALSE ;
-//  226      return TRUE;
-//  227 }
-//  228 
-//  229 bool  ReadDS1307(void)
-//  230 {
-//  231 
-//  232       error=1;
-//  233        if (!I2C_Start()) return FALSE;
-//  234       error++;
-//  235        if(!I2C_WA(0xD0))return FALSE;
-//  236       error++;
-//  237        if(!I2C_WD(0x00)) return FALSE;
-//  238       error++;
-//  239       I2C_GenerateSTOP(ENABLE);
-//  240       //Delay1(1000);
-//  241 
+//  210 
+//  211 bool Init_DS1307(void)
+//  212 {
+//  213    // Test DS1307
+//  214     error=1;
+//  215     if (!I2C_Start()) return FALSE;
+//  216     error++;
+//  217     if(!I2C_WA(0xD0)) return FALSE;
+//  218      error++;
+//  219     if(!I2C_WD(0x00)) return FALSE;
+//  220      error++;
+//  221     if(!I2C_WD(0x00)) return FALSE;
+//  222     I2C_GenerateSTOP(ENABLE);
+//  223 
+//  224     // timeout=100;  error=4;
+//  225     ///   while(!(I2C_CheckEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED))&&timeout);
+//  226     //    if (!timeout)return FALSE ;
+//  227      return TRUE;
+//  228 }
+//  229 
+//  230 bool  ReadDS1307(void)
+//  231 {
+//  232 
+//  233       error=1;
+//  234        if (!I2C_Start()) return FALSE;
+//  235       error++;
+//  236        if(!I2C_WA(0xD0))return FALSE;
+//  237       error++;
+//  238        if(!I2C_WD(0x00)) return FALSE;
+//  239       error++;
+//  240       I2C_GenerateSTOP(ENABLE);
+//  241       //Delay1(1000);
 //  242 
 //  243 
-//  244         if (!I2C_Start()) return FALSE;
-//  245       error++;
-//  246 
-//  247          if(!I2C_RA(0xD0))return FALSE;
-//  248       error++;
-//  249 
-//  250        I2C_AcknowledgeConfig(I2C_ACK_CURR);
-//  251        seconds = I2C_RD();
-//  252 
+//  244 
+//  245         if (!I2C_Start()) return FALSE;
+//  246       error++;
+//  247 
+//  248          if(!I2C_RA(0xD0))return FALSE;
+//  249       error++;
+//  250 
+//  251        I2C_AcknowledgeConfig(I2C_ACK_CURR);
+//  252        seconds = I2C_RD();
 //  253 
-//  254 
-//  255       //Last read byte by I2C slave
-//  256        I2C_AcknowledgeConfig(I2C_ACK_NONE);
-//  257        I2C_GenerateSTOP(ENABLE);
-//  258        minutes = I2C_RD();
-//  259        //I2C_AcknowledgeConfig(I2C_ACK_CURR);
-//  260 
-//  261       return TRUE;
+//  254        I2C_AcknowledgeConfig(I2C_ACK_CURR);
+//  255        minutes = I2C_RD();
+//  256 
+//  257       //Last read byte by I2C slave
+//  258        I2C_AcknowledgeConfig(I2C_ACK_NONE);
+//  259        I2C_GenerateSTOP(ENABLE);
+//  260        hours = I2C_RD();
+//  261        //I2C_AcknowledgeConfig(I2C_ACK_CURR);
 //  262 
-//  263 
+//  263       return TRUE;
 //  264 
 //  265 
 //  266 
 //  267 
 //  268 
-//  269 }
+//  269 
 //  270 
-//  271 void GpioConfiguration()
-//  272 {
-//  273 
-//  274   GPIO_Init(LCD_PORT,(GPIO_Pin_TypeDef)LCD_GPIO_PIN,GPIO_MODE_OUT_PP_HIGH_FAST);
+//  271 }
+//  272 
+//  273 void GpioConfiguration()
+//  274 {
 //  275 
-//  276   // ADC PE6 NEW PB0
-//  277   GPIO_Init(GPIOB,GPIO_PIN_0,GPIO_MODE_IN_FL_NO_IT);
-//  278 
-//  279   // PD6/UART2_RX   PD5/UART2_TX  No need to init  PD7 485 R/W;
-//  280   GPIO_Init(GPIOD,GPIO_PIN_7,GPIO_MODE_OUT_PP_HIGH_FAST);
-//  281 
-//  282   //PD0 Led
-//  283   GPIO_Init(GPIOD,GPIO_PIN_0,GPIO_MODE_OUT_PP_HIGH_FAST);
-//  284   //I2C
-//  285   GPIO_Init(GPIOB,GPIO_PIN_4 ,GPIO_MODE_OUT_OD_HIZ_FAST);
-//  286   GPIO_Init(GPIOB,GPIO_PIN_5 ,GPIO_MODE_OUT_OD_HIZ_FAST);
-//  287   // Remap Pins pb4,pb5  sda,scl ;
-//  288 
-//  289 
-//  290 }
+//  276   GPIO_Init(LCD_PORT,(GPIO_Pin_TypeDef)LCD_GPIO_PIN,GPIO_MODE_OUT_PP_HIGH_FAST);
+//  277 
+//  278   // ADC PE6 NEW PB0
+//  279   GPIO_Init(GPIOB,GPIO_PIN_0,GPIO_MODE_IN_FL_NO_IT);
+//  280 
+//  281   // PD6/UART2_RX   PD5/UART2_TX  No need to init  PD7 485 R/W;
+//  282   GPIO_Init(GPIOD,GPIO_PIN_7,GPIO_MODE_OUT_PP_HIGH_FAST);
+//  283 
+//  284   //PD0 Led
+//  285   GPIO_Init(GPIOD,GPIO_PIN_0,GPIO_MODE_OUT_PP_HIGH_FAST);
+//  286   //I2C
+//  287   GPIO_Init(GPIOB,GPIO_PIN_4 ,GPIO_MODE_OUT_OD_HIZ_FAST);
+//  288   GPIO_Init(GPIOB,GPIO_PIN_5 ,GPIO_MODE_OUT_OD_HIZ_FAST);
+//  289   // Remap Pins pb4,pb5  sda,scl ;
+//  290 
 //  291 
-//  292 void InitClk()
-//  293 {
-//  294   CLK_DeInit();
-//  295   CLK_SYSCLKConfig(CLK_PRESCALER_CPUDIV1);    // CPU Prescalar = 1.
-//  296   CLK_SYSCLKConfig(CLK_PRESCALER_HSIDIV1);    // Prescalar = 1, 16 MHz.
-//  297   CLK_ClockSwitchConfig(CLK_SWITCHMODE_AUTO,  // Automatically switch
-//  298   CLK_SOURCE_HSI,       // Switch to internal timer.
-//  299   DISABLE,              // Disable the clock switch interrupt.
-//  300   CLK_CURRENTCLOCKSTATE_DISABLE);   // Disable the previous clock.
-//  301 
-//  302   CLK_PeripheralClockConfig(CLK_PERIPHERAL_TIMER2 , ENABLE);
-//  303   CLK_PeripheralClockConfig(CLK_PERIPHERAL_UART2,ENABLE);
-//  304   CLK_PeripheralClockConfig(CLK_PERIPHERAL_ADC,ENABLE);
-//  305   CLK_PeripheralClockConfig(CLK_PERIPHERAL_I2C,ENABLE);
-//  306 
-//  307 
-//  308 }
+//  292 }
+//  293 
+//  294 void InitClk()
+//  295 {
+//  296   CLK_DeInit();
+//  297   CLK_SYSCLKConfig(CLK_PRESCALER_CPUDIV1);    // CPU Prescalar = 1.
+//  298   CLK_SYSCLKConfig(CLK_PRESCALER_HSIDIV1);    // Prescalar = 1, 16 MHz.
+//  299   CLK_ClockSwitchConfig(CLK_SWITCHMODE_AUTO,  // Automatically switch
+//  300   CLK_SOURCE_HSI,       // Switch to internal timer.
+//  301   DISABLE,              // Disable the clock switch interrupt.
+//  302   CLK_CURRENTCLOCKSTATE_DISABLE);   // Disable the previous clock.
+//  303 
+//  304   CLK_PeripheralClockConfig(CLK_PERIPHERAL_TIMER2 , ENABLE);
+//  305   CLK_PeripheralClockConfig(CLK_PERIPHERAL_UART2,ENABLE);
+//  306   CLK_PeripheralClockConfig(CLK_PERIPHERAL_ADC,ENABLE);
+//  307   CLK_PeripheralClockConfig(CLK_PERIPHERAL_I2C,ENABLE);
+//  308 
 //  309 
-//  310 
-//  311 void InitAdc()
-//  312 {
-//  313      ADC1_DeInit();
-//  314      ADC1_StartConversion();
-//  315      /*
-//  316      ADC1_Init(ADC1_CONVERSIONMODE_SINGLE,
-//  317                 ADC1_CHANNEL_0,
-//  318                 ADC1_PRESSEL_FCPU_D4,
-//  319                  ADC1_EXTTRIG_TIM,
-//  320 
-//  321        */
-//  322      ADC1_PrescalerConfig(ADC1_PRESSEL_FCPU_D3);
-//  323      ADC1_ConversionConfig( ADC1_CONVERSIONMODE_SINGLE,
-//  324                             ADC1_CHANNEL_0,
-//  325                             ADC1_ALIGN_RIGHT
-//  326                            );
-//  327 
-//  328 
-//  329      ADC1_SchmittTriggerConfig(ADC1_SCHMITTTRIG_CHANNEL0,DISABLE);
+//  310 }
+//  311 
+//  312 
+//  313 void InitAdc()
+//  314 {
+//  315      ADC1_DeInit();
+//  316      ADC1_StartConversion();
+//  317      /*
+//  318      ADC1_Init(ADC1_CONVERSIONMODE_SINGLE,
+//  319                 ADC1_CHANNEL_0,
+//  320                 ADC1_PRESSEL_FCPU_D4,
+//  321                  ADC1_EXTTRIG_TIM,
+//  322 
+//  323        */
+//  324      ADC1_PrescalerConfig(ADC1_PRESSEL_FCPU_D3);
+//  325      ADC1_ConversionConfig( ADC1_CONVERSIONMODE_SINGLE,
+//  326                             ADC1_CHANNEL_0,
+//  327                             ADC1_ALIGN_RIGHT
+//  328                            );
+//  329 
 //  330 
-//  331 
-//  332      //ADC1_Cmd (ENABLE);
-//  333      //ADC1->CR1 |= ADC1_CR1_ADON ;
-//  334      ADC1_StartConversion();
-//  335      ADC1_ITConfig (ADC1_IT_EOCIE,ENABLE);
-//  336 
-//  337 }
+//  331      ADC1_SchmittTriggerConfig(ADC1_SCHMITTTRIG_CHANNEL0,DISABLE);
+//  332 
+//  333 
+//  334      //ADC1_Cmd (ENABLE);
+//  335      //ADC1->CR1 |= ADC1_CR1_ADON ;
+//  336      ADC1_StartConversion();
+//  337      ADC1_ITConfig (ADC1_IT_EOCIE,ENABLE);
 //  338 
-//  339 void InitUart()
-//  340 {
-//  341    UART2_DeInit();
-//  342    UART2_Init((u32)9600,
-//  343               UART2_WORDLENGTH_8D,
-//  344               UART2_STOPBITS_1,
-//  345               UART2_PARITY_NO,
-//  346               UART2_SYNCMODE_CLOCK_DISABLE,
-//  347               UART2_MODE_TXRX_ENABLE
-//  348                 );
-//  349 
-//  350    UART2_ITConfig( UART2_IT_RXNE,ENABLE);
-//  351    UART2_Cmd(ENABLE);
-//  352 
-//  353   // UART2_ITConfig(UART2_IT_RXNE,ENABLE);
-//  354 }
-//  355 
-//  356 void SendChar( u8 Char)
-//  357 {
-//  358    UART2->DR = Char;
-//  359   while (UART2_GetFlagStatus(UART2_FLAG_TXE) == RESET);;
-//  360 }
-//  361 
-//  362 void Send_Hello()
-//  363 {
-//  364   GPIO_WriteHigh(GPIOD,GPIO_PIN_7); //R_W Line
-//  365    Delay1(10);
-//  366    sprintf(data,"Hello");
-//  367     u8 i=0;
-//  368   do
-//  369  {
-//  370   SendChar(data[i++]);
-//  371  } while (data[i]!=0);
-//  372   while (UART2_GetFlagStatus(UART2_FLAG_TC) == RESET);;  //Wait to send last byte
-//  373   GPIO_WriteLow(GPIOD,GPIO_PIN_7); //R_W Line
-//  374 
-//  375 
+//  339 }
+//  340 
+//  341 void InitUart()
+//  342 {
+//  343    UART2_DeInit();
+//  344    UART2_Init((u32)9600,
+//  345               UART2_WORDLENGTH_8D,
+//  346               UART2_STOPBITS_1,
+//  347               UART2_PARITY_NO,
+//  348               UART2_SYNCMODE_CLOCK_DISABLE,
+//  349               UART2_MODE_TXRX_ENABLE
+//  350                 );
+//  351 
+//  352    UART2_ITConfig( UART2_IT_RXNE,ENABLE);
+//  353    UART2_Cmd(ENABLE);
+//  354 
+//  355   // UART2_ITConfig(UART2_IT_RXNE,ENABLE);
+//  356 }
+//  357 
+//  358 void SendChar( u8 Char)
+//  359 {
+//  360    UART2->DR = Char;
+//  361   while (UART2_GetFlagStatus(UART2_FLAG_TXE) == RESET);;
+//  362 }
+//  363 
+//  364 void Send_Hello()
+//  365 {
+//  366   GPIO_WriteHigh(GPIOD,GPIO_PIN_7); //R_W Line
+//  367    Delay1(10);
+//  368    sprintf(data,"Hello");
+//  369     u8 i=0;
+//  370   do
+//  371  {
+//  372   SendChar(data[i++]);
+//  373  } while (data[i]!=0);
+//  374   while (UART2_GetFlagStatus(UART2_FLAG_TC) == RESET);;  //Wait to send last byte
+//  375   GPIO_WriteLow(GPIOD,GPIO_PIN_7); //R_W Line
 //  376 
-//  377 }
+//  377 
 //  378 
-//  379 
+//  379 }
 //  380 
 //  381 
 //  382 
-//  383 void SendData()
-//  384 {
-//  385  GPIO_WriteHigh(GPIOD,GPIO_PIN_7); //R_W Line
-//  386   Delay1(10);
-//  387   u8 i=0;
-//  388   sprintf(data,"%d %c",adcdata,0x0d);
-//  389  do
-//  390  {
-//  391    SendChar(data[i++]);
-//  392 
-//  393  } while (data[i]!=0);
-//  394    while (UART2_GetFlagStatus(UART2_FLAG_TC) == RESET);;  //Wait to send last byte
-//  395   GPIO_WriteLow(GPIOD,GPIO_PIN_7); //R_W Line
-//  396   rx_data=0;
-//  397 }
-//  398 
+//  383 
+//  384 
+//  385 void SendData()
+//  386 {
+//  387  GPIO_WriteHigh(GPIOD,GPIO_PIN_7); //R_W Line
+//  388   Delay1(10);
+//  389   u8 i=0;
+//  390   sprintf(data,"%d %c",adcdata,0x0d);
+//  391  do
+//  392  {
+//  393    SendChar(data[i++]);
+//  394 
+//  395  } while (data[i]!=0);
+//  396    while (UART2_GetFlagStatus(UART2_FLAG_TC) == RESET);;  //Wait to send last byte
+//  397   GPIO_WriteLow(GPIOD,GPIO_PIN_7); //R_W Line
+//  398   rx_data=0;
+//  399 }
+//  400 
 
         SECTION `.far_func.text`:CODE:NOROOT(0)
         CFI Block cfiBlock3 Using cfiCommon0
         CFI Function LCDDataOut
         CODE
-//  399 void LCDDataOut(u8 data)
-//  400 {
+//  401 void LCDDataOut(u8 data)
+//  402 {
 LCDDataOut:
         PUSH      S:?b8
         CFI ?b8 Frame(CFA, -3)
         CFI CFA SP+4
         LD        S:?b8, A
-//  401   (data&0x1)? GPIO_WriteHigh(LCD_PORT,DATA4):GPIO_WriteLow(LCD_PORT,DATA4);
+//  403   (data&0x1)? GPIO_WriteHigh(LCD_PORT,DATA4):GPIO_WriteLow(LCD_PORT,DATA4);
         BCP       A, #0x1
         JREQ      L:??LCDDataOut_0
         LD        A, #0x10
         CALLF     ?Subroutine3
 ??CrossCallReturnLabel_9:
-        JRA       L:??CrossCallReturnLabel_54
+        JRA       L:??CrossCallReturnLabel_56
 ??LCDDataOut_0:
         LD        A, #0x10
-        CALLF     ??Subroutine22_0
-//  402   (data&0x2)? GPIO_WriteHigh(LCD_PORT,DATA5):GPIO_WriteLow(LCD_PORT,DATA5);
-??CrossCallReturnLabel_54:
+        CALLF     ??Subroutine23_0
+//  404   (data&0x2)? GPIO_WriteHigh(LCD_PORT,DATA5):GPIO_WriteLow(LCD_PORT,DATA5);
+??CrossCallReturnLabel_56:
         LD        A, S:?b8
         BCP       A, #0x2
         JREQ      L:??LCDDataOut_1
         LD        A, #0x20
         CALLF     ?Subroutine3
 ??CrossCallReturnLabel_8:
-        JRA       L:??CrossCallReturnLabel_55
+        JRA       L:??CrossCallReturnLabel_57
 ??LCDDataOut_1:
         LD        A, #0x20
-        CALLF     ??Subroutine22_0
-//  403   (data&0x4)? GPIO_WriteHigh(LCD_PORT,DATA6):GPIO_WriteLow(LCD_PORT,DATA6);
-??CrossCallReturnLabel_55:
+        CALLF     ??Subroutine23_0
+//  405   (data&0x4)? GPIO_WriteHigh(LCD_PORT,DATA6):GPIO_WriteLow(LCD_PORT,DATA6);
+??CrossCallReturnLabel_57:
         LD        A, S:?b8
         BCP       A, #0x4
         JREQ      L:??LCDDataOut_2
         LD        A, #0x40
         CALLF     ?Subroutine3
 ??CrossCallReturnLabel_7:
-        JRA       L:??CrossCallReturnLabel_56
+        JRA       L:??CrossCallReturnLabel_58
 ??LCDDataOut_2:
         LD        A, #0x40
-        CALLF     ??Subroutine22_0
-//  404   (data&0x8)? GPIO_WriteHigh(LCD_PORT,DATA7):GPIO_WriteLow(LCD_PORT,DATA7);
-??CrossCallReturnLabel_56:
+        CALLF     ??Subroutine23_0
+//  406   (data&0x8)? GPIO_WriteHigh(LCD_PORT,DATA7):GPIO_WriteLow(LCD_PORT,DATA7);
+??CrossCallReturnLabel_58:
         LD        A, S:?b8
         BCP       A, #0x8
         JREQ      L:??LCDDataOut_3
         LD        A, #0x80
         CALLF     ?Subroutine3
 ??CrossCallReturnLabel_6:
-        JRA       L:??CrossCallReturnLabel_57
+        JRA       L:??CrossCallReturnLabel_59
 ??LCDDataOut_3:
         LD        A, #0x80
-        CALLF     ??Subroutine22_0
-//  405 }
-??CrossCallReturnLabel_57:
+        CALLF     ??Subroutine23_0
+//  407 }
+??CrossCallReturnLabel_59:
         POP       S:?b8
         CFI ?b8 SameValue
         CFI CFA SP+3
@@ -797,39 +804,39 @@ LCDData:
 ??CrossCallReturnLabel_5:
         REQUIRE ?Subroutine0
         ;               // Fall through to label ?Subroutine0
-//  406 
-//  407 void InitLcd()
-//  408 {
-//  409  LCD_EN(0);
-//  410   LCD_RW(0);
-//  411   LCD_RS(0);
-//  412   Delay1(4000); // 40ms
-//  413 
-//  414   LCDInstrNibble(0x03);
-//  415    Delay1(10);
+//  408 
+//  409 void InitLcd()
+//  410 {
+//  411  LCD_EN(0);
+//  412   LCD_RW(0);
+//  413   LCD_RS(0);
+//  414   Delay1(4000); // 40ms
+//  415 
 //  416   LCDInstrNibble(0x03);
 //  417    Delay1(10);
 //  418   LCDInstrNibble(0x03);
 //  419    Delay1(10);
-//  420 
-//  421    //Line 4
-//  422   LCDInstrNibble(0x02);
-//  423   LCDInstrNibble(0x02);
-//  424   LCDInstrNibble(0x08);
-//  425   Delay1(100);
-//  426 
-//  427   LCDInstr(0x0C);
-//  428   Delay1(10);
-//  429 
-//  430   LCDInstr(0x01) ;
-//  431   Delay1(250);
-//  432 
-//  433   LCDInstr(0x06);
-//  434   Delay1(10);
-//  435 
-//  436 
-//  437 }
+//  420   LCDInstrNibble(0x03);
+//  421    Delay1(10);
+//  422 
+//  423    //Line 4
+//  424   LCDInstrNibble(0x02);
+//  425   LCDInstrNibble(0x02);
+//  426   LCDInstrNibble(0x08);
+//  427   Delay1(100);
+//  428 
+//  429   LCDInstr(0x0C);
+//  430   Delay1(10);
+//  431 
+//  432   LCDInstr(0x01) ;
+//  433   Delay1(250);
+//  434 
+//  435   LCDInstr(0x06);
+//  436   Delay1(10);
+//  437 
 //  438 
+//  439 }
+//  440 
 
         SECTION `.far_func.text`:CODE:NOROOT(0)
 ?Subroutine0:
@@ -838,25 +845,25 @@ LCDData:
         CFI CFA SP+4
         CFI ?b8 Frame(CFA, -3)
         LD        A, #0x2
-        CALLF     ??Subroutine22_0
-??CrossCallReturnLabel_58:
+        CALLF     ??Subroutine23_0
+??CrossCallReturnLabel_60:
         LD        A, S:?b8
         SWAP      A
         CALLF     ?Subroutine9
         CFI EndBlock cfiBlock5
-??CrossCallReturnLabel_49:
-        REQUIRE ??Subroutine21_0
-        ;               // Fall through to label ??Subroutine21_0
+??CrossCallReturnLabel_51:
+        REQUIRE ??Subroutine22_0
+        ;               // Fall through to label ??Subroutine22_0
 
         SECTION `.far_func.text`:CODE:NOROOT(0)
-??Subroutine21_0:
+??Subroutine22_0:
         CFI Block cfiBlock6 Using cfiCommon0
         CFI NoFunction
         CFI CFA SP+4
         CFI ?b8 Frame(CFA, -3)
         LD        A, S:?b8
         CALLF     ?Subroutine9
-??CrossCallReturnLabel_48:
+??CrossCallReturnLabel_50:
         POP       S:?b8
         CFI CFA SP+3
         CFI ?b8 SameValue
@@ -867,27 +874,27 @@ LCDData:
 ?Subroutine9:
         CFI Block cfiCond7 Using cfiCommon0
         CFI NoFunction
-        CFI Conditional ??CrossCallReturnLabel_49
+        CFI Conditional ??CrossCallReturnLabel_51
         CFI ?b8 Frame(CFA, -3)
         CFI CFA SP+7
         CFI Block cfiCond8 Using cfiCommon0
         CFI (cfiCond8) NoFunction
-        CFI (cfiCond8) Conditional ??CrossCallReturnLabel_49
+        CFI (cfiCond8) Conditional ??CrossCallReturnLabel_51
         CFI (cfiCond8) ?b8 Frame(CFA, -3)
         CFI (cfiCond8) CFA SP+7
         CFI Block cfiCond9 Using cfiCommon0
         CFI (cfiCond9) NoFunction
-        CFI (cfiCond9) Conditional ??CrossCallReturnLabel_48
+        CFI (cfiCond9) Conditional ??CrossCallReturnLabel_50
         CFI (cfiCond9) ?b8 Frame(CFA, -3)
         CFI (cfiCond9) CFA SP+7
         CFI Block cfiCond10 Using cfiCommon0
         CFI (cfiCond10) NoFunction
-        CFI (cfiCond10) Conditional ??CrossCallReturnLabel_48
+        CFI (cfiCond10) Conditional ??CrossCallReturnLabel_50
         CFI (cfiCond10) ?b8 Frame(CFA, -3)
         CFI (cfiCond10) CFA SP+7
         CFI Block cfiCond11 Using cfiCommon0
         CFI (cfiCond11) NoFunction
-        CFI (cfiCond11) Conditional ??CrossCallReturnLabel_48
+        CFI (cfiCond11) Conditional ??CrossCallReturnLabel_50
         CFI (cfiCond11) ?b8 Frame(CFA, -3)
         CFI (cfiCond11) CFA SP+7
         CFI Block cfiPicker12 Using cfiCommon1
@@ -951,100 +958,100 @@ LCDData:
         CFI Block cfiBlock20 Using cfiCommon0
         CFI Function LCDInstr
         CODE
-//  439 void LCDInstr(u8 Instr)
-//  440 {
+//  441 void LCDInstr(u8 Instr)
+//  442 {
 LCDInstr:
         PUSH      S:?b8
         CFI ?b8 Frame(CFA, -3)
         CFI CFA SP+4
         LD        S:?b8, A
-//  441   LCD_RS(0);
+//  443   LCD_RS(0);
         CALLF     ?Subroutine5
-//  442   LCD_RW(0);
-??CrossCallReturnLabel_50:
+//  444   LCD_RW(0);
+??CrossCallReturnLabel_52:
         JRA       ?Subroutine0
         CFI EndBlock cfiBlock20
-//  443   LCDDataOut(Instr>>4);
-//  444   PulseEnable();
-//  445   LCDDataOut(Instr & 0x0F);
+//  445   LCDDataOut(Instr>>4);
 //  446   PulseEnable();
-//  447 }
-//  448 
-//  449 void LCDData(u8 Data)
-//  450 {
-//  451   LCD_RS(1);
-//  452   LCD_RW(0);
-//  453   LCDDataOut(Data>>4);
-//  454   PulseEnable() ;
-//  455   LCDDataOut(Data & 0x0F) ;
-//  456   PulseEnable();
-//  457 }
-//  458 
-//  459 void LCDInstrNibble(u8 Instr)
-//  460 {
-//  461   LCD_RS(0);
-//  462   LCD_RW(0);
-//  463   LCDDataOut(Instr & 0x0F);
-//  464   PulseEnable();
-//  465 }
-//  466 
-//  467 void PulseEnable(void)
-//  468 {
-//  469   LCD_EN(0);
-//  470    Delay1(1);
-//  471   LCD_EN(1);
+//  447   LCDDataOut(Instr & 0x0F);
+//  448   PulseEnable();
+//  449 }
+//  450 
+//  451 void LCDData(u8 Data)
+//  452 {
+//  453   LCD_RS(1);
+//  454   LCD_RW(0);
+//  455   LCDDataOut(Data>>4);
+//  456   PulseEnable() ;
+//  457   LCDDataOut(Data & 0x0F) ;
+//  458   PulseEnable();
+//  459 }
+//  460 
+//  461 void LCDInstrNibble(u8 Instr)
+//  462 {
+//  463   LCD_RS(0);
+//  464   LCD_RW(0);
+//  465   LCDDataOut(Instr & 0x0F);
+//  466   PulseEnable();
+//  467 }
+//  468 
+//  469 void PulseEnable(void)
+//  470 {
+//  471   LCD_EN(0);
 //  472    Delay1(1);
-//  473   LCD_EN(0);
+//  473   LCD_EN(1);
 //  474    Delay1(1);
-//  475 }
-//  476 
-//  477 void LCD_Busy(void)
-//  478 {
-//  479    //set Port D7 as Input
-//  480    GPIO_Init(LCD_PORT,DATA7,GPIO_MODE_IN_PU_NO_IT);
-//  481    //Set Read
-//  482    LCD_RW(1);
-//  483    LCD_RS(0);
-//  484    // Read Busy Flag
-//  485       timer2=0;
-//  486    do
-//  487    {
-//  488    // Enable set
-//  489      LCD_EN(0);
-//  490       Delay1(1);
-//  491      LCD_EN(1);
+//  475   LCD_EN(0);
+//  476    Delay1(1);
+//  477 }
+//  478 
+//  479 void LCD_Busy(void)
+//  480 {
+//  481    //set Port D7 as Input
+//  482    GPIO_Init(LCD_PORT,DATA7,GPIO_MODE_IN_PU_NO_IT);
+//  483    //Set Read
+//  484    LCD_RW(1);
+//  485    LCD_RS(0);
+//  486    // Read Busy Flag
+//  487       timer2=0;
+//  488    do
+//  489    {
+//  490    // Enable set
+//  491      LCD_EN(0);
 //  492       Delay1(1);
-//  493    } while (GPIO_ReadInputPin(LCD_PORT, DATA7));
-//  494       k=timer2;
-//  495       //Clear read
-//  496     LCD_RW(0);
-//  497    //set Port D7 as Output
-//  498    GPIO_Init(LCD_PORT,DATA7,GPIO_MODE_OUT_PP_HIGH_FAST);
-//  499 
-//  500 }
+//  493      LCD_EN(1);
+//  494       Delay1(1);
+//  495    } while (GPIO_ReadInputPin(LCD_PORT, DATA7));
+//  496       k=timer2;
+//  497       //Clear read
+//  498     LCD_RW(0);
+//  499    //set Port D7 as Output
+//  500    GPIO_Init(LCD_PORT,DATA7,GPIO_MODE_OUT_PP_HIGH_FAST);
 //  501 
-//  502 
+//  502 }
+//  503 
+//  504 
 
         SECTION `.far_func.text`:CODE:NOROOT(0)
         CFI Block cfiBlock21 Using cfiCommon0
         CFI Function LCD
         CODE
-//  503 void LCD(u8 data)
-//  504  {
+//  505 void LCD(u8 data)
+//  506  {
 LCD:
         PUSH      S:?b8
         CFI ?b8 Frame(CFA, -3)
         CFI CFA SP+4
         LD        S:?b8, A
-//  505    //  static u8 linet=0;
-//  506 
-//  507 
-//  508      if (data =='\n')     //r
+//  507    //  static u8 linet=0;
+//  508 
+//  509 
+//  510      if (data =='\n')     //r
         CP        A, #0xa
-        JRNE      L:??CrossCallReturnLabel_41
-//  509      {
-//  510 
-//  511          switch(line_lcd)
+        JRNE      L:??CrossCallReturnLabel_43
+//  511      {
+//  512 
+//  513          switch(line_lcd)
         LD        A, L:line_lcd
         JREQ      L:??LCD_0
         DEC       A
@@ -1054,164 +1061,164 @@ LCD:
         DEC       A
         JREQ      L:??LCD_3
         JRA       L:??LCD_4
-//  512          {
-//  513          case 0:
-//  514            LCDInstr(0x80 | 0x00);
+//  514          {
+//  515          case 0:
+//  516            LCDInstr(0x80 | 0x00);
 ??LCD_0:
         LD        A, #0x80
         CALLF     LCDInstr
-//  515            count=0;
+//  517            count=0;
         CLR       L:count
-//  516            break;
+//  518            break;
         JRA       L:??LCD_4
-//  517          case 1:
-//  518            LCDInstr(0x80 | 0x40);
+//  519          case 1:
+//  520            LCDInstr(0x80 | 0x40);
 ??LCD_1:
         LD        A, #0xc0
         CALLF     LCDInstr
-//  519            count=20;
+//  521            count=20;
         MOV       L:count, #0x14
-//  520            break;
+//  522            break;
         JRA       L:??LCD_4
-//  521          case 2:
-//  522            LCDInstr(0x80 | 0x14);
+//  523          case 2:
+//  524            LCDInstr(0x80 | 0x14);
 ??LCD_2:
         LD        A, #0x94
         CALLF     LCDInstr
-//  523            count=40;
+//  525            count=40;
         MOV       L:count, #0x28
-//  524            break;
+//  526            break;
         JRA       L:??LCD_4
-//  525          case 3:
-//  526            LCDInstr(0x80 | 0x54);
+//  527          case 3:
+//  528            LCDInstr(0x80 | 0x54);
 ??LCD_3:
         LD        A, #0xd4
         CALLF     LCDInstr
-//  527            count=60;
+//  529            count=60;
         MOV       L:count, #0x3c
-//  528            break;
-//  529          //default:
-//  530           //  LCDInstr(0x80 |0x40);    //Line 1
-//  531           }
-//  532          line_lcd++;
+//  530            break;
+//  531          //default:
+//  532           //  LCDInstr(0x80 |0x40);    //Line 1
+//  533           }
+//  534          line_lcd++;
 ??LCD_4:
         LD        A, L:line_lcd
         INC       A
         LD        L:line_lcd, A
-//  533          if (line_lcd>=5)
+//  535          if (line_lcd>=5)
         CP        A, #0x5
         JRC       L:??LCD_5
-//  534          {
-//  535           line_lcd=1;   //line >=5
+//  536          {
+//  537           line_lcd=1;   //line >=5
         MOV       L:line_lcd, #0x1
-//  536           LCDInstr(0x01); //Clear LCD
+//  538           LCDInstr(0x01); //Clear LCD
         LD        A, #0x1
         CALLF     LCDInstr
-//  537           Delay1(2500);
+//  539           Delay1(2500);
         LDW       X, #0x9c4
         CALLF     Delay1
-//  538          }
-//  539 
-//  540          Delay1(1);
-??LCD_5:
-        CALLF     ?Subroutine18
+//  540          }
 //  541 
-//  542 
-//  543      }
+//  542          Delay1(1);
+??LCD_5:
+        CALLF     ?Subroutine19
+//  543 
 //  544 
-//  545 
-//  546      if (count==20)
-??CrossCallReturnLabel_41:
+//  545      }
+//  546 
+//  547 
+//  548      if (count==20)
+??CrossCallReturnLabel_43:
         LD        A, L:count
         CP        A, #0x14
         JRNE      L:??LCD_6
-//  547       {
-//  548         LCDInstr(0x80 | 0x40);
+//  549       {
+//  550         LCDInstr(0x80 | 0x40);
         LD        A, #0xc0
 ??LCD_7:
         CALLF     LCDInstr
-//  549         Delay1(1);
+//  551         Delay1(1);
 ??LCD_8:
         CLRW      X
         INCW      X
         JRA       ??LCD_9
-//  550       }
-//  551          else if(count==40)
+//  552       }
+//  553          else if(count==40)
 ??LCD_6:
         CP        A, #0x28
         JRNE      L:??LCD_10
-//  552         {
-//  553           LCDInstr(0x80 | 0x14);
+//  554         {
+//  555           LCDInstr(0x80 | 0x14);
         LD        A, #0x94
         JRA       ??LCD_7
-//  554           Delay1(1);
-//  555         }
-//  556           else if(count==60)
+//  556           Delay1(1);
+//  557         }
+//  558           else if(count==60)
 ??LCD_10:
         CP        A, #0x3c
         JRNE      L:??LCD_11
-//  557           {
-//  558             LCDInstr(0x80 | 0x54);
+//  559           {
+//  560             LCDInstr(0x80 | 0x54);
         LD        A, #0xd4
         CALLF     LCDInstr
-//  559             count=0;
+//  561             count=0;
         CLR       L:count
-//  560             Delay1(1);
+//  562             Delay1(1);
         JRA       ??LCD_8
-//  561           }
-//  562             else if(count >80)
+//  563           }
+//  564             else if(count >80)
 ??LCD_11:
         CP        A, #0x51
         JRC       L:??LCD_12
-//  563               {
-//  564                 count=0;
+//  565               {
+//  566                 count=0;
         CLR       L:count
-//  565                 LCDInstr(0x01); //Clear LCD
+//  567                 LCDInstr(0x01); //Clear LCD
         LD        A, #0x1
         CALLF     LCDInstr
-//  566                 Delay1(250);
+//  568                 Delay1(250);
         LDW       X, #0xfa
 ??LCD_9:
         CALLF     Delay1
-//  567               }
-//  568 
-//  569 
-//  570     /*
-//  571          line++;
-//  572          if (line>3)
-//  573          {
-//  574            line=1;  //Line 0 for Time
-//  575          }
-//  576        switch(line)
-//  577          {
-//  578          case 1 :LCDInstr(0x80 | 0x40);break;  //Line 1
-//  579          case 2 :LCDInstr(0x80 | 0x14);break;  //Line 2
-//  580          case 3 :LCDInstr(0x80 | 0x54);break;  //Line 3
-//  581          default : LCDInstr(0x80 | 0x40); // Line 1
-//  582          }
-//  583          Delay(1);
-//  584          count=0;
-//  585       }
-//  586 
-//  587      */
+//  569               }
+//  570 
+//  571 
+//  572     /*
+//  573          line++;
+//  574          if (line>3)
+//  575          {
+//  576            line=1;  //Line 0 for Time
+//  577          }
+//  578        switch(line)
+//  579          {
+//  580          case 1 :LCDInstr(0x80 | 0x40);break;  //Line 1
+//  581          case 2 :LCDInstr(0x80 | 0x14);break;  //Line 2
+//  582          case 3 :LCDInstr(0x80 | 0x54);break;  //Line 3
+//  583          default : LCDInstr(0x80 | 0x40); // Line 1
+//  584          }
+//  585          Delay(1);
+//  586          count=0;
+//  587       }
 //  588 
-//  589      if (data > 0x1b)   //Display only valid data
+//  589      */
+//  590 
+//  591      if (data > 0x1b)   //Display only valid data
 ??LCD_12:
         LD        A, S:?b8
         CP        A, #0x1c
         JRC       L:??LCD_13
-//  590      {
-//  591        LCDData(data);
+//  592      {
+//  593        LCDData(data);
         CALLF     LCDData
-//  592         Delay1(1);
-        CALLF     ?Subroutine18
-//  593        count++;
-??CrossCallReturnLabel_40:
+//  594         Delay1(1);
+        CALLF     ?Subroutine19
+//  595        count++;
+??CrossCallReturnLabel_42:
         LD        A, L:count
         INC       A
         LD        L:count, A
-//  594      }
-//  595  }
+//  596      }
+//  597  }
 ??LCD_13:
         POP       S:?b8
         CFI ?b8 SameValue
@@ -1302,7 +1309,7 @@ LCD_Busy:
         CALLF     ?Subroutine3
 ??CrossCallReturnLabel_4:
         CALLF     ?Subroutine5
-??CrossCallReturnLabel_51:
+??CrossCallReturnLabel_53:
         CLRW      X
         LDW       L:timer2, X
 ??LCD_Busy_0:
@@ -1316,8 +1323,8 @@ LCD_Busy:
         LDW       X, L:timer2
         LDW       L:k, X
         LD        A, #0x2
-        CALLF     ??Subroutine22_0
-??CrossCallReturnLabel_59:
+        CALLF     ??Subroutine23_0
+??CrossCallReturnLabel_61:
         MOV       S:?b0, #0xf0
         LD        A, #0x80
         LDW       X, #0x500a
@@ -1328,16 +1335,16 @@ LCD_Busy:
 ?Subroutine5:
         CFI Block cfiCond26 Using cfiCommon0
         CFI NoFunction
-        CFI Conditional ??CrossCallReturnLabel_50
+        CFI Conditional ??CrossCallReturnLabel_52
         CFI ?b8 Frame(CFA, -3)
         CFI CFA SP+7
         CFI Block cfiCond27 Using cfiCommon0
         CFI (cfiCond27) NoFunction
-        CFI (cfiCond27) Conditional ??CrossCallReturnLabel_51
+        CFI (cfiCond27) Conditional ??CrossCallReturnLabel_53
         CFI (cfiCond27) CFA SP+6
         CFI Block cfiCond28 Using cfiCommon0
         CFI (cfiCond28) NoFunction
-        CFI (cfiCond28) Conditional ??CrossCallReturnLabel_52
+        CFI (cfiCond28) Conditional ??CrossCallReturnLabel_54
         CFI (cfiCond28) CFA SP+6
         CFI Block cfiPicker29 Using cfiCommon1
         CFI (cfiPicker29) NoFunction
@@ -1347,67 +1354,67 @@ LCD_Busy:
         CFI EndBlock cfiCond27
         CFI EndBlock cfiCond28
         CFI EndBlock cfiPicker29
-        REQUIRE ??Subroutine22_0
-        ;               // Fall through to label ??Subroutine22_0
+        REQUIRE ??Subroutine23_0
+        ;               // Fall through to label ??Subroutine23_0
 
         SECTION `.far_func.text`:CODE:NOROOT(0)
-??Subroutine22_0:
+??Subroutine23_0:
         CFI Block cfiCond30 Using cfiCommon0
         CFI NoFunction
-        CFI Conditional ??CrossCallReturnLabel_53
+        CFI Conditional ??CrossCallReturnLabel_55
         CFI CFA SP+6
         CFI Block cfiCond31 Using cfiCommon0
         CFI (cfiCond31) NoFunction
-        CFI (cfiCond31) Conditional ??CrossCallReturnLabel_54
+        CFI (cfiCond31) Conditional ??CrossCallReturnLabel_56
         CFI (cfiCond31) ?b8 Frame(CFA, -3)
         CFI (cfiCond31) CFA SP+7
         CFI Block cfiCond32 Using cfiCommon0
         CFI (cfiCond32) NoFunction
-        CFI (cfiCond32) Conditional ??CrossCallReturnLabel_55
+        CFI (cfiCond32) Conditional ??CrossCallReturnLabel_57
         CFI (cfiCond32) ?b8 Frame(CFA, -3)
         CFI (cfiCond32) CFA SP+7
         CFI Block cfiCond33 Using cfiCommon0
         CFI (cfiCond33) NoFunction
-        CFI (cfiCond33) Conditional ??CrossCallReturnLabel_56
+        CFI (cfiCond33) Conditional ??CrossCallReturnLabel_58
         CFI (cfiCond33) ?b8 Frame(CFA, -3)
         CFI (cfiCond33) CFA SP+7
         CFI Block cfiCond34 Using cfiCommon0
         CFI (cfiCond34) NoFunction
-        CFI (cfiCond34) Conditional ??CrossCallReturnLabel_57
+        CFI (cfiCond34) Conditional ??CrossCallReturnLabel_59
         CFI (cfiCond34) ?b8 Frame(CFA, -3)
         CFI (cfiCond34) CFA SP+7
         CFI Block cfiCond35 Using cfiCommon0
         CFI (cfiCond35) NoFunction
-        CFI (cfiCond35) Conditional ??CrossCallReturnLabel_58
+        CFI (cfiCond35) Conditional ??CrossCallReturnLabel_60
         CFI (cfiCond35) ?b8 Frame(CFA, -3)
         CFI (cfiCond35) CFA SP+7
         CFI Block cfiCond36 Using cfiCommon0
         CFI (cfiCond36) NoFunction
-        CFI (cfiCond36) Conditional ??CrossCallReturnLabel_58
+        CFI (cfiCond36) Conditional ??CrossCallReturnLabel_60
         CFI (cfiCond36) ?b8 Frame(CFA, -3)
         CFI (cfiCond36) CFA SP+7
         CFI Block cfiCond37 Using cfiCommon0
         CFI (cfiCond37) NoFunction
-        CFI (cfiCond37) Conditional ??CrossCallReturnLabel_59
+        CFI (cfiCond37) Conditional ??CrossCallReturnLabel_61
         CFI (cfiCond37) CFA SP+6
         CFI Block cfiCond38 Using cfiCommon0
         CFI (cfiCond38) NoFunction
-        CFI (cfiCond38) Conditional ??CrossCallReturnLabel_50
+        CFI (cfiCond38) Conditional ??CrossCallReturnLabel_52
         CFI (cfiCond38) ?b8 Frame(CFA, -3)
         CFI (cfiCond38) CFA SP+7
         CFI Block cfiCond39 Using cfiCommon0
         CFI (cfiCond39) NoFunction
-        CFI (cfiCond39) Conditional ??CrossCallReturnLabel_51
+        CFI (cfiCond39) Conditional ??CrossCallReturnLabel_53
         CFI (cfiCond39) CFA SP+6
         CFI Block cfiCond40 Using cfiCommon0
         CFI (cfiCond40) NoFunction
-        CFI (cfiCond40) Conditional ??CrossCallReturnLabel_52
+        CFI (cfiCond40) Conditional ??CrossCallReturnLabel_54
         CFI (cfiCond40) CFA SP+6
         CFI Block cfiPicker41 Using cfiCommon1
         CFI (cfiPicker41) NoFunction
         CFI (cfiPicker41) Picker
-        CALLF     ?Subroutine17
-??CrossCallReturnLabel_63:
+        CALLF     ?Subroutine18
+??CrossCallReturnLabel_65:
         RETF
         CFI EndBlock cfiCond30
         CFI EndBlock cfiCond31
@@ -1436,47 +1443,47 @@ LCD_Busy:
         CFI (cfiPicker44) NoFunction
         CFI (cfiPicker44) Picker
         LD        A, #0x8
-        CALLF     ?Subroutine17
-??CrossCallReturnLabel_62:
         CALLF     ?Subroutine18
-??CrossCallReturnLabel_39:
+??CrossCallReturnLabel_64:
+        CALLF     ?Subroutine19
+??CrossCallReturnLabel_41:
         LD        A, #0x8
         LDW       X, #0x500a
         CALLF     GPIO_WriteHigh
-        CALLF     ?Subroutine18
-??CrossCallReturnLabel_38:
+        CALLF     ?Subroutine19
+??CrossCallReturnLabel_40:
         RETF
         CFI EndBlock cfiCond42
         CFI EndBlock cfiCond43
         CFI EndBlock cfiPicker44
 
         SECTION `.far_func.text`:CODE:NOROOT(0)
-?Subroutine18:
+?Subroutine19:
         CFI Block cfiCond45 Using cfiCommon0
         CFI NoFunction
-        CFI Conditional ??CrossCallReturnLabel_41
+        CFI Conditional ??CrossCallReturnLabel_43
         CFI ?b8 Frame(CFA, -3)
         CFI CFA SP+7
         CFI Block cfiCond46 Using cfiCommon0
         CFI (cfiCond46) NoFunction
-        CFI (cfiCond46) Conditional ??CrossCallReturnLabel_40
+        CFI (cfiCond46) Conditional ??CrossCallReturnLabel_42
         CFI (cfiCond46) ?b8 Frame(CFA, -3)
         CFI (cfiCond46) CFA SP+7
         CFI Block cfiCond47 Using cfiCommon0
         CFI (cfiCond47) NoFunction
-        CFI (cfiCond47) Conditional ??CrossCallReturnLabel_39, ??CrossCallReturnLabel_0
+        CFI (cfiCond47) Conditional ??CrossCallReturnLabel_41, ??CrossCallReturnLabel_0
         CFI (cfiCond47) CFA SP+9
         CFI Block cfiCond48 Using cfiCommon0
         CFI (cfiCond48) NoFunction
-        CFI (cfiCond48) Conditional ??CrossCallReturnLabel_39, ??CrossCallReturnLabel_1
+        CFI (cfiCond48) Conditional ??CrossCallReturnLabel_41, ??CrossCallReturnLabel_1
         CFI (cfiCond48) CFA SP+9
         CFI Block cfiCond49 Using cfiCommon0
         CFI (cfiCond49) NoFunction
-        CFI (cfiCond49) Conditional ??CrossCallReturnLabel_38, ??CrossCallReturnLabel_0
+        CFI (cfiCond49) Conditional ??CrossCallReturnLabel_40, ??CrossCallReturnLabel_0
         CFI (cfiCond49) CFA SP+9
         CFI Block cfiCond50 Using cfiCommon0
         CFI (cfiCond50) NoFunction
-        CFI (cfiCond50) Conditional ??CrossCallReturnLabel_38, ??CrossCallReturnLabel_1
+        CFI (cfiCond50) Conditional ??CrossCallReturnLabel_40, ??CrossCallReturnLabel_1
         CFI (cfiCond50) CFA SP+9
         CFI Block cfiPicker51 Using cfiCommon1
         CFI (cfiPicker51) NoFunction
@@ -1504,7 +1511,7 @@ LCDInstrNibble:
         LD        A, #0x4
         CALLF     ?Subroutine4
 ??CrossCallReturnLabel_10:
-        JPF       ??Subroutine21_0
+        JPF       ??Subroutine22_0
         CFI EndBlock cfiBlock52
 
         SECTION `.far_func.text`:CODE:NOROOT(0)
@@ -1516,7 +1523,7 @@ InitLcd:
         CALLF     ?Subroutine4
 ??CrossCallReturnLabel_11:
         CALLF     ?Subroutine5
-??CrossCallReturnLabel_52:
+??CrossCallReturnLabel_54:
         LDW       X, #0xfa0
         CALLF     ?Subroutine7
 ??CrossCallReturnLabel_15:
@@ -1535,8 +1542,8 @@ InitLcd:
         CALLF     Delay1
         LD        A, #0xc
         CALLF     LCDInstr
-        CALLF     ?Subroutine19
-??CrossCallReturnLabel_44:
+        CALLF     ?Subroutine20
+??CrossCallReturnLabel_46:
         LD        A, #0x1
         CALLF     LCDInstr
         LDW       X, #0xfa
@@ -1563,8 +1570,8 @@ InitLcd:
         CALLF     Delay1
         LD        A, #0x3
         CALLF     LCDInstrNibble
-        CALLF     ?Subroutine19
-??CrossCallReturnLabel_43:
+        CALLF     ?Subroutine20
+??CrossCallReturnLabel_45:
         RETF
         CFI EndBlock cfiCond54
         CFI EndBlock cfiCond55
@@ -1584,94 +1591,94 @@ InitLcd:
         CFI Block cfiPicker59 Using cfiCommon1
         CFI (cfiPicker59) NoFunction
         CFI (cfiPicker59) Picker
-        CALLF     ?Subroutine17
-??CrossCallReturnLabel_61:
+        CALLF     ?Subroutine18
+??CrossCallReturnLabel_63:
         LD        A, #0x2
-        CALLF     ?Subroutine17
-??CrossCallReturnLabel_60:
+        CALLF     ?Subroutine18
+??CrossCallReturnLabel_62:
         RETF
         CFI EndBlock cfiCond57
         CFI EndBlock cfiCond58
         CFI EndBlock cfiPicker59
 
         SECTION `.far_func.text`:CODE:NOROOT(0)
-?Subroutine17:
+?Subroutine18:
         CFI Block cfiCond60 Using cfiCommon0
         CFI NoFunction
-        CFI Conditional ??CrossCallReturnLabel_63, ??CrossCallReturnLabel_50
+        CFI Conditional ??CrossCallReturnLabel_65, ??CrossCallReturnLabel_52
         CFI ?b8 Frame(CFA, -3)
         CFI CFA SP+10
         CFI Block cfiCond61 Using cfiCommon0
         CFI (cfiCond61) NoFunction
-        CFI (cfiCond61) Conditional ??CrossCallReturnLabel_63, ??CrossCallReturnLabel_51
+        CFI (cfiCond61) Conditional ??CrossCallReturnLabel_65, ??CrossCallReturnLabel_53
         CFI (cfiCond61) CFA SP+9
         CFI Block cfiCond62 Using cfiCommon0
         CFI (cfiCond62) NoFunction
-        CFI (cfiCond62) Conditional ??CrossCallReturnLabel_63, ??CrossCallReturnLabel_52
+        CFI (cfiCond62) Conditional ??CrossCallReturnLabel_65, ??CrossCallReturnLabel_54
         CFI (cfiCond62) CFA SP+9
         CFI Block cfiCond63 Using cfiCommon0
         CFI (cfiCond63) NoFunction
-        CFI (cfiCond63) Conditional ??CrossCallReturnLabel_63, ??CrossCallReturnLabel_53
+        CFI (cfiCond63) Conditional ??CrossCallReturnLabel_65, ??CrossCallReturnLabel_55
         CFI (cfiCond63) CFA SP+9
         CFI Block cfiCond64 Using cfiCommon0
         CFI (cfiCond64) NoFunction
-        CFI (cfiCond64) Conditional ??CrossCallReturnLabel_63, ??CrossCallReturnLabel_54
+        CFI (cfiCond64) Conditional ??CrossCallReturnLabel_65, ??CrossCallReturnLabel_56
         CFI (cfiCond64) ?b8 Frame(CFA, -3)
         CFI (cfiCond64) CFA SP+10
         CFI Block cfiCond65 Using cfiCommon0
         CFI (cfiCond65) NoFunction
-        CFI (cfiCond65) Conditional ??CrossCallReturnLabel_63, ??CrossCallReturnLabel_55
+        CFI (cfiCond65) Conditional ??CrossCallReturnLabel_65, ??CrossCallReturnLabel_57
         CFI (cfiCond65) ?b8 Frame(CFA, -3)
         CFI (cfiCond65) CFA SP+10
         CFI Block cfiCond66 Using cfiCommon0
         CFI (cfiCond66) NoFunction
-        CFI (cfiCond66) Conditional ??CrossCallReturnLabel_63, ??CrossCallReturnLabel_56
+        CFI (cfiCond66) Conditional ??CrossCallReturnLabel_65, ??CrossCallReturnLabel_58
         CFI (cfiCond66) ?b8 Frame(CFA, -3)
         CFI (cfiCond66) CFA SP+10
         CFI Block cfiCond67 Using cfiCommon0
         CFI (cfiCond67) NoFunction
-        CFI (cfiCond67) Conditional ??CrossCallReturnLabel_63, ??CrossCallReturnLabel_57
+        CFI (cfiCond67) Conditional ??CrossCallReturnLabel_65, ??CrossCallReturnLabel_59
         CFI (cfiCond67) ?b8 Frame(CFA, -3)
         CFI (cfiCond67) CFA SP+10
         CFI Block cfiCond68 Using cfiCommon0
         CFI (cfiCond68) NoFunction
-        CFI (cfiCond68) Conditional ??CrossCallReturnLabel_63, ??CrossCallReturnLabel_58
+        CFI (cfiCond68) Conditional ??CrossCallReturnLabel_65, ??CrossCallReturnLabel_60
         CFI (cfiCond68) ?b8 Frame(CFA, -3)
         CFI (cfiCond68) CFA SP+10
         CFI Block cfiCond69 Using cfiCommon0
         CFI (cfiCond69) NoFunction
-        CFI (cfiCond69) Conditional ??CrossCallReturnLabel_63, ??CrossCallReturnLabel_58
+        CFI (cfiCond69) Conditional ??CrossCallReturnLabel_65, ??CrossCallReturnLabel_60
         CFI (cfiCond69) ?b8 Frame(CFA, -3)
         CFI (cfiCond69) CFA SP+10
         CFI Block cfiCond70 Using cfiCommon0
         CFI (cfiCond70) NoFunction
-        CFI (cfiCond70) Conditional ??CrossCallReturnLabel_63, ??CrossCallReturnLabel_59
+        CFI (cfiCond70) Conditional ??CrossCallReturnLabel_65, ??CrossCallReturnLabel_61
         CFI (cfiCond70) CFA SP+9
         CFI Block cfiCond71 Using cfiCommon0
         CFI (cfiCond71) NoFunction
-        CFI (cfiCond71) Conditional ??CrossCallReturnLabel_62, ??CrossCallReturnLabel_0
+        CFI (cfiCond71) Conditional ??CrossCallReturnLabel_64, ??CrossCallReturnLabel_0
         CFI (cfiCond71) CFA SP+9
         CFI Block cfiCond72 Using cfiCommon0
         CFI (cfiCond72) NoFunction
-        CFI (cfiCond72) Conditional ??CrossCallReturnLabel_62, ??CrossCallReturnLabel_1
+        CFI (cfiCond72) Conditional ??CrossCallReturnLabel_64, ??CrossCallReturnLabel_1
         CFI (cfiCond72) CFA SP+9
         CFI Block cfiCond73 Using cfiCommon0
         CFI (cfiCond73) NoFunction
-        CFI (cfiCond73) Conditional ??CrossCallReturnLabel_61, ??CrossCallReturnLabel_10
+        CFI (cfiCond73) Conditional ??CrossCallReturnLabel_63, ??CrossCallReturnLabel_10
         CFI (cfiCond73) ?b8 Frame(CFA, -3)
         CFI (cfiCond73) CFA SP+10
         CFI Block cfiCond74 Using cfiCommon0
         CFI (cfiCond74) NoFunction
-        CFI (cfiCond74) Conditional ??CrossCallReturnLabel_61, ??CrossCallReturnLabel_11
+        CFI (cfiCond74) Conditional ??CrossCallReturnLabel_63, ??CrossCallReturnLabel_11
         CFI (cfiCond74) CFA SP+9
         CFI Block cfiCond75 Using cfiCommon0
         CFI (cfiCond75) NoFunction
-        CFI (cfiCond75) Conditional ??CrossCallReturnLabel_60, ??CrossCallReturnLabel_10
+        CFI (cfiCond75) Conditional ??CrossCallReturnLabel_62, ??CrossCallReturnLabel_10
         CFI (cfiCond75) ?b8 Frame(CFA, -3)
         CFI (cfiCond75) CFA SP+10
         CFI Block cfiCond76 Using cfiCommon0
         CFI (cfiCond76) NoFunction
-        CFI (cfiCond76) Conditional ??CrossCallReturnLabel_60, ??CrossCallReturnLabel_11
+        CFI (cfiCond76) Conditional ??CrossCallReturnLabel_62, ??CrossCallReturnLabel_11
         CFI (cfiCond76) CFA SP+9
         CFI Block cfiPicker77 Using cfiCommon1
         CFI (cfiPicker77) NoFunction
@@ -1802,35 +1809,35 @@ Send_Hello:
         LD        A, #0x80
         LDW       X, #0x500f
         CALLF     GPIO_WriteHigh
-        CALLF     ?Subroutine19
-??CrossCallReturnLabel_42:
+        CALLF     ?Subroutine20
+??CrossCallReturnLabel_44:
         RETF
         CFI EndBlock cfiCond81
         CFI EndBlock cfiCond82
         CFI EndBlock cfiPicker83
 
         SECTION `.far_func.text`:CODE:NOROOT(0)
-?Subroutine19:
+?Subroutine20:
         CFI Block cfiCond84 Using cfiCommon0
         CFI NoFunction
-        CFI Conditional ??CrossCallReturnLabel_44
+        CFI Conditional ??CrossCallReturnLabel_46
         CFI CFA SP+6
         CFI Block cfiCond85 Using cfiCommon0
         CFI (cfiCond85) NoFunction
-        CFI (cfiCond85) Conditional ??CrossCallReturnLabel_43, ??CrossCallReturnLabel_15
+        CFI (cfiCond85) Conditional ??CrossCallReturnLabel_45, ??CrossCallReturnLabel_15
         CFI (cfiCond85) CFA SP+9
         CFI Block cfiCond86 Using cfiCommon0
         CFI (cfiCond86) NoFunction
-        CFI (cfiCond86) Conditional ??CrossCallReturnLabel_43, ??CrossCallReturnLabel_16
+        CFI (cfiCond86) Conditional ??CrossCallReturnLabel_45, ??CrossCallReturnLabel_16
         CFI (cfiCond86) CFA SP+9
         CFI Block cfiCond87 Using cfiCommon0
         CFI (cfiCond87) NoFunction
-        CFI (cfiCond87) Conditional ??CrossCallReturnLabel_42, ??CrossCallReturnLabel_17
+        CFI (cfiCond87) Conditional ??CrossCallReturnLabel_44, ??CrossCallReturnLabel_17
         CFI (cfiCond87) ?b8 Frame(CFA, -3)
         CFI (cfiCond87) CFA SP+10
         CFI Block cfiCond88 Using cfiCommon0
         CFI (cfiCond88) NoFunction
-        CFI (cfiCond88) Conditional ??CrossCallReturnLabel_42, ??CrossCallReturnLabel_18
+        CFI (cfiCond88) Conditional ??CrossCallReturnLabel_44, ??CrossCallReturnLabel_18
         CFI (cfiCond88) ?b8 Frame(CFA, -3)
         CFI (cfiCond88) CFA SP+10
         CFI Block cfiPicker89 Using cfiCommon1
@@ -1967,31 +1974,31 @@ InitClk:
         CALLF     CLK_ClockSwitchConfig
         MOV       S:?b0, #0x1
         LD        A, #0x5
-        CALLF     ?Subroutine13
-??CrossCallReturnLabel_26:
-        LD        A, #0x3
-        CALLF     ?Subroutine13
-??CrossCallReturnLabel_27:
-        LD        A, #0x13
-        CALLF     ?Subroutine13
+        CALLF     ?Subroutine14
 ??CrossCallReturnLabel_28:
+        LD        A, #0x3
+        CALLF     ?Subroutine14
+??CrossCallReturnLabel_29:
+        LD        A, #0x13
+        CALLF     ?Subroutine14
+??CrossCallReturnLabel_30:
         CLR       A
         JPF       CLK_PeripheralClockConfig
         CFI EndBlock cfiBlock99
 
         SECTION `.far_func.text`:CODE:NOROOT(0)
-?Subroutine13:
+?Subroutine14:
         CFI Block cfiCond100 Using cfiCommon0
         CFI NoFunction
-        CFI Conditional ??CrossCallReturnLabel_26
+        CFI Conditional ??CrossCallReturnLabel_28
         CFI CFA SP+6
         CFI Block cfiCond101 Using cfiCommon0
         CFI (cfiCond101) NoFunction
-        CFI (cfiCond101) Conditional ??CrossCallReturnLabel_27
+        CFI (cfiCond101) Conditional ??CrossCallReturnLabel_29
         CFI (cfiCond101) CFA SP+6
         CFI Block cfiCond102 Using cfiCommon0
         CFI (cfiCond102) NoFunction
-        CFI (cfiCond102) Conditional ??CrossCallReturnLabel_28
+        CFI (cfiCond102) Conditional ??CrossCallReturnLabel_30
         CFI (cfiCond102) CFA SP+6
         CFI Block cfiPicker103 Using cfiCommon1
         CFI (cfiPicker103) NoFunction
@@ -2067,8 +2074,8 @@ I2C_RA:
         MOV       L:timeout, #0xff
 ??I2C_RA_0:
         LDW       X, #0x302
-        CALLF     ?Subroutine14
-??CrossCallReturnLabel_29:
+        CALLF     ?Subroutine15
+??CrossCallReturnLabel_31:
         JRNE      L:??I2C_RA_1
         LD        A, L:timeout
         JRNE      L:??I2C_RA_0
@@ -2091,8 +2098,8 @@ I2C_WD:
         MOV       L:timeout, #0xff
 ??I2C_WD_0:
         LDW       X, #0x784
-        CALLF     ?Subroutine14
-??CrossCallReturnLabel_30:
+        CALLF     ?Subroutine15
+??CrossCallReturnLabel_32:
         JRNE      L:??I2C_WD_1
         LD        A, L:timeout
         JRNE      L:??I2C_WD_0
@@ -2116,8 +2123,8 @@ I2C_WA:
         MOV       L:timeout, #0xff
 ??I2C_WA_0:
         LDW       X, #0x782
-        CALLF     ?Subroutine14
-??CrossCallReturnLabel_31:
+        CALLF     ?Subroutine15
+??CrossCallReturnLabel_33:
         JRNE      L:??I2C_WA_1
         LD        A, L:timeout
         JRNE      L:??I2C_WA_0
@@ -2132,22 +2139,22 @@ I2C_WA:
         CFI EndBlock cfiBlock108
 
         SECTION `.far_func.text`:CODE:NOROOT(0)
-?Subroutine14:
+?Subroutine15:
         CFI Block cfiCond109 Using cfiCommon0
         CFI NoFunction
-        CFI Conditional ??CrossCallReturnLabel_29
+        CFI Conditional ??CrossCallReturnLabel_31
         CFI CFA SP+6
         CFI Block cfiCond110 Using cfiCommon0
         CFI (cfiCond110) NoFunction
-        CFI (cfiCond110) Conditional ??CrossCallReturnLabel_30
+        CFI (cfiCond110) Conditional ??CrossCallReturnLabel_32
         CFI (cfiCond110) CFA SP+6
         CFI Block cfiCond111 Using cfiCommon0
         CFI (cfiCond111) NoFunction
-        CFI (cfiCond111) Conditional ??CrossCallReturnLabel_31
+        CFI (cfiCond111) Conditional ??CrossCallReturnLabel_33
         CFI (cfiCond111) CFA SP+6
         CFI Block cfiCond112 Using cfiCommon0
         CFI (cfiCond112) NoFunction
-        CFI (cfiCond112) Conditional ??CrossCallReturnLabel_32
+        CFI (cfiCond112) Conditional ??CrossCallReturnLabel_34
         CFI (cfiCond112) CFA SP+6
         CFI Block cfiPicker113 Using cfiCommon1
         CFI (cfiPicker113) NoFunction
@@ -2171,8 +2178,8 @@ I2C_Start:
         MOV       L:timeout, #0x64
 ??I2C_Start_0:
         LDW       X, #0x301
-        CALLF     ?Subroutine14
-??CrossCallReturnLabel_32:
+        CALLF     ?Subroutine15
+??CrossCallReturnLabel_34:
         JRNE      L:??I2C_Start_1
         LD        A, L:timeout
         JRNE      L:??I2C_Start_0
@@ -2191,8 +2198,8 @@ I2C_Start:
         CFI Function ReadDS1307
         CODE
 ReadDS1307:
-        CALLF     ?Subroutine15
-??CrossCallReturnLabel_33:
+        CALLF     ?Subroutine16
+??CrossCallReturnLabel_35:
         JRNE      L:??ReadDS1307_0
 ??ReadDS1307_1:
         CLR       A
@@ -2204,54 +2211,56 @@ ReadDS1307:
         CALLF     ?Subroutine10
 ??CrossCallReturnLabel_19:
         JREQ      L:??ReadDS1307_1
-        CALLF     ?Subroutine16
-??CrossCallReturnLabel_35:
+        CALLF     ?Subroutine17
+??CrossCallReturnLabel_37:
         LD        A, #0x1
         CALLF     I2C_GenerateSTOP
         CALLF     I2C_Start
         CP        A, #0x0
         JREQ      L:??ReadDS1307_1
-        CALLF     ?Subroutine16
-??CrossCallReturnLabel_36:
+        CALLF     ?Subroutine17
+??CrossCallReturnLabel_38:
         LD        A, #0xd0
         CALLF     I2C_RA
         CP        A, #0x0
         JREQ      L:??ReadDS1307_1
-        CALLF     ?Subroutine16
-??CrossCallReturnLabel_37:
-        LD        A, #0x1
-        CALLF     I2C_AcknowledgeConfig
-        CALLF     I2C_RD
+        CALLF     ?Subroutine17
+??CrossCallReturnLabel_39:
+        CALLF     ?Subroutine13
+??CrossCallReturnLabel_27:
         LD        L:seconds, A
+        CALLF     ?Subroutine13
+??CrossCallReturnLabel_26:
+        LD        L:minutes, A
         CLR       A
         CALLF     I2C_AcknowledgeConfig
         LD        A, #0x1
         CALLF     I2C_GenerateSTOP
         CALLF     I2C_RD
-        LD        L:minutes, A
+        LD        L:hours, A
         LD        A, #0x1
         RETF
         CFI EndBlock cfiBlock115
 
         SECTION `.far_func.text`:CODE:NOROOT(0)
-?Subroutine16:
+?Subroutine17:
         CFI Block cfiCond116 Using cfiCommon0
         CFI NoFunction
-        CFI Conditional ??CrossCallReturnLabel_35
+        CFI Conditional ??CrossCallReturnLabel_37
         CFI CFA SP+6
         CFI Block cfiCond117 Using cfiCommon0
         CFI (cfiCond117) NoFunction
-        CFI (cfiCond117) Conditional ??CrossCallReturnLabel_36
+        CFI (cfiCond117) Conditional ??CrossCallReturnLabel_38
         CFI (cfiCond117) CFA SP+6
         CFI Block cfiCond118 Using cfiCommon0
         CFI (cfiCond118) NoFunction
-        CFI (cfiCond118) Conditional ??CrossCallReturnLabel_37
+        CFI (cfiCond118) Conditional ??CrossCallReturnLabel_39
         CFI (cfiCond118) CFA SP+6
         CFI Block cfiPicker119 Using cfiCommon1
         CFI (cfiPicker119) NoFunction
         CFI (cfiPicker119) Picker
-        CALLF     ?Subroutine20
-??CrossCallReturnLabel_47:
+        CALLF     ?Subroutine21
+??CrossCallReturnLabel_49:
         RETF
         CFI EndBlock cfiCond116
         CFI EndBlock cfiCond117
@@ -2259,38 +2268,38 @@ ReadDS1307:
         CFI EndBlock cfiPicker119
 
         SECTION `.far_func.text`:CODE:NOROOT(0)
-?Subroutine20:
+?Subroutine21:
         CFI Block cfiCond120 Using cfiCommon0
         CFI NoFunction
-        CFI Conditional ??CrossCallReturnLabel_47, ??CrossCallReturnLabel_35
+        CFI Conditional ??CrossCallReturnLabel_49, ??CrossCallReturnLabel_37
         CFI CFA SP+9
         CFI Block cfiCond121 Using cfiCommon0
         CFI (cfiCond121) NoFunction
-        CFI (cfiCond121) Conditional ??CrossCallReturnLabel_47, ??CrossCallReturnLabel_36
+        CFI (cfiCond121) Conditional ??CrossCallReturnLabel_49, ??CrossCallReturnLabel_38
         CFI (cfiCond121) CFA SP+9
         CFI Block cfiCond122 Using cfiCommon0
         CFI (cfiCond122) NoFunction
-        CFI (cfiCond122) Conditional ??CrossCallReturnLabel_47, ??CrossCallReturnLabel_37
+        CFI (cfiCond122) Conditional ??CrossCallReturnLabel_49, ??CrossCallReturnLabel_39
         CFI (cfiCond122) CFA SP+9
         CFI Block cfiCond123 Using cfiCommon0
         CFI (cfiCond123) NoFunction
-        CFI (cfiCond123) Conditional ??CrossCallReturnLabel_46, ??CrossCallReturnLabel_24
+        CFI (cfiCond123) Conditional ??CrossCallReturnLabel_48, ??CrossCallReturnLabel_24
         CFI (cfiCond123) CFA SP+9
         CFI Block cfiCond124 Using cfiCommon0
         CFI (cfiCond124) NoFunction
-        CFI (cfiCond124) Conditional ??CrossCallReturnLabel_46, ??CrossCallReturnLabel_25
+        CFI (cfiCond124) Conditional ??CrossCallReturnLabel_48, ??CrossCallReturnLabel_25
         CFI (cfiCond124) CFA SP+9
         CFI Block cfiCond125 Using cfiCommon0
         CFI (cfiCond125) NoFunction
-        CFI (cfiCond125) Conditional ??CrossCallReturnLabel_45, ??CrossCallReturnLabel_19
+        CFI (cfiCond125) Conditional ??CrossCallReturnLabel_47, ??CrossCallReturnLabel_19
         CFI (cfiCond125) CFA SP+9
         CFI Block cfiCond126 Using cfiCommon0
         CFI (cfiCond126) NoFunction
-        CFI (cfiCond126) Conditional ??CrossCallReturnLabel_45, ??CrossCallReturnLabel_20
+        CFI (cfiCond126) Conditional ??CrossCallReturnLabel_47, ??CrossCallReturnLabel_20
         CFI (cfiCond126) CFA SP+9
         CFI Block cfiCond127 Using cfiCommon0
         CFI (cfiCond127) NoFunction
-        CFI (cfiCond127) Conditional ??CrossCallReturnLabel_45, ??CrossCallReturnLabel_21
+        CFI (cfiCond127) Conditional ??CrossCallReturnLabel_47, ??CrossCallReturnLabel_21
         CFI (cfiCond127) CFA SP+9
         CFI Block cfiPicker128 Using cfiCommon1
         CFI (cfiPicker128) NoFunction
@@ -2310,12 +2319,32 @@ ReadDS1307:
         CFI EndBlock cfiPicker128
 
         SECTION `.far_func.text`:CODE:NOROOT(0)
-        CFI Block cfiBlock129 Using cfiCommon0
+?Subroutine13:
+        CFI Block cfiCond129 Using cfiCommon0
+        CFI NoFunction
+        CFI Conditional ??CrossCallReturnLabel_27
+        CFI CFA SP+6
+        CFI Block cfiCond130 Using cfiCommon0
+        CFI (cfiCond130) NoFunction
+        CFI (cfiCond130) Conditional ??CrossCallReturnLabel_26
+        CFI (cfiCond130) CFA SP+6
+        CFI Block cfiPicker131 Using cfiCommon1
+        CFI (cfiPicker131) NoFunction
+        CFI (cfiPicker131) Picker
+        LD        A, #0x1
+        CALLF     I2C_AcknowledgeConfig
+        JPF       I2C_RD
+        CFI EndBlock cfiCond129
+        CFI EndBlock cfiCond130
+        CFI EndBlock cfiPicker131
+
+        SECTION `.far_func.text`:CODE:NOROOT(0)
+        CFI Block cfiBlock132 Using cfiCommon0
         CFI Function Init_DS1307
         CODE
 Init_DS1307:
-        CALLF     ?Subroutine15
-??CrossCallReturnLabel_34:
+        CALLF     ?Subroutine16
+??CrossCallReturnLabel_36:
         JRNE      L:??Init_DS1307_0
 ??Init_DS1307_1:
         CLR       A
@@ -2334,46 +2363,23 @@ Init_DS1307:
         CALLF     I2C_GenerateSTOP
         LD        A, #0x1
         RETF
-        CFI EndBlock cfiBlock129
+        CFI EndBlock cfiBlock132
 
         SECTION `.far_func.text`:CODE:NOROOT(0)
-?Subroutine15:
-        CFI Block cfiCond130 Using cfiCommon0
-        CFI NoFunction
-        CFI Conditional ??CrossCallReturnLabel_33
-        CFI CFA SP+6
-        CFI Block cfiCond131 Using cfiCommon0
-        CFI (cfiCond131) NoFunction
-        CFI (cfiCond131) Conditional ??CrossCallReturnLabel_34
-        CFI (cfiCond131) CFA SP+6
-        CFI Block cfiPicker132 Using cfiCommon1
-        CFI (cfiPicker132) NoFunction
-        CFI (cfiPicker132) Picker
-        MOV       L:error, #0x1
-        CALLF     I2C_Start
-        CP        A, #0x0
-        RETF
-        CFI EndBlock cfiCond130
-        CFI EndBlock cfiCond131
-        CFI EndBlock cfiPicker132
-
-        SECTION `.far_func.text`:CODE:NOROOT(0)
-?Subroutine12:
+?Subroutine16:
         CFI Block cfiCond133 Using cfiCommon0
         CFI NoFunction
-        CFI Conditional ??CrossCallReturnLabel_24
+        CFI Conditional ??CrossCallReturnLabel_35
         CFI CFA SP+6
         CFI Block cfiCond134 Using cfiCommon0
         CFI (cfiCond134) NoFunction
-        CFI (cfiCond134) Conditional ??CrossCallReturnLabel_25
+        CFI (cfiCond134) Conditional ??CrossCallReturnLabel_36
         CFI (cfiCond134) CFA SP+6
         CFI Block cfiPicker135 Using cfiCommon1
         CFI (cfiPicker135) NoFunction
         CFI (cfiPicker135) Picker
-        CALLF     ?Subroutine20
-??CrossCallReturnLabel_46:
-        LD        A, #0xd0
-        CALLF     I2C_WA
+        MOV       L:error, #0x1
+        CALLF     I2C_Start
         CP        A, #0x0
         RETF
         CFI EndBlock cfiCond133
@@ -2381,35 +2387,58 @@ Init_DS1307:
         CFI EndBlock cfiPicker135
 
         SECTION `.far_func.text`:CODE:NOROOT(0)
-?Subroutine10:
+?Subroutine12:
         CFI Block cfiCond136 Using cfiCommon0
         CFI NoFunction
-        CFI Conditional ??CrossCallReturnLabel_19
+        CFI Conditional ??CrossCallReturnLabel_24
         CFI CFA SP+6
         CFI Block cfiCond137 Using cfiCommon0
         CFI (cfiCond137) NoFunction
-        CFI (cfiCond137) Conditional ??CrossCallReturnLabel_20
+        CFI (cfiCond137) Conditional ??CrossCallReturnLabel_25
         CFI (cfiCond137) CFA SP+6
-        CFI Block cfiCond138 Using cfiCommon0
-        CFI (cfiCond138) NoFunction
-        CFI (cfiCond138) Conditional ??CrossCallReturnLabel_21
-        CFI (cfiCond138) CFA SP+6
-        CFI Block cfiPicker139 Using cfiCommon1
-        CFI (cfiPicker139) NoFunction
-        CFI (cfiPicker139) Picker
-        CALLF     ?Subroutine20
-??CrossCallReturnLabel_45:
-        CLR       A
-        CALLF     I2C_WD
+        CFI Block cfiPicker138 Using cfiCommon1
+        CFI (cfiPicker138) NoFunction
+        CFI (cfiPicker138) Picker
+        CALLF     ?Subroutine21
+??CrossCallReturnLabel_48:
+        LD        A, #0xd0
+        CALLF     I2C_WA
         CP        A, #0x0
         RETF
         CFI EndBlock cfiCond136
         CFI EndBlock cfiCond137
-        CFI EndBlock cfiCond138
-        CFI EndBlock cfiPicker139
+        CFI EndBlock cfiPicker138
 
         SECTION `.far_func.text`:CODE:NOROOT(0)
-        CFI Block cfiBlock140 Using cfiCommon0
+?Subroutine10:
+        CFI Block cfiCond139 Using cfiCommon0
+        CFI NoFunction
+        CFI Conditional ??CrossCallReturnLabel_19
+        CFI CFA SP+6
+        CFI Block cfiCond140 Using cfiCommon0
+        CFI (cfiCond140) NoFunction
+        CFI (cfiCond140) Conditional ??CrossCallReturnLabel_20
+        CFI (cfiCond140) CFA SP+6
+        CFI Block cfiCond141 Using cfiCommon0
+        CFI (cfiCond141) NoFunction
+        CFI (cfiCond141) Conditional ??CrossCallReturnLabel_21
+        CFI (cfiCond141) CFA SP+6
+        CFI Block cfiPicker142 Using cfiCommon1
+        CFI (cfiPicker142) NoFunction
+        CFI (cfiPicker142) Picker
+        CALLF     ?Subroutine21
+??CrossCallReturnLabel_47:
+        CLR       A
+        CALLF     I2C_WD
+        CP        A, #0x0
+        RETF
+        CFI EndBlock cfiCond139
+        CFI EndBlock cfiCond140
+        CFI EndBlock cfiCond141
+        CFI EndBlock cfiPicker142
+
+        SECTION `.far_func.text`:CODE:NOROOT(0)
+        CFI Block cfiBlock143 Using cfiCommon0
         CFI Function InitI2C
         CODE
 InitI2C:
@@ -2430,10 +2459,10 @@ InitI2C:
         CALLF     I2C_Init
         LD        A, #0x1
         JPF       I2C_Cmd
-        CFI EndBlock cfiBlock140
+        CFI EndBlock cfiBlock143
 
         SECTION `.far_func.text`:CODE:NOROOT(0)
-        CFI Block cfiBlock141 Using cfiCommon0
+        CFI Block cfiBlock144 Using cfiCommon0
         CFI Function main
         CODE
 main:
@@ -2463,9 +2492,13 @@ main:
         LD        XL, A
         PUSHW     X
         CFI CFA SP+7
-        LDW       X, #`?<Constant "\\n %02x:%02x">`
+        LD        A, L:hours
+        LD        XL, A
+        PUSHW     X
+        CFI CFA SP+9
+        LDW       X, #`?<Constant "\\n%02x:%02x:%02x">`
         CALLF     printf
-        ADD       SP, #0x4
+        ADD       SP, #0x6
         CFI CFA SP+3
         LD        A, L:rx_data
         CP        A, #0x1b
@@ -2492,121 +2525,121 @@ main:
         ADD       SP, #0x2
         CFI CFA SP+3
         JRA       L:??main_2
-        CFI EndBlock cfiBlock141
+        CFI EndBlock cfiBlock144
 
         SECTION `.far_func.text`:CODE:REORDER:NOROOT(0)
 ?Subroutine11:
-        CFI Block cfiCond142 Using cfiCommon0
+        CFI Block cfiCond145 Using cfiCommon0
         CFI NoFunction
         CFI Conditional ??CrossCallReturnLabel_23
         CFI CFA SP+6
-        CFI Block cfiCond143 Using cfiCommon0
-        CFI (cfiCond143) NoFunction
-        CFI (cfiCond143) Conditional ??CrossCallReturnLabel_22
-        CFI (cfiCond143) CFA SP+6
-        CFI Block cfiPicker144 Using cfiCommon1
-        CFI (cfiPicker144) NoFunction
-        CFI (cfiPicker144) Picker
+        CFI Block cfiCond146 Using cfiCommon0
+        CFI (cfiCond146) NoFunction
+        CFI (cfiCond146) Conditional ??CrossCallReturnLabel_22
+        CFI (cfiCond146) CFA SP+6
+        CFI Block cfiPicker147 Using cfiCommon1
+        CFI (cfiPicker147) NoFunction
+        CFI (cfiPicker147) Picker
         LD        A, #0x1
         LDW       X, #0x500f
         CALLF     GPIO_WriteReverse
         LDW       X, #0x7530
         JPF       Delay2
-        CFI EndBlock cfiCond142
-        CFI EndBlock cfiCond143
-        CFI EndBlock cfiPicker144
-//  596 
-//  597 void InitDelayTimer()
-//  598 {
-//  599    //Timer 2 use for Delay  long Delay is 40ms for lcd
-//  600    //Tclock 16/8=2Mhz  /20 10us
-//  601        TIM2_DeInit();
-//  602        TIM2_TimeBaseInit(TIM2_PRESCALER_2,0X0050);
-//  603        //TIM2_PrescalerConfig(TIM2_PRESCALER_1, TIM2_PSCRELOADMODE_IMMEDIATE);
-//  604        TIM2_ITConfig(TIM2_IT_UPDATE, ENABLE);
-//  605   //Enable TIM2
-//  606        TIM2_Cmd(ENABLE);
-//  607 
-//  608 }
+        CFI EndBlock cfiCond145
+        CFI EndBlock cfiCond146
+        CFI EndBlock cfiPicker147
+//  598 
+//  599 void InitDelayTimer()
+//  600 {
+//  601    //Timer 2 use for Delay  long Delay is 40ms for lcd
+//  602    //Tclock 16/8=2Mhz  /20 10us
+//  603        TIM2_DeInit();
+//  604        TIM2_TimeBaseInit(TIM2_PRESCALER_2,0X0050);
+//  605        //TIM2_PrescalerConfig(TIM2_PRESCALER_1, TIM2_PSCRELOADMODE_IMMEDIATE);
+//  606        TIM2_ITConfig(TIM2_IT_UPDATE, ENABLE);
+//  607   //Enable TIM2
+//  608        TIM2_Cmd(ENABLE);
 //  609 
-//  610 
-//  611 u16 Average()
-//  612 {
-//  613  //Find average in measure
-//  614   u8 i=0;
-//  615   u16 Summa=0;
-//  616   do
-//  617   {
-//  618    Summa+=measure[i++];
-//  619   } while ( measure[i]!=0);
-//  620    if(i!=0) Summa=Summa/i;
-//  621    return Summa;
-//  622 }
-//  623 
-//  624 PUTCHAR_PROTOTYPE
-//  625 {
-//  626   /* Place your implementation of fputc here */
-//  627   /* e.g. write a character to the USART */
-//  628       //USART_SendData(USART3, (u8) ch);
-//  629      LCD(ch);
-//  630    /* Loop until the end of transmission */
-//  631     //while(USART_GetFlagStatus(USART3, USART_FLAG_TC) == RESET);;
-//  632   return ch;
-//  633 }
-//  634 
-//  635 
-//  636 void Delay1(u16 Delay)
-//  637 {
-//  638   timer1=0;
-//  639   while ( timer1 < Delay); ;
-//  640 }
-//  641 
-//  642  void Delay2(u16 Delay)
-//  643 {
-//  644   timer2=0;
-//  645   while ( timer2 < Delay); ;
-//  646 }
-//  647 
-//  648 
+//  610 }
+//  611 
+//  612 
+//  613 u16 Average()
+//  614 {
+//  615  //Find average in measure
+//  616   u8 i=0;
+//  617   u16 Summa=0;
+//  618   do
+//  619   {
+//  620    Summa+=measure[i++];
+//  621   } while ( measure[i]!=0);
+//  622    if(i!=0) Summa=Summa/i;
+//  623    return Summa;
+//  624 }
+//  625 
+//  626 PUTCHAR_PROTOTYPE
+//  627 {
+//  628   /* Place your implementation of fputc here */
+//  629   /* e.g. write a character to the USART */
+//  630       //USART_SendData(USART3, (u8) ch);
+//  631      LCD(ch);
+//  632    /* Loop until the end of transmission */
+//  633     //while(USART_GetFlagStatus(USART3, USART_FLAG_TC) == RESET);;
+//  634   return ch;
+//  635 }
+//  636 
+//  637 
+//  638 void Delay1(u16 Delay)
+//  639 {
+//  640   timer1=0;
+//  641   while ( timer1 < Delay); ;
+//  642 }
+//  643 
+//  644  void Delay2(u16 Delay)
+//  645 {
+//  646   timer2=0;
+//  647   while ( timer2 < Delay); ;
+//  648 }
 //  649 
-//  650 /*
-//  651 void Delay12 (u16 Delay)
-//  652 {
-//  653   timer2=0;
-//  654   while ( timer2 < Delay); ;
-//  655 }
-//  656 */
-//  657 
-//  658 
-//  659 #ifdef USE_FULL_ASSERT
+//  650 
+//  651 
+//  652 /*
+//  653 void Delay12 (u16 Delay)
+//  654 {
+//  655   timer2=0;
+//  656   while ( timer2 < Delay); ;
+//  657 }
+//  658 */
+//  659 
 //  660 
-//  661 /**
-//  662   * @brief  Reports the name of the source file and the source line number
-//  663   *   where the assert_param error has occurred.
-//  664   * @param file: pointer to the source file name
-//  665   * @param line: assert_param error line source number
-//  666   * @retval : None
-//  667   */
+//  661 #ifdef USE_FULL_ASSERT
+//  662 
+//  663 /**
+//  664   * @brief  Reports the name of the source file and the source line number
+//  665   *   where the assert_param error has occurred.
+//  666   * @param file: pointer to the source file name
+//  667   * @param line: assert_param error line source number
+//  668   * @retval : None
+//  669   */
 
         SECTION `.far_func.text`:CODE:REORDER:NOROOT(0)
-        CFI Block cfiBlock145 Using cfiCommon0
+        CFI Block cfiBlock148 Using cfiCommon0
         CFI Function assert_failed
         CODE
-//  668 void assert_failed(u8* file, u32 line)
-//  669 {
-//  670   /* User can add his own implementation to report the file name and line number,
-//  671      ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-//  672 
-//  673   /* Infinite loop */
-//  674   while (1)
+//  670 void assert_failed(u8* file, u32 line)
+//  671 {
+//  672   /* User can add his own implementation to report the file name and line number,
+//  673      ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+//  674 
+//  675   /* Infinite loop */
+//  676   while (1)
 assert_failed:
 ??assert_failed_0:
         JRA       L:??assert_failed_0
-        CFI EndBlock cfiBlock145
-//  675   {
-//  676 
-//  677   }
-//  678 }
+        CFI EndBlock cfiBlock148
+//  677   {
+//  678 
+//  679   }
+//  680 }
 
         SECTION VREGS:DATA:REORDER:NOROOT(0)
 
@@ -2619,8 +2652,8 @@ assert_failed:
         DC8 "\012      "
 
         SECTION `.near.rodata`:CONST:REORDER:NOROOT(0)
-`?<Constant "\\n %02x:%02x">`:
-        DC8 "\012 %02x:%02x"
+`?<Constant "\\n%02x:%02x:%02x">`:
+        DC8 "\012%02x:%02x:%02x"
 
         SECTION `.near.rodata`:CONST:REORDER:NOROOT(0)
 `?<Constant "Hello">`:
@@ -2631,17 +2664,17 @@ assert_failed:
         DC8 "%d %c"
 
         END
-//  679 #endif
-//  680 
-//  681 /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+//  681 #endif
+//  682 
+//  683 /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
 // 
-// 1 661 bytes in section .far_func.text
-//    79 bytes in section .near.bss
-//    40 bytes in section .near.rodata
+// 1 677 bytes in section .far_func.text
+//    80 bytes in section .near.bss
+//    44 bytes in section .near.rodata
 // 
-// 1 661 bytes of CODE  memory
-//    40 bytes of CONST memory
-//    79 bytes of DATA  memory
+// 1 677 bytes of CODE  memory
+//    44 bytes of CONST memory
+//    80 bytes of DATA  memory
 //
 //Errors: none
 //Warnings: none
