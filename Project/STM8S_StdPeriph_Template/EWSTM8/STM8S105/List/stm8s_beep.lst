@@ -1,38 +1,41 @@
 ###############################################################################
 #                                                                             #
-# IAR C/C++ Compiler V1.30.1.50036 for STM8             08/Mar/2013  21:34:34 #
+# IAR C/C++ Compiler V1.30.1.50036 for STM8             12/Jul/2013  14:32:56 #
 # Copyright 2010-2011 IAR Systems AB.                                         #
 #                                                                             #
-#    Source file  =  C:\Documents and Settings\Administrator\Desktop\Volt2Ser #
-#                    ial\Libraries\STM8S_StdPeriph_Driver\src\stm8s_beep.c    #
-#    Command line =  "C:\Documents and Settings\Administrator\Desktop\Volt2Se #
-#                    rial\Libraries\STM8S_StdPeriph_Driver\src\stm8s_beep.c"  #
-#                    -e -Ohz --debug --code_model medium --data_model medium  #
-#                    -o "C:\Documents and Settings\Administrator\Desktop\Volt #
-#                    2Serial\Project\STM8S_StdPeriph_Template\EWSTM8\STM8S105 #
-#                    \Obj\" --dlib_config "C:\Program Files\IAR               #
-#                    Systems\Embedded Workbench 6.0\stm8\LIB\dlstm8mmf.h" -D  #
-#                    STM8S105 -lC "C:\Documents and                           #
-#                    Settings\Administrator\Desktop\Volt2Serial\Project\STM8S #
-#                    _StdPeriph_Template\EWSTM8\STM8S105\List\" -lA           #
-#                    "C:\Documents and Settings\Administrator\Desktop\Volt2Se #
-#                    rial\Project\STM8S_StdPeriph_Template\EWSTM8\STM8S105\Li #
-#                    st\" -I "C:\Documents and Settings\Administrator\Desktop #
-#                    \Volt2Serial\Project\STM8S_StdPeriph_Template\EWSTM8\..\ #
-#                    " -I "C:\Documents and Settings\Administrator\Desktop\Vo #
-#                    lt2Serial\Project\STM8S_StdPeriph_Template\EWSTM8\..\..\ #
-#                    ..\Libraries\STM8S_StdPeriph_Driver\inc\" --vregs 16     #
-#    List file    =  C:\Documents and Settings\Administrator\Desktop\Volt2Ser #
-#                    ial\Project\STM8S_StdPeriph_Template\EWSTM8\STM8S105\Lis #
-#                    t\stm8s_beep.lst                                         #
-#    Object file  =  C:\Documents and Settings\Administrator\Desktop\Volt2Ser #
-#                    ial\Project\STM8S_StdPeriph_Template\EWSTM8\STM8S105\Obj #
-#                    \stm8s_beep.o                                            #
+#    Source file  =  C:\Documents and Settings\Administrator\Desktop\stm8s105 #
+#                    k-controller\Libraries\STM8S_StdPeriph_Driver\src\stm8s_ #
+#                    beep.c                                                   #
+#    Command line =  "C:\Documents and Settings\Administrator\Desktop\stm8s10 #
+#                    5k-controller\Libraries\STM8S_StdPeriph_Driver\src\stm8s #
+#                    _beep.c" -e -Ohz --debug --code_model medium             #
+#                    --data_model medium -o "C:\Documents and                 #
+#                    Settings\Administrator\Desktop\stm8s105k-controller\Proj #
+#                    ect\STM8S_StdPeriph_Template\EWSTM8\STM8S105\Obj\"       #
+#                    --dlib_config "C:\Program Files\IAR Systems\Embedded     #
+#                    Workbench 6.0\stm8\LIB\dlstm8mmf.h" -D STM8S105 -lC      #
+#                    "C:\Documents and Settings\Administrator\Desktop\stm8s10 #
+#                    5k-controller\Project\STM8S_StdPeriph_Template\EWSTM8\ST #
+#                    M8S105\List\" -lA "C:\Documents and                      #
+#                    Settings\Administrator\Desktop\stm8s105k-controller\Proj #
+#                    ect\STM8S_StdPeriph_Template\EWSTM8\STM8S105\List\" -I   #
+#                    "C:\Documents and Settings\Administrator\Desktop\stm8s10 #
+#                    5k-controller\Project\STM8S_StdPeriph_Template\EWSTM8\.. #
+#                    \" -I "C:\Documents and Settings\Administrator\Desktop\s #
+#                    tm8s105k-controller\Project\STM8S_StdPeriph_Template\EWS #
+#                    TM8\..\..\..\Libraries\STM8S_StdPeriph_Driver\inc\"      #
+#                    --vregs 16                                               #
+#    List file    =  C:\Documents and Settings\Administrator\Desktop\stm8s105 #
+#                    k-controller\Project\STM8S_StdPeriph_Template\EWSTM8\STM #
+#                    8S105\List\stm8s_beep.lst                                #
+#    Object file  =  C:\Documents and Settings\Administrator\Desktop\stm8s105 #
+#                    k-controller\Project\STM8S_StdPeriph_Template\EWSTM8\STM #
+#                    8S105\Obj\stm8s_beep.o                                   #
 #                                                                             #
 #                                                                             #
 ###############################################################################
 
-C:\Documents and Settings\Administrator\Desktop\Volt2Serial\Libraries\STM8S_StdPeriph_Driver\src\stm8s_beep.c
+C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Libraries\STM8S_StdPeriph_Driver\src\stm8s_beep.c
       1          /**
       2            ******************************************************************************
       3            * @file    stm8s_beep.c
@@ -293,14 +296,15 @@ C:\Documents and Settings\Administrator\Desktop\Volt2Serial\Libraries\STM8S_StdP
    \   000018 735C41646D69          DC8 73H, 5CH, 41H, 64H, 6DH, 69H, 6EH, 69H
    \   000020 73747261746F          DC8 73H, 74H, 72H, 61H, 74H, 6FH, 72H, 5CH
    \   000028 4465736B746F          DC8 44H, 65H, 73H, 6BH, 74H, 6FH, 70H, 5CH
-   \   000030 566F6C743253          DC8 56H, 6FH, 6CH, 74H, 32H, 53H, 65H, 72H
-   \   000038 69616C5C4C69          DC8 69H, 61H, 6CH, 5CH, 4CH, 69H, 62H, 72H
-   \   000040 61726965735C          DC8 61H, 72H, 69H, 65H, 73H, 5CH, 53H, 54H
-   \   000048 4D38535F5374          DC8 4DH, 38H, 53H, 5FH, 53H, 74H, 64H, 50H
-   \   000050 65726970685F          DC8 65H, 72H, 69H, 70H, 68H, 5FH, 44H, 72H
-   \   000058 697665725C73          DC8 69H, 76H, 65H, 72H, 5CH, 73H, 72H, 63H
-   \   000060 5C73746D3873          DC8 5CH, 73H, 74H, 6DH, 38H, 73H, 5FH, 62H
-   \   000068 6565702E6300          DC8 65H, 65H, 70H, 2EH, 63H, 0
+   \   000030 73746D387331          DC8 73H, 74H, 6DH, 38H, 73H, 31H, 30H, 35H
+   \   000038 6B2D636F6E74          DC8 6BH, 2DH, 63H, 6FH, 6EH, 74H, 72H, 6FH
+   \   000040 6C6C65725C4C          DC8 6CH, 6CH, 65H, 72H, 5CH, 4CH, 69H, 62H
+   \   000048 726172696573          DC8 72H, 61H, 72H, 69H, 65H, 73H, 5CH, 53H
+   \   000050 544D38535F53          DC8 54H, 4DH, 38H, 53H, 5FH, 53H, 74H, 64H
+   \   000058 506572697068          DC8 50H, 65H, 72H, 69H, 70H, 68H, 5FH, 44H
+   \   000060 72697665725C          DC8 72H, 69H, 76H, 65H, 72H, 5CH, 73H, 72H
+   \   000068 635C73746D38          DC8 63H, 5CH, 73H, 74H, 6DH, 38H, 73H, 5FH
+   \   000070 626565702E63          DC8 62H, 65H, 65H, 70H, 2EH, 63H, 0
     140          
     141          /**
     142            * @}
@@ -321,14 +325,14 @@ C:\Documents and Settings\Administrator\Desktop\Volt2Serial\Libraries\STM8S_StdP
      ?Subroutine0                              12
      BEEP_Cmd                                  13
      BEEP_LSICalibrationConfig                121
-     ?<Constant "C:\\Documents and Sett...">  110
+     ?<Constant "C:\\Documents and Sett...">  119
 
  
  218 bytes in section .far_func.text
- 110 bytes in section .near.rodata
+ 119 bytes in section .near.rodata
  
  218 bytes of CODE  memory
- 110 bytes of CONST memory
+ 119 bytes of CONST memory
 
 Errors: none
 Warnings: none
