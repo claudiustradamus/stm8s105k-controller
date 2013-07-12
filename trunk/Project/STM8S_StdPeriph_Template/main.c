@@ -63,6 +63,8 @@ u8 count;
 u8 seconds;
 u8 minutes;
 u8 hours;
+u8 mounts;
+u8 years;
 u8 error;
 //u8 index=0;
 float  result;
@@ -96,10 +98,13 @@ void SendData();
 void SendChar(u8 Char);
 void Send_Hello();
 bool Init_DS1307(void);
+bool Check_DS1307(void);
 bool I2C_Start(void);
 bool I2C_WA(u8 address);
 bool I2C_WD(u8 data);
 bool I2C_RA(u8 address);
+bool Set_DS1307( u8 year ,u8 mounts,u8 hours,u8 minutes,u8 seconds);
+u8 convert_tobcd(u8 data);
 u8 I2C_RD(void);
 
 u16  Average();
@@ -125,6 +130,9 @@ void main(void)
     Send_Hello();
      //UART2_Cmd(DISABLE);  // Disable UART for the moment
 
+     // Working fuction
+    //Set_DS1307(13,7,13,34,0);//u8 year ,u8 mounts,u8 hours,u8 minutes,u8 seconds)
+
     while(1)
     {
       ADC1_Cmd (ENABLE);
@@ -138,6 +146,12 @@ void main(void)
      if (!ReadDS1307())
      {
        printf("\n E2:%d",error);
+        //restart i2c
+      // Reset the CPU: Enable the watchdog and wait until it expires
+       IWDG->KR = IWDG_KEY_ENABLE;
+       while ( 1 );    // Wait until reset occurs from IWDG
+
+
      }
        else  printf("\n      ");
      line_lcd=1;
@@ -165,7 +179,11 @@ bool I2C_Start(void)
    I2C_GenerateSTART(ENABLE);
        timeout=100;
     	while(!(I2C_CheckEvent(I2C_EVENT_MASTER_MODE_SELECT))&&timeout);
-         if (!timeout)return FALSE;
+        if (!timeout)
+        {
+            error=1;
+           return FALSE;
+        }
           else return TRUE;
 }
 
@@ -174,7 +192,11 @@ bool I2C_WA(u8 address)
   I2C_Send7bitAddress(address, I2C_DIRECTION_TX);
        timeout=255;
         while(!(I2C_CheckEvent(I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))&&timeout);
-         if (!timeout)return FALSE ;
+         if (!timeout)
+         {
+          error=2;
+           return FALSE ;
+         }
           else return TRUE;
 }
 
@@ -183,7 +205,11 @@ bool I2C_RA(u8 address)
   I2C_Send7bitAddress(address, I2C_DIRECTION_RX);
        timeout=255;
         while(!(I2C_CheckEvent(I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED))&&timeout);
-         if (!timeout)return FALSE ;
+         if (!timeout)
+         {
+           error=3;
+           return FALSE ;
+         }
           else return TRUE;
 }
 
@@ -193,7 +219,11 @@ bool I2C_WD(u8 data)
  I2C_SendData(data);   // set register pointer 00h
    timeout=255;
    while(!(I2C_CheckEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED))&&timeout);
-    if (!timeout)return FALSE ;
+    if (!timeout)
+    {
+      error=4;
+       return FALSE ;
+    }
      else return TRUE;
 }
 
@@ -202,7 +232,11 @@ u8 I2C_RD(void)
  timeout=255;
   while( !I2C_GetFlagStatus(I2C_FLAG_TRANSFERFINISHED)&& timeout);
  //while((!(I2C->SR1 & 0x40))&&timeout);
- if (!timeout) return FALSE ;
+ if (!timeout)
+ {
+   error=4;
+   return FALSE;
+ }
  u8 data=I2C_ReceiveData();
  return data;
 }
@@ -211,13 +245,10 @@ u8 I2C_RD(void)
 bool Init_DS1307(void)
 {
    // Test DS1307
-    error=1;
+    error=0;
     if (!I2C_Start()) return FALSE;
-    error++;
     if(!I2C_WA(0xD0)) return FALSE;
-     error++;
     if(!I2C_WD(0x00)) return FALSE;
-     error++;
     if(!I2C_WD(0x00)) return FALSE;
     I2C_GenerateSTOP(ENABLE);
 
@@ -230,45 +261,73 @@ bool Init_DS1307(void)
 bool  ReadDS1307(void)
 {
 
-      error=1;
+      error=0;
        if (!I2C_Start()) return FALSE;
-      error++;
        if(!I2C_WA(0xD0))return FALSE;
-      error++;
        if(!I2C_WD(0x00)) return FALSE;
-      error++;
-      I2C_GenerateSTOP(ENABLE);
-      //Delay1(1000);
-
-
-
-        if (!I2C_Start()) return FALSE;
-      error++;
-
-         if(!I2C_RA(0xD0))return FALSE;
-      error++;
-
+       I2C_GenerateSTOP(ENABLE);
+       if (!I2C_Start()) return FALSE;
+       if(!I2C_RA(0xD0))return FALSE;
        I2C_AcknowledgeConfig(I2C_ACK_CURR);
        seconds = I2C_RD();
-
        I2C_AcknowledgeConfig(I2C_ACK_CURR);
        minutes = I2C_RD();
-
       //Last read byte by I2C slave
        I2C_AcknowledgeConfig(I2C_ACK_NONE);
        I2C_GenerateSTOP(ENABLE);
        hours = I2C_RD();
-       //I2C_AcknowledgeConfig(I2C_ACK_CURR);
-
-      return TRUE;
-
-
-
-
-
-
-
+       return TRUE;
 }
+
+bool Check_DS1307(void)
+{
+   // Read  address 0x08 from DS1307 if not 0XAA clock is not set
+       error=0;
+       if (!I2C_Start()) return FALSE;
+       if(!I2C_WA(0xD0)) return FALSE;
+       if(!I2C_WD(0x08)) return FALSE;
+       I2C_GenerateSTOP(ENABLE);
+        //Last read byte by I2C slave
+       I2C_AcknowledgeConfig(I2C_ACK_NONE);
+       I2C_GenerateSTOP(ENABLE);
+       u8 data = I2C_RD();
+       if (data != 0xAA) return FALSE;
+       else return TRUE;
+}
+
+bool Set_DS1307( u8 year ,u8 mounts,u8 hours,u8 minutes,u8 seconds)
+{
+       // convert hex or decimal to bcd format
+
+
+       error=0;
+       if (!I2C_Start()) return FALSE;
+       if(!I2C_WA(0xD0)) return FALSE;
+       if(!I2C_WD(0x00)) return FALSE;
+       if(!I2C_WD(convert_tobcd(seconds))) return FALSE;
+       if(!I2C_WD(convert_tobcd(minutes))) return FALSE;
+       if(!I2C_WD(convert_tobcd(hours))) return FALSE;
+       if(!I2C_WD(convert_tobcd(mounts))) return FALSE;
+       if(!I2C_WD(convert_tobcd(year))) return FALSE;
+       I2C_GenerateSTOP(ENABLE);
+
+
+   return TRUE;
+}
+
+
+u8 convert_tobcd(u8 data)
+{
+   u8 data_second_decimal=data/10;
+   u8 data_first_decimal=data - 10*data_second_decimal;
+   data=16*data_second_decimal + data_first_decimal;
+  return data;
+}
+
+
+
+
+
 
 void GpioConfiguration()
 {
