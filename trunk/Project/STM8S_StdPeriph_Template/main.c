@@ -33,6 +33,9 @@
 #define LCD_RW(x)  x ? GPIO_WriteHigh(LCD_PORT, RW): GPIO_WriteLow(LCD_PORT,RW);
 #define LCD_RS(x)  x ? GPIO_WriteHigh(LCD_PORT, RS): GPIO_WriteLow(LCD_PORT,RS);
 
+#define key_ok    GPIO_PIN_4
+#define key_plus  GPIO_PIN_1
+#define key_minus GPIO_PIN_2
 
 #ifdef __GNUC__
   /* With GCC/RAISONANCE, small printf (option LD Linker->Libraries->Small printf
@@ -97,6 +100,10 @@ void PulseEnable();
 void SendData();
 void SendChar(u8 Char);
 void Send_Hello();
+bool Set_Clock();
+bool key_ok_on();
+bool key_plus_on();
+bool key_minus_on();
 bool Init_DS1307(void);
 bool Check_DS1307(void);
 bool I2C_Start(void);
@@ -128,6 +135,15 @@ void main(void)
     InitI2C();
     //if (!Init_DS1307())printf("E1:%d",error);
     Send_Hello();
+    if (!Check_DS1307())
+    {
+     line_lcd=0;
+     printf("\nSetClock");
+      Set_Clock();
+
+    }
+
+
      //UART2_Cmd(DISABLE);  // Disable UART for the moment
 
      // Working fuction
@@ -160,6 +176,12 @@ void main(void)
      //printf("\n Just Test:%X", timer2);
       if (rx_data==SpecialSymbol) SendData();
       //SendData();
+
+      if (key_ok_on())
+      {
+
+      }
+
 
     }
 
@@ -288,6 +310,8 @@ bool Check_DS1307(void)
        if(!I2C_WD(0x08)) return FALSE;
        I2C_GenerateSTOP(ENABLE);
         //Last read byte by I2C slave
+       if (!I2C_Start()) return FALSE;
+       if(!I2C_RA(0xD0))return FALSE;
        I2C_AcknowledgeConfig(I2C_ACK_NONE);
        I2C_GenerateSTOP(ENABLE);
        u8 data = I2C_RD();
@@ -325,6 +349,100 @@ u8 convert_tobcd(u8 data)
 }
 
 
+bool Set_Clock()
+{
+   //Clear Display
+   LCDInstr(0x01);
+   Delay1(1000);
+
+   line_lcd=0;
+   printf("\nSeconds:");
+
+    do
+    {
+      line_lcd=1;
+     printf("\n%02d:%02d:%02d",hours,minutes,seconds);
+       if (key_plus_on()) seconds ++;
+        if (seconds >=60) seconds = 0;
+       if (key_minus_on()) seconds --;
+        if (seconds >=255) seconds=59;
+
+    } while (!key_ok_on());
+
+       line_lcd=0;
+     printf("\nMinutes:");
+      do
+    {
+      line_lcd=1;
+     printf("\n%02d:%02d:%02d",hours,minutes,seconds);
+       if (key_plus_on()) minutes ++;
+        if (minutes >=60) minutes = 0;
+       if (key_minus_on()) minutes --;
+        if (minutes >=255) minutes=59;
+
+    } while (!key_ok_on());
+
+    //Clear Display
+    LCDInstr(0x01);
+    Delay1(1000);
+    line_lcd=0;
+    printf("\nHours:");
+      do
+    {
+      line_lcd=1;
+     printf("\n%02d:%02d:%02d",hours,minutes,seconds);
+       if (key_plus_on()) hours ++;
+        if (hours >=24) hours = 0;
+       if (key_minus_on()) hours --;
+        if (hours >=255) hours =23;
+
+    } while (!key_ok_on());
+
+
+
+  return TRUE;
+}
+
+bool key_ok_on()
+{
+  //Read Key OK
+  if (!(GPIO_ReadInputData(GPIOF)& key_ok))
+   {
+     timer2=0;  // Key must be push for timer2 time
+      while((timer2 < 30000) && !(GPIO_ReadInputData(GPIOF)& key_ok) );;
+        if (timer2>=30000) return TRUE;
+   }
+
+  return FALSE;
+}
+
+ bool key_plus_on()
+{
+  //Read Key OK
+     Delay1(1000); //prevent key vibration
+   if (!(GPIO_ReadInputData(GPIOA)& key_plus))
+     {
+     timer2=0;  // Key must be push for timer2 time
+      while((timer2 < 10000) && !(GPIO_ReadInputData(GPIOA)& key_plus) );;
+        if (timer2>=10000) return TRUE;
+     }
+
+  return FALSE;
+}
+
+  bool key_minus_on()
+{
+  //Read Key OK
+     Delay1(1000); //prevent key vibration
+   if (!(GPIO_ReadInputData(GPIOA)& key_minus))
+     {
+     timer2=0;  // Key must be push for timer2 time
+      while((timer2 < 10000) && !(GPIO_ReadInputData(GPIOA)& key_minus) );;
+        if (timer2>=10000) return TRUE;
+     }
+
+  return FALSE;
+}
 
 
 
@@ -347,7 +465,10 @@ void GpioConfiguration()
   GPIO_Init(GPIOB,GPIO_PIN_5 ,GPIO_MODE_OUT_OD_HIZ_FAST);
   // Remap Pins pb4,pb5  sda,scl ;
 
-
+   //Init KEY OK,PLUS,MINUS
+  GPIO_Init(GPIOF,key_ok,GPIO_MODE_IN_PU_NO_IT);
+  GPIO_Init(GPIOA,key_plus,GPIO_MODE_IN_PU_NO_IT);
+  GPIO_Init(GPIOA,key_minus,GPIO_MODE_IN_PU_NO_IT);
 }
 
 void InitClk()
