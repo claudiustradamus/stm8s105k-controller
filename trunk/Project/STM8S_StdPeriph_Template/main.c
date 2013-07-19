@@ -49,6 +49,9 @@
 
 
 #define SpecialSymbol 0x1b //Esc to start message
+#define data_size 20
+#define key_time 8000
+#define key_time_ok 15000
 
 
 
@@ -58,7 +61,6 @@ volatile u16 timer2;
 volatile u8 timeout;
 volatile u16 adcdata;
 volatile u8 rx_data;
-#define data_size 20
 char data[data_size];
 u16  measure[data_size];
 u8 line_lcd;
@@ -66,7 +68,9 @@ u8 count;
 u8 seconds;
 u8 minutes;
 u8 hours;
-u8 mounts;
+u8 days=1;
+u8 date=1;
+u8 mounts=1;
 u8 years;
 u8 error;
 //u8 index=0;
@@ -97,9 +101,9 @@ void LCDInstr(u8 Instr);
 void LCDDataOut(u8 data);
 void LCD_Busy();
 void PulseEnable();
-void SendData();
+//void SendData();
 void SendChar(u8 Char);
-void Send_Hello();
+//void Send_Hello();
 bool Set_Clock();
 bool key_ok_on();
 bool key_plus_on();
@@ -110,9 +114,10 @@ bool I2C_Start(void);
 bool I2C_WA(u8 address);
 bool I2C_WD(u8 data);
 bool I2C_RA(u8 address);
-bool Set_DS1307( u8 year ,u8 mounts,u8 hours,u8 minutes,u8 seconds);
+bool Set_DS1307( u8 year ,u8 mounts,u8 date,u8 days,u8 hours,u8 minutes,u8 seconds);
 u8 convert_tobcd(u8 data);
 u8 I2C_RD(void);
+u8 adj(u8 min,u8 max,u8 now);
 
 u16  Average();
 
@@ -133,8 +138,18 @@ void main(void)
     InitLcd();
     InitAdc();
     InitI2C();
-    //if (!Init_DS1307())printf("E1:%d",error);
-    Send_Hello();
+    Delay1(1000);
+     if (!ReadDS1307())
+     {
+       printf("\n E2:%d",error);
+       // Reset the CPU: Enable the watchdog and wait until it expires
+       IWDG->KR = IWDG_KEY_ENABLE;
+       while ( 1 );    // Wait until reset occurs from IWDG
+     }
+     //Send_Hello();
+    //line_lcd=0;
+    //printf("\nHello");
+
     if (!Check_DS1307())
     {
      line_lcd=0;
@@ -174,12 +189,13 @@ void main(void)
      printf("\n%02x:%02x:%02x",hours,minutes,seconds);
      //line_lcd=2;
      //printf("\n Just Test:%X", timer2);
-      if (rx_data==SpecialSymbol) SendData();
+         //if (rx_data==SpecialSymbol) SendData();
       //SendData();
 
       if (key_ok_on())
       {
-
+        line_lcd=0;
+        printf("\n%02x:%02x:%02x",years,mounts,date);
       }
 
 
@@ -263,7 +279,7 @@ u8 I2C_RD(void)
  return data;
 }
 
-
+  /*
 bool Init_DS1307(void)
 {
    // Test DS1307
@@ -279,11 +295,11 @@ bool Init_DS1307(void)
     //    if (!timeout)return FALSE ;
      return TRUE;
 }
+   */
 
 bool  ReadDS1307(void)
 {
-
-      error=0;
+       error=0;
        if (!I2C_Start()) return FALSE;
        if(!I2C_WA(0xD0))return FALSE;
        if(!I2C_WD(0x00)) return FALSE;
@@ -294,10 +310,18 @@ bool  ReadDS1307(void)
        seconds = I2C_RD();
        I2C_AcknowledgeConfig(I2C_ACK_CURR);
        minutes = I2C_RD();
+       I2C_AcknowledgeConfig(I2C_ACK_CURR);
+       hours = I2C_RD();
+       I2C_AcknowledgeConfig(I2C_ACK_CURR);
+       days = I2C_RD();
+       I2C_AcknowledgeConfig(I2C_ACK_CURR);
+       date = I2C_RD();
+       I2C_AcknowledgeConfig(I2C_ACK_CURR);
+       mounts = I2C_RD();
       //Last read byte by I2C slave
        I2C_AcknowledgeConfig(I2C_ACK_NONE);
        I2C_GenerateSTOP(ENABLE);
-       hours = I2C_RD();
+       years = I2C_RD();
        return TRUE;
 }
 
@@ -319,7 +343,7 @@ bool Check_DS1307(void)
        else return TRUE;
 }
 
-bool Set_DS1307( u8 year ,u8 mounts,u8 hours,u8 minutes,u8 seconds)
+bool Set_DS1307( u8 year ,u8 mounts,u8 date ,u8 days ,u8 hours,u8 minutes,u8 seconds)
 {
        // convert hex or decimal to bcd format
 
@@ -331,8 +355,11 @@ bool Set_DS1307( u8 year ,u8 mounts,u8 hours,u8 minutes,u8 seconds)
        if(!I2C_WD(convert_tobcd(seconds))) return FALSE;
        if(!I2C_WD(convert_tobcd(minutes))) return FALSE;
        if(!I2C_WD(convert_tobcd(hours))) return FALSE;
+       if(!I2C_WD(convert_tobcd(days))) return FALSE;
+       if(!I2C_WD(convert_tobcd(date))) return FALSE;
        if(!I2C_WD(convert_tobcd(mounts))) return FALSE;
        if(!I2C_WD(convert_tobcd(year))) return FALSE;
+       if(!I2C_WD(0XAA)) return FALSE;  // Byte --> time is set by program
        I2C_GenerateSTOP(ENABLE);
 
 
@@ -351,57 +378,103 @@ u8 convert_tobcd(u8 data)
 
 bool Set_Clock()
 {
-   //Clear Display
+    //Clear Display
    LCDInstr(0x01);
    Delay1(1000);
-
    line_lcd=0;
-   printf("\nSeconds:");
-
-    do
+    printf("\nYears:");
+      do
     {
-      line_lcd=1;
-     printf("\n%02d:%02d:%02d",hours,minutes,seconds);
-       if (key_plus_on()) seconds ++;
-        if (seconds >=60) seconds = 0;
-       if (key_minus_on()) seconds --;
-        if (seconds >=255) seconds=59;
-
+     line_lcd=1;
+     printf("\n%02d:%02d:%02d",years,mounts,date);
+       years=adj(0,99,years);
     } while (!key_ok_on());
 
-       line_lcd=0;
-     printf("\nMinutes:");
+     line_lcd=0;
+    printf("\nMounts:");
+      do
+    {
+     line_lcd=1;
+     printf("\n%02d:%02d:%02d",years,mounts,date);
+       mounts=adj(1,12,mounts);
+    } while (!key_ok_on());
+
+    LCDInstr(0x01);
+     Delay1(1000);
+      line_lcd=0;
+    printf("\nDate:");
+      do
+    {
+     line_lcd=1;
+     printf("\n%02d:%02d:%02d",years,mounts,date);
+       date=adj(1,31,date);
+    } while (!key_ok_on());
+
+
+    //Clear Display
+   LCDInstr(0x01);
+   Delay1(1000);
+   line_lcd=0;
+    printf("\nDays:");
       do
     {
       line_lcd=1;
-     printf("\n%02d:%02d:%02d",hours,minutes,seconds);
-       if (key_plus_on()) minutes ++;
-        if (minutes >=60) minutes = 0;
-       if (key_minus_on()) minutes --;
-        if (minutes >=255) minutes=59;
-
+     printf("\n%02d",days);
+       days=adj(1,7,days);
     } while (!key_ok_on());
 
-    //Clear Display
-    LCDInstr(0x01);
-    Delay1(1000);
-    line_lcd=0;
+
+
+   //Clear Display
+   LCDInstr(0x01);
+   Delay1(1000);
+   line_lcd=0;
     printf("\nHours:");
       do
     {
       line_lcd=1;
      printf("\n%02d:%02d:%02d",hours,minutes,seconds);
-       if (key_plus_on()) hours ++;
-        if (hours >=24) hours = 0;
-       if (key_minus_on()) hours --;
-        if (hours >=255) hours =23;
-
+       hours=adj(0,24,hours);
     } while (!key_ok_on());
+
+     line_lcd=0;
+     printf("\nMinutes:");
+      do
+    {
+      line_lcd=1;
+     printf("\n%02d:%02d:%02d",hours,minutes,seconds);
+       minutes=adj(0,60,minutes);
+    } while (!key_ok_on());
+
+    line_lcd=0;
+    printf("\nSeconds:");
+    do
+    {
+      line_lcd=1;
+     printf("\n%02d:%02d:%02d",hours,minutes,seconds);
+       seconds=adj(0,60,seconds);
+    } while (!key_ok_on());
+
+      // Set parameter to DS1307 + time byte
+    Set_DS1307( years , mounts, date , days , hours, minutes, seconds);
 
 
 
   return TRUE;
 }
+
+
+u8 adj(u8 min,u8 max,u8 now)
+{
+   u8 adj=now;
+   if (key_plus_on()) adj ++;
+   if (adj >max) adj = min;
+   if (key_minus_on()) adj --;
+   if ( adj == 255) adj=max;
+   if (adj < min) adj=max;
+   return adj ;
+}
+
 
 bool key_ok_on()
 {
@@ -409,8 +482,8 @@ bool key_ok_on()
   if (!(GPIO_ReadInputData(GPIOF)& key_ok))
    {
      timer2=0;  // Key must be push for timer2 time
-      while((timer2 < 30000) && !(GPIO_ReadInputData(GPIOF)& key_ok) );;
-        if (timer2>=30000) return TRUE;
+      while((timer2 < key_time_ok) && !(GPIO_ReadInputData(GPIOF)& key_ok) );;
+        if (timer2>=key_time_ok) return TRUE;
    }
 
   return FALSE;
@@ -419,12 +492,11 @@ bool key_ok_on()
  bool key_plus_on()
 {
   //Read Key OK
-     Delay1(1000); //prevent key vibration
-   if (!(GPIO_ReadInputData(GPIOA)& key_plus))
+    if (!(GPIO_ReadInputData(GPIOA)& key_plus))
      {
      timer2=0;  // Key must be push for timer2 time
-      while((timer2 < 10000) && !(GPIO_ReadInputData(GPIOA)& key_plus) );;
-        if (timer2>=10000) return TRUE;
+      while((timer2 < key_time) && !(GPIO_ReadInputData(GPIOA)& key_plus) );;
+        if (timer2>=key_time) return TRUE;
      }
 
   return FALSE;
@@ -433,12 +505,11 @@ bool key_ok_on()
   bool key_minus_on()
 {
   //Read Key OK
-     Delay1(1000); //prevent key vibration
    if (!(GPIO_ReadInputData(GPIOA)& key_minus))
      {
      timer2=0;  // Key must be push for timer2 time
-      while((timer2 < 10000) && !(GPIO_ReadInputData(GPIOA)& key_minus) );;
-        if (timer2>=10000) return TRUE;
+      while((timer2 < key_time) && !(GPIO_ReadInputData(GPIOA)& key_minus) );;
+        if (timer2>=key_time) return TRUE;
      }
 
   return FALSE;
@@ -540,7 +611,7 @@ void SendChar( u8 Char)
    UART2->DR = Char;
   while (UART2_GetFlagStatus(UART2_FLAG_TXE) == RESET);;
 }
-
+  /*
 void Send_Hello()
 {
   GPIO_WriteHigh(GPIOD,GPIO_PIN_7); //R_W Line
@@ -557,10 +628,10 @@ void Send_Hello()
 
 
 }
+    */
 
 
-
-
+    /*
 
 void SendData()
 {
@@ -577,6 +648,7 @@ void SendData()
   GPIO_WriteLow(GPIOD,GPIO_PIN_7); //R_W Line
   rx_data=0;
 }
+*/
 
 void LCDDataOut(u8 data)
 {
