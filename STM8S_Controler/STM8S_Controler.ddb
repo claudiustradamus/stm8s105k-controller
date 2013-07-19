@@ -1,0 +1,22 @@
+[Design Root]
+Version=1.0.0
+[Directory]
+Stm8s105K4S6.Sch=Sch
+Stm8s105K4S6.lib=SchLib
+Stm8s105K4S6.cfg=Text
+[Stm8s105K4S6.Sch]
+Editor Kind=Sch
+Attributes=131072
+[Stm8s105K4S6.lib]
+Editor Kind=SchLib
+[Stm8s105K4S6.cfg]
+Editor Kind=Text
+[Stm8s105K4S6.Sch Childlist]
+ChildCount=7
+Child1=STM105K4T6
+Child2=LCD
+Child3=ACS712
+Child4=MOC3083
+Child5=7805
+Child6=DS1307
+Child7=DS18B20
