@@ -52,6 +52,7 @@
 #define data_size 20
 #define key_time 8000
 #define key_time_ok 15000
+#define DS_Control  0x10  // Out 1s
 
 
 
@@ -73,6 +74,7 @@ u8 date=1;
 u8 mounts=1;
 u8 years;
 u8 error;
+u8 temp_flag;
 //u8 index=0;
 float  result;
 int volatile k=0;
@@ -91,7 +93,7 @@ void InitClk();
 void InitAdc();
 void InitI2C();
 bool ReadDS1307();
-void InitUart();
+//void InitUart();
 void InitLcd();
 void InitDelayTimer();
 void Delay1( u16 Delay);
@@ -114,10 +116,11 @@ bool I2C_Start(void);
 bool I2C_WA(u8 address);
 bool I2C_WD(u8 data);
 bool I2C_RA(u8 address);
-bool Set_DS1307( u8 year ,u8 mounts,u8 date,u8 days,u8 hours,u8 minutes,u8 seconds);
+bool Set_DS1307();
 u8 convert_tobcd(u8 data);
 u8 I2C_RD(void);
 u8 adj(u8 min,u8 max,u8 now);
+u8 bcd2hex(u8 bcd);
 
 u16  Average();
 
@@ -132,12 +135,13 @@ void main(void)
     InitClk();
     InitDelayTimer();
     GpioConfiguration();
-    InitUart();
+    //InitUart();
     enableInterrupts();
     GPIO_WriteLow(GPIOD,GPIO_PIN_7); //R/W Line Read Mode
     InitLcd();
     InitAdc();
     InitI2C();
+    //years=bcd2hex(13);
     Delay1(1000);
      if (!ReadDS1307())
      {
@@ -169,9 +173,9 @@ void main(void)
       ADC1_Cmd (ENABLE);
 
        GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
-         Delay2(30000);
+         Delay2(10000);
        GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
-         Delay2(30000);
+         Delay2(10000);
 
       line_lcd=0;
      if (!ReadDS1307())
@@ -186,7 +190,7 @@ void main(void)
      }
        else  printf("\n      ");
      line_lcd=1;
-     printf("\n%02x:%02x:%02x",hours,minutes,seconds);
+     printf("\n%02d:%02d:%02d",hours,minutes,seconds);
      //line_lcd=2;
      //printf("\n Just Test:%X", timer2);
          //if (rx_data==SpecialSymbol) SendData();
@@ -195,7 +199,7 @@ void main(void)
       if (key_ok_on())
       {
         line_lcd=0;
-        printf("\n%02x:%02x:%02x",years,mounts,date);
+        printf("\n%02d:%02d:%02d",years,mounts,date);
       }
 
 
@@ -307,21 +311,21 @@ bool  ReadDS1307(void)
        if (!I2C_Start()) return FALSE;
        if(!I2C_RA(0xD0))return FALSE;
        I2C_AcknowledgeConfig(I2C_ACK_CURR);
-       seconds = I2C_RD();
+       seconds = bcd2hex(I2C_RD());
        I2C_AcknowledgeConfig(I2C_ACK_CURR);
-       minutes = I2C_RD();
+       minutes = bcd2hex(I2C_RD());
        I2C_AcknowledgeConfig(I2C_ACK_CURR);
-       hours = I2C_RD();
+       hours = bcd2hex(I2C_RD());
        I2C_AcknowledgeConfig(I2C_ACK_CURR);
-       days = I2C_RD();
+       days = bcd2hex(I2C_RD());
        I2C_AcknowledgeConfig(I2C_ACK_CURR);
-       date = I2C_RD();
+       date = bcd2hex(I2C_RD());
        I2C_AcknowledgeConfig(I2C_ACK_CURR);
-       mounts = I2C_RD();
+       mounts = bcd2hex(I2C_RD());
       //Last read byte by I2C slave
        I2C_AcknowledgeConfig(I2C_ACK_NONE);
        I2C_GenerateSTOP(ENABLE);
-       years = I2C_RD();
+       years= bcd2hex(I2C_RD());
        return TRUE;
 }
 
@@ -339,11 +343,13 @@ bool Check_DS1307(void)
        I2C_AcknowledgeConfig(I2C_ACK_NONE);
        I2C_GenerateSTOP(ENABLE);
        u8 data = I2C_RD();
+        Delay1(100);
+       //temp_flag=data;
        if (data != 0xAA) return FALSE;
        else return TRUE;
 }
 
-bool Set_DS1307( u8 year ,u8 mounts,u8 date ,u8 days ,u8 hours,u8 minutes,u8 seconds)
+bool Set_DS1307()
 {
        // convert hex or decimal to bcd format
 
@@ -358,7 +364,8 @@ bool Set_DS1307( u8 year ,u8 mounts,u8 date ,u8 days ,u8 hours,u8 minutes,u8 sec
        if(!I2C_WD(convert_tobcd(days))) return FALSE;
        if(!I2C_WD(convert_tobcd(date))) return FALSE;
        if(!I2C_WD(convert_tobcd(mounts))) return FALSE;
-       if(!I2C_WD(convert_tobcd(year))) return FALSE;
+       if(!I2C_WD(convert_tobcd(years)))return FALSE;
+       if(!I2C_WD(DS_Control))return FALSE;
        if(!I2C_WD(0XAA)) return FALSE;  // Byte --> time is set by program
        I2C_GenerateSTOP(ENABLE);
 
@@ -373,6 +380,14 @@ u8 convert_tobcd(u8 data)
    u8 data_first_decimal=data - 10*data_second_decimal;
    data=16*data_second_decimal + data_first_decimal;
   return data;
+}
+
+u8 bcd2hex(u8 bcd)
+{
+  u8 hex=0;
+  hex=(bcd>>4)*10 +(bcd&0x0f);
+  bcd=0;
+  return hex ;
 }
 
 
@@ -456,7 +471,7 @@ bool Set_Clock()
     } while (!key_ok_on());
 
       // Set parameter to DS1307 + time byte
-    Set_DS1307( years , mounts, date , days , hours, minutes, seconds);
+    Set_DS1307();
 
 
 
@@ -589,6 +604,7 @@ void InitAdc()
 
 }
 
+/*
 void InitUart()
 {
    UART2_DeInit();
@@ -605,6 +621,7 @@ void InitUart()
 
   // UART2_ITConfig(UART2_IT_RXNE,ENABLE);
 }
+  */
 
 void SendChar( u8 Char)
 {
@@ -861,7 +878,7 @@ void InitDelayTimer()
 
 }
 
-
+ /*
 u16 Average()
 {
  //Find average in measure
@@ -874,6 +891,7 @@ u16 Average()
    if(i!=0) Summa=Summa/i;
    return Summa;
 }
+   */
 
 PUTCHAR_PROTOTYPE
 {

@@ -1,5 +1,5 @@
 [DebugChecksum]
-Checksum=1481545346
+Checksum=-412259663
 [StackPlugin]
 Enabled=1
 OverflowWarningsEnabled=1
@@ -59,6 +59,9 @@ Trace Non Event=1
 [TraceHelper]
 Enabled=0
 ShowSource=1
+[Breakpoints]
+Bp0=_ "STD_CODE" "{$PROJ_DIR$}.274.3@1" 0 0 0 0 "" 0 ""
+Count=1
 [Log file]
 LoggingEnabled=_ 0
 LogFile=_ ""
@@ -66,9 +69,6 @@ Category=_ 0
 [TermIOLog]
 LoggingEnabled=_ 0
 LogFile=_ ""
-[Breakpoints]
-Bp0=_ "STD_CODE" "{$PROJ_DIR$}.274.3@1" 0 0 0 0 "" 0 ""
-Count=1
 [Aliases]
 Count=0
 SuppressDialog=0

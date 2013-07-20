@@ -1,6 +1,6 @@
 ###############################################################################
 #                                                                             #
-# IAR C/C++ Compiler V1.30.1.50036 for STM8             19/Jul/2013  23:16:52 #
+# IAR C/C++ Compiler V1.30.1.50036 for STM8             21/Jul/2013  00:03:38 #
 # Copyright 2010-2011 IAR Systems AB.                                         #
 #                                                                             #
 #    Source file  =  C:\Documents and Settings\Administrator\Desktop\stm8s105 #
@@ -88,325 +88,332 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
      52          #define data_size 20
      53          #define key_time 8000
      54          #define key_time_ok 15000
-     55          
+     55          #define DS_Control  0x10  // Out 1s
      56          
      57          
-     58          /* Private variables ---------------------------------------------------------*/
+     58          
+     59          /* Private variables ---------------------------------------------------------*/
 
    \                                 In section .near.bss, align 1
-     59          volatile u16 timer1;
+     60          volatile u16 timer1;
    \                     timer1:
    \   000000                       DS8 2
 
    \                                 In section .near.bss, align 1
-     60          volatile u16 timer2;
+     61          volatile u16 timer2;
    \                     timer2:
    \   000000                       DS8 2
 
    \                                 In section .near.bss, align 1
-     61          volatile u8 timeout;
+     62          volatile u8 timeout;
    \                     timeout:
    \   000000                       DS8 1
 
    \                                 In section .near.bss, align 1
-     62          volatile u16 adcdata;
+     63          volatile u16 adcdata;
    \                     adcdata:
    \   000000                       DS8 2
 
    \                                 In section .near.bss, align 1
-     63          volatile u8 rx_data;
+     64          volatile u8 rx_data;
    \                     rx_data:
    \   000000                       DS8 1
 
    \                                 In section .near.bss, align 1
-     64          char data[data_size];
+     65          char data[data_size];
    \                     data:
    \   000000                       DS8 20
 
    \                                 In section .near.bss, align 1
-     65          u16  measure[data_size];
+     66          u16  measure[data_size];
    \                     measure:
    \   000000                       DS8 40
 
    \                                 In section .near.bss, align 1
-     66          u8 line_lcd;
+     67          u8 line_lcd;
    \                     line_lcd:
    \   000000                       DS8 1
 
    \                                 In section .near.bss, align 1
-     67          u8 count;
+     68          u8 count;
    \                     count:
    \   000000                       DS8 1
 
    \                                 In section .near.bss, align 1
-     68          u8 seconds;
+     69          u8 seconds;
    \                     seconds:
    \   000000                       DS8 1
 
    \                                 In section .near.bss, align 1
-     69          u8 minutes;
+     70          u8 minutes;
    \                     minutes:
    \   000000                       DS8 1
 
    \                                 In section .near.bss, align 1
-     70          u8 hours;
+     71          u8 hours;
    \                     hours:
    \   000000                       DS8 1
 
    \                                 In section .near.data, align 1
-     71          u8 days=1;
+     72          u8 days=1;
    \                     days:
    \   000000 01                    DC8 1
 
    \                                 In section .near.data, align 1
-     72          u8 date=1;
+     73          u8 date=1;
    \                     `date`:
    \   000000 01                    DC8 1
 
    \                                 In section .near.data, align 1
-     73          u8 mounts=1;
+     74          u8 mounts=1;
    \                     mounts:
    \   000000 01                    DC8 1
 
    \                                 In section .near.bss, align 1
-     74          u8 years;
+     75          u8 years;
    \                     years:
    \   000000                       DS8 1
 
    \                                 In section .near.bss, align 1
-     75          u8 error;
+     76          u8 error;
    \                     error:
    \   000000                       DS8 1
-     76          //u8 index=0;
 
    \                                 In section .near.bss, align 1
-     77          float  result;
+     77          u8 temp_flag;
+   \                     temp_flag:
+   \   000000                       DS8 1
+     78          //u8 index=0;
+
+   \                                 In section .near.bss, align 1
+     79          float  result;
    \                     result:
    \   000000                       DS8 4
 
    \                                 In section .near.bss, align 1
-     78          int volatile k=0;
+     80          int volatile k=0;
    \                     k:
    \   000000                       DS8 2
-     79          
-     80          
      81          
      82          
      83          
      84          
      85          
      86          
-     87          /* Private function prototypes -----------------------------------------------*/
-     88          void InitHardware();
-     89          void GpioConfiguration();
-     90          void InitClk();
-     91          void InitAdc();
-     92          void InitI2C();
-     93          bool ReadDS1307();
-     94          void InitUart();
-     95          void InitLcd();
-     96          void InitDelayTimer();
-     97          void Delay1( u16 Delay);
-     98          void Delay2( u16 Delay);
-     99          void LCDInstrNibble (u8 Instr);
-    100          void LCDInstr(u8 Instr);
-    101          void LCDDataOut(u8 data);
-    102          void LCD_Busy();
-    103          void PulseEnable();
-    104          //void SendData();
-    105          void SendChar(u8 Char);
-    106          //void Send_Hello();
-    107          bool Set_Clock();
-    108          bool key_ok_on();
-    109          bool key_plus_on();
-    110          bool key_minus_on();
-    111          bool Init_DS1307(void);
-    112          bool Check_DS1307(void);
-    113          bool I2C_Start(void);
-    114          bool I2C_WA(u8 address);
-    115          bool I2C_WD(u8 data);
-    116          bool I2C_RA(u8 address);
-    117          bool Set_DS1307( u8 year ,u8 mounts,u8 date,u8 days,u8 hours,u8 minutes,u8 seconds);
-    118          u8 convert_tobcd(u8 data);
-    119          u8 I2C_RD(void);
-    120          u8 adj(u8 min,u8 max,u8 now);
-    121          
-    122          u16  Average();
-    123          
+     87          
+     88          
+     89          /* Private function prototypes -----------------------------------------------*/
+     90          void InitHardware();
+     91          void GpioConfiguration();
+     92          void InitClk();
+     93          void InitAdc();
+     94          void InitI2C();
+     95          bool ReadDS1307();
+     96          //void InitUart();
+     97          void InitLcd();
+     98          void InitDelayTimer();
+     99          void Delay1( u16 Delay);
+    100          void Delay2( u16 Delay);
+    101          void LCDInstrNibble (u8 Instr);
+    102          void LCDInstr(u8 Instr);
+    103          void LCDDataOut(u8 data);
+    104          void LCD_Busy();
+    105          void PulseEnable();
+    106          //void SendData();
+    107          void SendChar(u8 Char);
+    108          //void Send_Hello();
+    109          bool Set_Clock();
+    110          bool key_ok_on();
+    111          bool key_plus_on();
+    112          bool key_minus_on();
+    113          bool Init_DS1307(void);
+    114          bool Check_DS1307(void);
+    115          bool I2C_Start(void);
+    116          bool I2C_WA(u8 address);
+    117          bool I2C_WD(u8 data);
+    118          bool I2C_RA(u8 address);
+    119          bool Set_DS1307();
+    120          u8 convert_tobcd(u8 data);
+    121          u8 I2C_RD(void);
+    122          u8 adj(u8 min,u8 max,u8 now);
+    123          u8 bcd2hex(u8 bcd);
     124          
-    125          /* Private functions ---------------------------------------------------------*/
+    125          u16  Average();
     126          
+    127          
+    128          /* Private functions ---------------------------------------------------------*/
+    129          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    127          void main(void)
-    128          {
-    129              /*High speed internal clock prescaler: 1*/
-    130              //CLK_HSIPrescalerConfig(CLK_PRESCALER_HSIDIV1);
-    131          
-    132              InitClk();
+    130          void main(void)
+    131          {
+    132              /*High speed internal clock prescaler: 1*/
+    133              //CLK_HSIPrescalerConfig(CLK_PRESCALER_HSIDIV1);
+    134          
+    135              InitClk();
    \                     main:
    \   000000 8D000000              CALLF     InitClk
-    133              InitDelayTimer();
+    136              InitDelayTimer();
    \   000004 8D000000              CALLF     InitDelayTimer
-    134              GpioConfiguration();
+    137              GpioConfiguration();
    \   000008 8D000000              CALLF     GpioConfiguration
-    135              InitUart();
-   \   00000C 8D000000              CALLF     InitUart
-    136              enableInterrupts();
-   \   000010 9A                    RIM
-    137              GPIO_WriteLow(GPIOD,GPIO_PIN_7); //R/W Line Read Mode
-   \   000011 A680                  LD        A, #0x80
-   \   000013 AE500F                LDW       X, #0x500f
-   \   000016 8D000000              CALLF     GPIO_WriteLow
-    138              InitLcd();
-   \   00001A 8D000000              CALLF     InitLcd
-    139              InitAdc();
-   \   00001E 8D000000              CALLF     InitAdc
-    140              InitI2C();
-   \   000022 8D000000              CALLF     InitI2C
-    141              Delay1(1000);
-   \   000026 AE03E8                LDW       X, #0x3e8
-   \   000029 8D000000              CALLF     Delay1
-    142               if (!ReadDS1307())
-   \   00002D 8D000000              CALLF     ReadDS1307
-   \   000031 A100                  CP        A, #0x0
-   \   000033 2615                  JRNE      L:??main_0
-    143               {
-    144                 printf("\n E2:%d",error);
-   \   000035 C60000                LD        A, L:error
-   \   000038 5F                    CLRW      X
-   \   000039 97                    LD        XL, A
-   \   00003A 89                    PUSHW     X
-   \   00003B AE0000                LDW       X, #`?<Constant "\\n E2:%d">`
-   \   00003E 8D000000              CALLF     printf
-   \   000042 5B02                  ADD       SP, #0x2
-    145                 // Reset the CPU: Enable the watchdog and wait until it expires
-    146                 IWDG->KR = IWDG_KEY_ENABLE;
-   \   000044 35CC50E0              MOV       L:0x50e0, #0xcc
-    147                 while ( 1 );    // Wait until reset occurs from IWDG
+    138              //InitUart();
+    139              enableInterrupts();
+   \   00000C 9A                    RIM
+    140              GPIO_WriteLow(GPIOD,GPIO_PIN_7); //R/W Line Read Mode
+   \   00000D A680                  LD        A, #0x80
+   \   00000F AE500F                LDW       X, #0x500f
+   \   000012 8D000000              CALLF     GPIO_WriteLow
+    141              InitLcd();
+   \   000016 8D000000              CALLF     InitLcd
+    142              InitAdc();
+   \   00001A 8D000000              CALLF     InitAdc
+    143              InitI2C();
+   \   00001E 8D000000              CALLF     InitI2C
+    144              //years=bcd2hex(13);
+    145              Delay1(1000);
+   \   000022 AE03E8                LDW       X, #0x3e8
+   \   000025 8D000000              CALLF     Delay1
+    146               if (!ReadDS1307())
+   \   000029 8D000000              CALLF     ReadDS1307
+   \   00002D A100                  CP        A, #0x0
+   \   00002F 2615                  JRNE      L:??main_0
+    147               {
+    148                 printf("\n E2:%d",error);
+   \   000031 C60000                LD        A, L:error
+   \   000034 5F                    CLRW      X
+   \   000035 97                    LD        XL, A
+   \   000036 89                    PUSHW     X
+   \   000037 AE0000                LDW       X, #`?<Constant "\\n E2:%d">`
+   \   00003A 8D000000              CALLF     printf
+   \   00003E 5B02                  ADD       SP, #0x2
+    149                 // Reset the CPU: Enable the watchdog and wait until it expires
+    150                 IWDG->KR = IWDG_KEY_ENABLE;
+   \   000040 35CC50E0              MOV       L:0x50e0, #0xcc
+    151                 while ( 1 );    // Wait until reset occurs from IWDG
    \                     ??main_1:
-   \   000048 20FE                  JRA       L:??main_1
-    148               }
-    149               //Send_Hello();
-    150              //line_lcd=0;
-    151              //printf("\nHello");
-    152          
-    153              if (!Check_DS1307())
+   \   000044 20FE                  JRA       L:??main_1
+    152               }
+    153               //Send_Hello();
+    154              //line_lcd=0;
+    155              //printf("\nHello");
+    156          
+    157              if (!Check_DS1307())
    \                     ??main_0:
-   \   00004A 8D000000              CALLF     Check_DS1307
-   \   00004E A100                  CP        A, #0x0
-   \   000050 2653                  JRNE      L:??main_2
-    154              {
-    155               line_lcd=0;
-   \   000052 725F0000              CLR       L:line_lcd
-    156               printf("\nSetClock");
-   \   000056 AE0000                LDW       X, #`?<Constant "\\nSetClock">`
-   \   000059 8D000000              CALLF     printf
-    157                Set_Clock();
-   \   00005D 8D000000              CALLF     Set_Clock
-   \   000061 2042                  JRA       L:??main_2
-    158          
-    159              }
-    160          
-    161          
-    162               //UART2_Cmd(DISABLE);  // Disable UART for the moment
-    163          
-    164               // Working fuction
-    165              //Set_DS1307(13,7,13,34,0);//u8 year ,u8 mounts,u8 hours,u8 minutes,u8 seconds)
-    166          
-    167              while(1)
-    168              {
-    169                ADC1_Cmd (ENABLE);
+   \   000046 8D000000              CALLF     Check_DS1307
+   \   00004A A100                  CP        A, #0x0
+   \   00004C 2653                  JRNE      L:??main_2
+    158              {
+    159               line_lcd=0;
+   \   00004E 725F0000              CLR       L:line_lcd
+    160               printf("\nSetClock");
+   \   000052 AE0000                LDW       X, #`?<Constant "\\nSetClock">`
+   \   000055 8D000000              CALLF     printf
+    161                Set_Clock();
+   \   000059 8D000000              CALLF     Set_Clock
+   \   00005D 2042                  JRA       L:??main_2
+    162          
+    163              }
+    164          
+    165          
+    166               //UART2_Cmd(DISABLE);  // Disable UART for the moment
+    167          
+    168               // Working fuction
+    169              //Set_DS1307(13,7,13,34,0);//u8 year ,u8 mounts,u8 hours,u8 minutes,u8 seconds)
     170          
-    171                 GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
-    172                   Delay2(30000);
-    173                 GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
-    174                   Delay2(30000);
-    175          
-    176                line_lcd=0;
-    177               if (!ReadDS1307())
-    178               {
-    179                 printf("\n E2:%d",error);
-    180                  //restart i2c
-    181                // Reset the CPU: Enable the watchdog and wait until it expires
-    182                 IWDG->KR = IWDG_KEY_ENABLE;
-    183                 while ( 1 );    // Wait until reset occurs from IWDG
-    184          
-    185          
-    186               }
-    187                 else  printf("\n      ");
+    171              while(1)
+    172              {
+    173                ADC1_Cmd (ENABLE);
+    174          
+    175                 GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
+    176                   Delay2(10000);
+    177                 GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
+    178                   Delay2(10000);
+    179          
+    180                line_lcd=0;
+    181               if (!ReadDS1307())
+    182               {
+    183                 printf("\n E2:%d",error);
+    184                  //restart i2c
+    185                // Reset the CPU: Enable the watchdog and wait until it expires
+    186                 IWDG->KR = IWDG_KEY_ENABLE;
+    187                 while ( 1 );    // Wait until reset occurs from IWDG
+    188          
+    189          
+    190               }
+    191                 else  printf("\n      ");
    \                     ??main_3:
-   \   000063 AE0000                LDW       X, #`?<Constant "\\n      ">`
-   \   000066 8D000000              CALLF     printf
-    188               line_lcd=1;
-   \   00006A 8D000000              CALLF     ?Subroutine8
-    189               printf("\n%02x:%02x:%02x",hours,minutes,seconds);
+   \   00005F AE0000                LDW       X, #`?<Constant "\\n      ">`
+   \   000062 8D000000              CALLF     printf
+    192               line_lcd=1;
+   \   000066 8D000000              CALLF     ?Subroutine8
+    193               printf("\n%02d:%02d:%02d",hours,minutes,seconds);
    \                     ??CrossCallReturnLabel_23:
-   \   00006E 89                    PUSHW     X
-   \   00006F C60000                LD        A, L:minutes
-   \   000072 97                    LD        XL, A
-   \   000073 89                    PUSHW     X
-   \   000074 C60000                LD        A, L:hours
-   \   000077 97                    LD        XL, A
-   \   000078 89                    PUSHW     X
-   \   000079 AE0000                LDW       X, #`?<Constant "\\n%02x:%02x:%02x">`
-   \   00007C 8D000000              CALLF     printf
-   \   000080 5B06                  ADD       SP, #0x6
-    190               //line_lcd=2;
-    191               //printf("\n Just Test:%X", timer2);
-    192                   //if (rx_data==SpecialSymbol) SendData();
-    193                //SendData();
-    194          
-    195                if (key_ok_on())
-   \   000082 8D000000              CALLF     ?Subroutine24
+   \   00006A 89                    PUSHW     X
+   \   00006B C60000                LD        A, L:minutes
+   \   00006E 97                    LD        XL, A
+   \   00006F 89                    PUSHW     X
+   \   000070 C60000                LD        A, L:hours
+   \   000073 97                    LD        XL, A
+   \   000074 89                    PUSHW     X
+   \   000075 AE0000                LDW       X, #`?<Constant "\\n%02d:%02d:%02d">`
+   \   000078 8D000000              CALLF     printf
+   \   00007C 5B06                  ADD       SP, #0x6
+    194               //line_lcd=2;
+    195               //printf("\n Just Test:%X", timer2);
+    196                   //if (rx_data==SpecialSymbol) SendData();
+    197                //SendData();
+    198          
+    199                if (key_ok_on())
+   \   00007E 8D000000              CALLF     ?Subroutine24
    \                     ??CrossCallReturnLabel_75:
-   \   000086 271D                  JREQ      L:??main_2
-    196                {
-    197                  line_lcd=0;
-   \   000088 725F0000              CLR       L:line_lcd
-    198                  printf("\n%02x:%02x:%02x",years,mounts,date);
-   \   00008C C60000                LD        A, L:`date`
-   \   00008F 5F                    CLRW      X
-   \   000090 97                    LD        XL, A
-   \   000091 89                    PUSHW     X
-   \   000092 C60000                LD        A, L:mounts
-   \   000095 97                    LD        XL, A
-   \   000096 89                    PUSHW     X
-   \   000097 C60000                LD        A, L:years
-   \   00009A 97                    LD        XL, A
-   \   00009B 89                    PUSHW     X
-   \   00009C AE0000                LDW       X, #`?<Constant "\\n%02x:%02x:%02x">`
-   \   00009F 8D000000              CALLF     printf
-   \   0000A3 5B06                  ADD       SP, #0x6
-    199                }
+   \   000082 271D                  JREQ      L:??main_2
+    200                {
+    201                  line_lcd=0;
+   \   000084 725F0000              CLR       L:line_lcd
+    202                  printf("\n%02d:%02d:%02d",years,mounts,date);
+   \   000088 C60000                LD        A, L:`date`
+   \   00008B 5F                    CLRW      X
+   \   00008C 97                    LD        XL, A
+   \   00008D 89                    PUSHW     X
+   \   00008E C60000                LD        A, L:mounts
+   \   000091 97                    LD        XL, A
+   \   000092 89                    PUSHW     X
+   \   000093 C60000                LD        A, L:years
+   \   000096 97                    LD        XL, A
+   \   000097 89                    PUSHW     X
+   \   000098 AE0000                LDW       X, #`?<Constant "\\n%02d:%02d:%02d">`
+   \   00009B 8D000000              CALLF     printf
+   \   00009F 5B06                  ADD       SP, #0x6
+    203                }
    \                     ??main_2:
-   \   0000A5 A601                  LD        A, #0x1
-   \   0000A7 8D000000              CALLF     ADC1_Cmd
-   \   0000AB 8D000000              CALLF     ?Subroutine12
+   \   0000A1 A601                  LD        A, #0x1
+   \   0000A3 8D000000              CALLF     ADC1_Cmd
+   \   0000A7 8D000000              CALLF     ?Subroutine12
    \                     ??CrossCallReturnLabel_34:
-   \   0000AF 8D000000              CALLF     ?Subroutine12
+   \   0000AB 8D000000              CALLF     ?Subroutine12
    \                     ??CrossCallReturnLabel_33:
-   \   0000B3 725F0000              CLR       L:line_lcd
-   \   0000B7 8D000000              CALLF     ReadDS1307
-   \   0000BB A100                  CP        A, #0x0
-   \   0000BD 26A4                  JRNE      L:??main_3
-   \   0000BF C60000                LD        A, L:error
-   \   0000C2 5F                    CLRW      X
-   \   0000C3 97                    LD        XL, A
-   \   0000C4 89                    PUSHW     X
-   \   0000C5 AE0000                LDW       X, #`?<Constant "\\n E2:%d">`
-   \   0000C8 8D000000              CALLF     printf
-   \   0000CC 5B02                  ADD       SP, #0x2
-   \   0000CE 35CC50E0              MOV       L:0x50e0, #0xcc
+   \   0000AF 725F0000              CLR       L:line_lcd
+   \   0000B3 8D000000              CALLF     ReadDS1307
+   \   0000B7 A100                  CP        A, #0x0
+   \   0000B9 26A4                  JRNE      L:??main_3
+   \   0000BB C60000                LD        A, L:error
+   \   0000BE 5F                    CLRW      X
+   \   0000BF 97                    LD        XL, A
+   \   0000C0 89                    PUSHW     X
+   \   0000C1 AE0000                LDW       X, #`?<Constant "\\n E2:%d">`
+   \   0000C4 8D000000              CALLF     printf
+   \   0000C8 5B02                  ADD       SP, #0x2
+   \   0000CA 35CC50E0              MOV       L:0x50e0, #0xcc
    \                     ??main_4:
-   \   0000D2 20FE                  JRA       L:??main_4
-    200          
-    201          
-    202              }
-    203          
+   \   0000CE 20FE                  JRA       L:??main_4
     204          
     205          
-    206          }
+    206              }
+    207          
+    208          
+    209          
+    210          }
 
    \                                 In section .far_func.text, align 1, keep-with-next
    \                     ?Subroutine24:
@@ -419,7 +426,7 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \   000000 A601                  LD        A, #0x1
    \   000002 AE500F                LDW       X, #0x500f
    \   000005 8D000000              CALLF     GPIO_WriteReverse
-   \   000009 AE7530                LDW       X, #0x7530
+   \   000009 AE2710                LDW       X, #0x2710
    \   00000C AC000000              JPF       Delay2
 
    \                                 In section .far_func.text, align 1
@@ -429,15 +436,15 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \   000007 5F                    CLRW      X
    \   000008 97                    LD        XL, A
    \   000009 87                    RETF
-    207          
+    211          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    208          void InitI2C(void)
-    209          {
-    210             I2C_DeInit();
+    212          void InitI2C(void)
+    213          {
+    214             I2C_DeInit();
    \                     InitI2C:
    \   000000 8D000000              CALLF     I2C_DeInit
-    211             I2C_Init(10000, 0xA2, I2C_DUTYCYCLE_2, I2C_ACK_CURR, I2C_ADDMODE_7BIT, 2);
+    215             I2C_Init(10000, 0xA2, I2C_DUTYCYCLE_2, I2C_ACK_CURR, I2C_ADDMODE_7BIT, 2);
    \   000004 35020000              MOV       S:?b6, #0x2
    \   000008 3F00                  CLR       S:?b5
    \   00000A 35010000              MOV       S:?b4, #0x1
@@ -450,165 +457,165 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \   000019 BF00                  LDW       S:?w0, X
    \   00001B 85                    POPW      X
    \   00001C 8D000000              CALLF     I2C_Init
-    212             I2C_Cmd(ENABLE);
+    216             I2C_Cmd(ENABLE);
    \   000020 A601                  LD        A, #0x1
    \   000022 AC000000              JPF       I2C_Cmd
-    213          }
-    214          
+    217          }
+    218          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    215          bool I2C_Start(void)
-    216          {
-    217             I2C_GenerateSTART(ENABLE);
+    219          bool I2C_Start(void)
+    220          {
+    221             I2C_GenerateSTART(ENABLE);
    \                     I2C_Start:
    \   000000 A601                  LD        A, #0x1
    \   000002 8D000000              CALLF     I2C_GenerateSTART
-    218                 timeout=100;
+    222                 timeout=100;
    \   000006 35640000              MOV       L:timeout, #0x64
-    219              	while(!(I2C_CheckEvent(I2C_EVENT_MASTER_MODE_SELECT))&&timeout);
+    223              	while(!(I2C_CheckEvent(I2C_EVENT_MASTER_MODE_SELECT))&&timeout);
    \                     ??I2C_Start_0:
    \   00000A AE0301                LDW       X, #0x301
-   \   00000D 8D000000              CALLF     ?Subroutine19
-   \                     ??CrossCallReturnLabel_53:
+   \   00000D 8D000000              CALLF     ?Subroutine23
+   \                     ??CrossCallReturnLabel_66:
    \   000011 2605                  JRNE      L:??I2C_Start_1
    \   000013 C60000                LD        A, L:timeout
    \   000016 26F2                  JRNE      L:??I2C_Start_0
-    220                  if (!timeout)
+    224                  if (!timeout)
    \                     ??I2C_Start_1:
    \   000018 C60000                LD        A, L:timeout
    \   00001B 2606                  JRNE      L:??I2C_Start_2
-    221                  {
-    222                      error=1;
+    225                  {
+    226                      error=1;
    \   00001D 35010000              MOV       L:error, #0x1
-    223                     return FALSE;
+    227                     return FALSE;
    \   000021 4F                    CLR       A
    \   000022 87                    RETF
-    224                  }
-    225                    else return TRUE;
+    228                  }
+    229                    else return TRUE;
    \                     ??I2C_Start_2:
    \   000023 A601                  LD        A, #0x1
    \   000025 87                    RETF
-    226          }
+    230          }
 
    \                                 In section .far_func.text, align 1, keep-with-next
-   \                     ?Subroutine19:
+   \                     ?Subroutine23:
    \   000000 8D000000              CALLF     I2C_CheckEvent
    \   000004 A100                  CP        A, #0x0
    \   000006 87                    RETF
-    227          
+    231          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    228          bool I2C_WA(u8 address)
-    229          {
-    230            I2C_Send7bitAddress(address, I2C_DIRECTION_TX);
+    232          bool I2C_WA(u8 address)
+    233          {
+    234            I2C_Send7bitAddress(address, I2C_DIRECTION_TX);
    \                     I2C_WA:
    \   000000 3F00                  CLR       S:?b0
    \   000002 8D000000              CALLF     I2C_Send7bitAddress
-    231                 timeout=255;
+    235                 timeout=255;
    \   000006 35FF0000              MOV       L:timeout, #0xff
-    232                  while(!(I2C_CheckEvent(I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))&&timeout);
+    236                  while(!(I2C_CheckEvent(I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))&&timeout);
    \                     ??I2C_WA_0:
    \   00000A AE0782                LDW       X, #0x782
-   \   00000D 8D000000              CALLF     ?Subroutine19
-   \                     ??CrossCallReturnLabel_52:
+   \   00000D 8D000000              CALLF     ?Subroutine23
+   \                     ??CrossCallReturnLabel_65:
    \   000011 2605                  JRNE      L:??I2C_WA_1
    \   000013 C60000                LD        A, L:timeout
    \   000016 26F2                  JRNE      L:??I2C_WA_0
-    233                   if (!timeout)
+    237                   if (!timeout)
    \                     ??I2C_WA_1:
    \   000018 C60000                LD        A, L:timeout
    \   00001B 2606                  JRNE      L:??I2C_WA_2
-    234                   {
-    235                    error=2;
+    238                   {
+    239                    error=2;
    \   00001D 35020000              MOV       L:error, #0x2
-    236                     return FALSE ;
+    240                     return FALSE ;
    \   000021 4F                    CLR       A
    \   000022 87                    RETF
-    237                   }
-    238                    else return TRUE;
+    241                   }
+    242                    else return TRUE;
    \                     ??I2C_WA_2:
    \   000023 A601                  LD        A, #0x1
    \   000025 87                    RETF
-    239          }
-    240          
+    243          }
+    244          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    241          bool I2C_RA(u8 address)
-    242          {
-    243            I2C_Send7bitAddress(address, I2C_DIRECTION_RX);
+    245          bool I2C_RA(u8 address)
+    246          {
+    247            I2C_Send7bitAddress(address, I2C_DIRECTION_RX);
    \                     I2C_RA:
    \   000000 35010000              MOV       S:?b0, #0x1
    \   000004 8D000000              CALLF     I2C_Send7bitAddress
-    244                 timeout=255;
+    248                 timeout=255;
    \   000008 35FF0000              MOV       L:timeout, #0xff
-    245                  while(!(I2C_CheckEvent(I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED))&&timeout);
+    249                  while(!(I2C_CheckEvent(I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED))&&timeout);
    \                     ??I2C_RA_0:
    \   00000C AE0302                LDW       X, #0x302
-   \   00000F 8D000000              CALLF     ?Subroutine19
-   \                     ??CrossCallReturnLabel_54:
+   \   00000F 8D000000              CALLF     ?Subroutine23
+   \                     ??CrossCallReturnLabel_67:
    \   000013 2605                  JRNE      L:??I2C_RA_1
    \   000015 C60000                LD        A, L:timeout
    \   000018 26F2                  JRNE      L:??I2C_RA_0
-    246                   if (!timeout)
+    250                   if (!timeout)
    \                     ??I2C_RA_1:
    \   00001A C60000                LD        A, L:timeout
    \   00001D 2606                  JRNE      L:??I2C_RA_2
-    247                   {
-    248                     error=3;
+    251                   {
+    252                     error=3;
    \   00001F 35030000              MOV       L:error, #0x3
-    249                     return FALSE ;
+    253                     return FALSE ;
    \   000023 4F                    CLR       A
    \   000024 87                    RETF
-    250                   }
-    251                    else return TRUE;
+    254                   }
+    255                    else return TRUE;
    \                     ??I2C_RA_2:
    \   000025 A601                  LD        A, #0x1
    \   000027 87                    RETF
-    252          }
-    253          
-    254          
+    256          }
+    257          
+    258          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    255          bool I2C_WD(u8 data)
-    256          {
-    257           I2C_SendData(data);   // set register pointer 00h
+    259          bool I2C_WD(u8 data)
+    260          {
+    261           I2C_SendData(data);   // set register pointer 00h
    \                     I2C_WD:
    \   000000 8D000000              CALLF     I2C_SendData
-    258             timeout=255;
+    262             timeout=255;
    \   000004 35FF0000              MOV       L:timeout, #0xff
-    259             while(!(I2C_CheckEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED))&&timeout);
+    263             while(!(I2C_CheckEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED))&&timeout);
    \                     ??I2C_WD_0:
    \   000008 AE0784                LDW       X, #0x784
-   \   00000B 8D000000              CALLF     ?Subroutine19
-   \                     ??CrossCallReturnLabel_51:
+   \   00000B 8D000000              CALLF     ?Subroutine23
+   \                     ??CrossCallReturnLabel_64:
    \   00000F 2605                  JRNE      L:??I2C_WD_1
    \   000011 C60000                LD        A, L:timeout
    \   000014 26F2                  JRNE      L:??I2C_WD_0
-    260              if (!timeout)
+    264              if (!timeout)
    \                     ??I2C_WD_1:
    \   000016 C60000                LD        A, L:timeout
    \   000019 2606                  JRNE      L:??I2C_WD_2
-    261              {
-    262                error=4;
+    265              {
+    266                error=4;
    \   00001B 35040000              MOV       L:error, #0x4
-    263                 return FALSE ;
+    267                 return FALSE ;
    \   00001F 4F                    CLR       A
    \   000020 87                    RETF
-    264              }
-    265               else return TRUE;
+    268              }
+    269               else return TRUE;
    \                     ??I2C_WD_2:
    \   000021 A601                  LD        A, #0x1
    \   000023 87                    RETF
-    266          }
-    267          
+    270          }
+    271          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    268          u8 I2C_RD(void)
-    269          {
-    270           timeout=255;
+    272          u8 I2C_RD(void)
+    273          {
+    274           timeout=255;
    \                     I2C_RD:
    \   000000 35FF0000              MOV       L:timeout, #0xff
-    271            while( !I2C_GetFlagStatus(I2C_FLAG_TRANSFERFINISHED)&& timeout);
+    275            while( !I2C_GetFlagStatus(I2C_FLAG_TRANSFERFINISHED)&& timeout);
    \                     ??I2C_RD_0:
    \   000004 AE0104                LDW       X, #0x104
    \   000007 8D000000              CALLF     I2C_GetFlagStatus
@@ -616,45 +623,45 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \   00000D 2605                  JRNE      L:??I2C_RD_1
    \   00000F C60000                LD        A, L:timeout
    \   000012 26F0                  JRNE      L:??I2C_RD_0
-    272           //while((!(I2C->SR1 & 0x40))&&timeout);
-    273           if (!timeout)
+    276           //while((!(I2C->SR1 & 0x40))&&timeout);
+    277           if (!timeout)
    \                     ??I2C_RD_1:
    \   000014 C60000                LD        A, L:timeout
    \   000017 2606                  JRNE      L:??I2C_RD_2
-    274           {
-    275             error=4;
+    278           {
+    279             error=4;
    \   000019 35040000              MOV       L:error, #0x4
-    276             return FALSE;
+    280             return FALSE;
    \   00001D 4F                    CLR       A
    \   00001E 87                    RETF
-    277           }
-    278           u8 data=I2C_ReceiveData();
-    279           return data;
+    281           }
+    282           u8 data=I2C_ReceiveData();
+    283           return data;
    \                     ??I2C_RD_2:
    \   00001F AC000000              JPF       I2C_ReceiveData
-    280          }
-    281          
-    282            /*
-    283          bool Init_DS1307(void)
-    284          {
-    285             // Test DS1307
-    286              error=0;
-    287              if (!I2C_Start()) return FALSE;
-    288              if(!I2C_WA(0xD0)) return FALSE;
-    289              if(!I2C_WD(0x00)) return FALSE;
-    290              if(!I2C_WD(0x00)) return FALSE;
-    291              I2C_GenerateSTOP(ENABLE);
-    292          
-    293              // timeout=100;  error=4;
-    294              ///   while(!(I2C_CheckEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED))&&timeout);
-    295              //    if (!timeout)return FALSE ;
-    296               return TRUE;
-    297          }
-    298             */
-    299          
+    284          }
+    285          
+    286            /*
+    287          bool Init_DS1307(void)
+    288          {
+    289             // Test DS1307
+    290              error=0;
+    291              if (!I2C_Start()) return FALSE;
+    292              if(!I2C_WA(0xD0)) return FALSE;
+    293              if(!I2C_WD(0x00)) return FALSE;
+    294              if(!I2C_WD(0x00)) return FALSE;
+    295              I2C_GenerateSTOP(ENABLE);
+    296          
+    297              // timeout=100;  error=4;
+    298              ///   while(!(I2C_CheckEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED))&&timeout);
+    299              //    if (!timeout)return FALSE ;
+    300               return TRUE;
+    301          }
+    302             */
+    303          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-   \                     ?Subroutine23:
+   \                     ?Subroutine22:
    \   000000 4F                    CLR       A
    \   000001                       REQUIRE ??Subroutine30_0
    \   000001                       ;               // Fall through to label ??Subroutine30_0
@@ -666,94 +673,95 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \   000006 87                    RETF
 
    \                                 In section .far_func.text, align 1, keep-with-next
-   \                     ?Subroutine22:
+   \                     ?Subroutine21:
    \   000000 A6D0                  LD        A, #0xd0
    \   000002 8D000000              CALLF     I2C_WA
    \   000006 A100                  CP        A, #0x0
    \   000008 87                    RETF
 
    \                                 In section .far_func.text, align 1, keep-with-next
-   \                     ?Subroutine21:
+   \                     ?Subroutine20:
    \   000000 725F0000              CLR       L:error
    \   000004 8D000000              CALLF     I2C_Start
    \   000008 A100                  CP        A, #0x0
    \   00000A 87                    RETF
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    300          bool  ReadDS1307(void)
-    301          {
-    302                 error=0;
+    304          bool  ReadDS1307(void)
+    305          {
+    306                 error=0;
    \                     ReadDS1307:
-   \   000000 8D000000              CALLF     ?Subroutine21
-    303                 if (!I2C_Start()) return FALSE;
-   \                     ??CrossCallReturnLabel_64:
+   \   000000 8D000000              CALLF     ?Subroutine20
+    307                 if (!I2C_Start()) return FALSE;
+   \                     ??CrossCallReturnLabel_60:
    \   000004 2602                  JRNE      L:??ReadDS1307_0
    \                     ??ReadDS1307_1:
    \   000006 4F                    CLR       A
    \   000007 87                    RETF
-    304                 if(!I2C_WA(0xD0))return FALSE;
+    308                 if(!I2C_WA(0xD0))return FALSE;
    \                     ??ReadDS1307_0:
-   \   000008 8D000000              CALLF     ?Subroutine22
-   \                     ??CrossCallReturnLabel_67:
+   \   000008 8D000000              CALLF     ?Subroutine21
+   \                     ??CrossCallReturnLabel_63:
    \   00000C 27F8                  JREQ      L:??ReadDS1307_1
-    305                 if(!I2C_WD(0x00)) return FALSE;
-   \   00000E 8D000000              CALLF     ?Subroutine23
+    309                 if(!I2C_WD(0x00)) return FALSE;
+   \   00000E 8D000000              CALLF     ?Subroutine22
    \                     ??CrossCallReturnLabel_101:
    \   000012 27F2                  JREQ      L:??ReadDS1307_1
-    306                 I2C_GenerateSTOP(ENABLE);
+    310                 I2C_GenerateSTOP(ENABLE);
    \   000014 8D000000              CALLF     ?Subroutine13
-    307                 if (!I2C_Start()) return FALSE;
+    311                 if (!I2C_Start()) return FALSE;
    \                     ??CrossCallReturnLabel_36:
    \   000018 27EC                  JREQ      L:??ReadDS1307_1
-    308                 if(!I2C_RA(0xD0))return FALSE;
+    312                 if(!I2C_RA(0xD0))return FALSE;
    \   00001A A6D0                  LD        A, #0xd0
    \   00001C 8D000000              CALLF     I2C_RA
    \   000020 A100                  CP        A, #0x0
    \   000022 27E2                  JREQ      L:??ReadDS1307_1
-    309                 I2C_AcknowledgeConfig(I2C_ACK_CURR);
+    313                 I2C_AcknowledgeConfig(I2C_ACK_CURR);
    \   000024 8D000000              CALLF     ?Subroutine11
-    310                 seconds = I2C_RD();
+    314                 seconds = bcd2hex(I2C_RD());
    \                     ??CrossCallReturnLabel_32:
    \   000028 C70000                LD        L:seconds, A
-    311                 I2C_AcknowledgeConfig(I2C_ACK_CURR);
+    315                 I2C_AcknowledgeConfig(I2C_ACK_CURR);
    \   00002B 8D000000              CALLF     ?Subroutine11
-    312                 minutes = I2C_RD();
+    316                 minutes = bcd2hex(I2C_RD());
    \                     ??CrossCallReturnLabel_31:
    \   00002F C70000                LD        L:minutes, A
-    313                 I2C_AcknowledgeConfig(I2C_ACK_CURR);
+    317                 I2C_AcknowledgeConfig(I2C_ACK_CURR);
    \   000032 8D000000              CALLF     ?Subroutine11
-    314                 hours = I2C_RD();
+    318                 hours = bcd2hex(I2C_RD());
    \                     ??CrossCallReturnLabel_30:
    \   000036 C70000                LD        L:hours, A
-    315                 I2C_AcknowledgeConfig(I2C_ACK_CURR);
+    319                 I2C_AcknowledgeConfig(I2C_ACK_CURR);
    \   000039 8D000000              CALLF     ?Subroutine11
-    316                 days = I2C_RD();
+    320                 days = bcd2hex(I2C_RD());
    \                     ??CrossCallReturnLabel_29:
    \   00003D C70000                LD        L:days, A
-    317                 I2C_AcknowledgeConfig(I2C_ACK_CURR);
+    321                 I2C_AcknowledgeConfig(I2C_ACK_CURR);
    \   000040 8D000000              CALLF     ?Subroutine11
-    318                 date = I2C_RD();
+    322                 date = bcd2hex(I2C_RD());
    \                     ??CrossCallReturnLabel_28:
    \   000044 C70000                LD        L:`date`, A
-    319                 I2C_AcknowledgeConfig(I2C_ACK_CURR);
+    323                 I2C_AcknowledgeConfig(I2C_ACK_CURR);
    \   000047 8D000000              CALLF     ?Subroutine11
-    320                 mounts = I2C_RD();
+    324                 mounts = bcd2hex(I2C_RD());
    \                     ??CrossCallReturnLabel_27:
    \   00004B C70000                LD        L:mounts, A
-    321                //Last read byte by I2C slave
-    322                 I2C_AcknowledgeConfig(I2C_ACK_NONE);
-   \   00004E 8D000000              CALLF     ?Subroutine14
-    323                 I2C_GenerateSTOP(ENABLE);
-    324                 years = I2C_RD();
-   \                     ??CrossCallReturnLabel_37:
-   \   000052 C70000                LD        L:years, A
-    325                 return TRUE;
-   \   000055 A601                  LD        A, #0x1
-   \   000057 87                    RETF
-    326          }
+    325                //Last read byte by I2C slave
+    326                 I2C_AcknowledgeConfig(I2C_ACK_NONE);
+   \   00004E 8D000000              CALLF     ?Subroutine15
+    327                 I2C_GenerateSTOP(ENABLE);
+    328                 years= bcd2hex(I2C_RD());
+   \                     ??CrossCallReturnLabel_40:
+   \   000052 8D000000              CALLF     bcd2hex
+   \   000056 C70000                LD        L:years, A
+    329                 return TRUE;
+   \   000059 A601                  LD        A, #0x1
+   \   00005B 87                    RETF
+    330          }
 
    \                                 In section .far_func.text, align 1, keep-with-next
-   \                     ?Subroutine14:
+   \                     ?Subroutine15:
    \   000000 4F                    CLR       A
    \   000001 8D000000              CALLF     I2C_AcknowledgeConfig
    \   000005 A601                  LD        A, #0x1
@@ -772,161 +780,159 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \                     ?Subroutine11:
    \   000000 A601                  LD        A, #0x1
    \   000002 8D000000              CALLF     I2C_AcknowledgeConfig
-   \   000006 AC000000              JPF       I2C_RD
-    327          
+   \   000006 8D000000              CALLF     I2C_RD
+   \   00000A AC000000              JPF       bcd2hex
+    331          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    328          bool Check_DS1307(void)
-    329          {
-    330             // Read  address 0x08 from DS1307 if not 0XAA clock is not set
-    331                 error=0;
+    332          bool Check_DS1307(void)
+    333          {
+    334             // Read  address 0x08 from DS1307 if not 0XAA clock is not set
+    335                 error=0;
    \                     Check_DS1307:
-   \   000000 8D000000              CALLF     ?Subroutine21
-    332                 if (!I2C_Start()) return FALSE;
-   \                     ??CrossCallReturnLabel_63:
+   \   000000 8D000000              CALLF     ?Subroutine20
+    336                 if (!I2C_Start()) return FALSE;
+   \                     ??CrossCallReturnLabel_59:
    \   000004 2602                  JRNE      L:??Check_DS1307_0
    \                     ??Check_DS1307_1:
    \   000006 4F                    CLR       A
    \   000007 87                    RETF
-    333                 if(!I2C_WA(0xD0)) return FALSE;
+    337                 if(!I2C_WA(0xD0)) return FALSE;
    \                     ??Check_DS1307_0:
-   \   000008 8D000000              CALLF     ?Subroutine22
-   \                     ??CrossCallReturnLabel_66:
+   \   000008 8D000000              CALLF     ?Subroutine21
+   \                     ??CrossCallReturnLabel_62:
    \   00000C 27F8                  JREQ      L:??Check_DS1307_1
-    334                 if(!I2C_WD(0x08)) return FALSE;
+    338                 if(!I2C_WD(0x08)) return FALSE;
    \   00000E A608                  LD        A, #0x8
    \   000010 8D000000              CALLF     ??Subroutine30_0
-   \                     ??CrossCallReturnLabel_103:
+   \                     ??CrossCallReturnLabel_104:
    \   000014 27F0                  JREQ      L:??Check_DS1307_1
-    335                 I2C_GenerateSTOP(ENABLE);
+    339                 I2C_GenerateSTOP(ENABLE);
    \   000016 8D000000              CALLF     ?Subroutine13
-    336                  //Last read byte by I2C slave
-    337                 if (!I2C_Start()) return FALSE;
+    340                  //Last read byte by I2C slave
+    341                 if (!I2C_Start()) return FALSE;
    \                     ??CrossCallReturnLabel_35:
    \   00001A 27EA                  JREQ      L:??Check_DS1307_1
-    338                 if(!I2C_RA(0xD0))return FALSE;
+    342                 if(!I2C_RA(0xD0))return FALSE;
    \   00001C A6D0                  LD        A, #0xd0
    \   00001E 8D000000              CALLF     I2C_RA
    \   000022 A100                  CP        A, #0x0
    \   000024 27E0                  JREQ      L:??Check_DS1307_1
-    339                 I2C_AcknowledgeConfig(I2C_ACK_NONE);
-   \   000026 8D000000              CALLF     ?Subroutine14
-    340                 I2C_GenerateSTOP(ENABLE);
-    341                 u8 data = I2C_RD();
-    342                 if (data != 0xAA) return FALSE;
-   \                     ??CrossCallReturnLabel_38:
-   \   00002A A1AA                  CP        A, #0xaa
-   \   00002C 26D8                  JRNE      L:??Check_DS1307_1
-    343                 else return TRUE;
-   \   00002E A601                  LD        A, #0x1
-   \   000030 87                    RETF
-    344          }
-    345          
+    343                 I2C_AcknowledgeConfig(I2C_ACK_NONE);
+   \   000026 8D000000              CALLF     ?Subroutine15
+    344                 I2C_GenerateSTOP(ENABLE);
+    345                 u8 data = I2C_RD();
+    346                  Delay1(100);
+   \                     ??CrossCallReturnLabel_41:
+   \   00002A AE0064                LDW       X, #0x64
+   \   00002D 8D000000              CALLF     Delay1
+    347                 //temp_flag=data;
+    348                 if (data != 0xAA) return FALSE;
+   \   000031 A1AA                  CP        A, #0xaa
+   \   000033 26D1                  JRNE      L:??Check_DS1307_1
+    349                 else return TRUE;
+   \   000035 A601                  LD        A, #0x1
+   \   000037 87                    RETF
+    350          }
+    351          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    346          bool Set_DS1307( u8 year ,u8 mounts,u8 date ,u8 days ,u8 hours,u8 minutes,u8 seconds)
-    347          {
+    352          bool Set_DS1307()
+    353          {
+    354                 // convert hex or decimal to bcd format
+    355          
+    356          
+    357                 error=0;
    \                     Set_DS1307:
-   \   000000 8D000000              CALLF     L:?push_l2
-   \   000004 8D000000              CALLF     L:?push_w6
-   \   000008 3B0000                PUSH      S:?b14
-   \   00000B B700                  LD        S:?b8, A
-   \   00000D 450000                MOV       S:?b9, S:?b0
-   \   000010 450000                MOV       S:?b10, S:?b1
-   \   000013 450000                MOV       S:?b11, S:?b2
-   \   000016 450000                MOV       S:?b12, S:?b3
-   \   000019 450000                MOV       S:?b13, S:?b4
-   \   00001C 450000                MOV       S:?b14, S:?b5
-    348                 // convert hex or decimal to bcd format
-    349          
-    350          
-    351                 error=0;
-   \   00001F 8D000000              CALLF     ?Subroutine21
-    352                 if (!I2C_Start()) return FALSE;
-   \                     ??CrossCallReturnLabel_62:
-   \   000023 2603                  JRNE      L:??Set_DS1307_0
-   \                     ??Set_DS1307_1:
-   \   000025 4F                    CLR       A
-   \   000026 2054                  JRA       L:??Set_DS1307_2
-    353                 if(!I2C_WA(0xD0)) return FALSE;
-   \                     ??Set_DS1307_0:
-   \   000028 8D000000              CALLF     ?Subroutine22
-   \                     ??CrossCallReturnLabel_65:
-   \   00002C 27F7                  JREQ      L:??Set_DS1307_1
-    354                 if(!I2C_WD(0x00)) return FALSE;
-   \   00002E 8D000000              CALLF     ?Subroutine23
-   \                     ??CrossCallReturnLabel_100:
-   \   000032 27F1                  JREQ      L:??Set_DS1307_1
-    355                 if(!I2C_WD(convert_tobcd(seconds))) return FALSE;
-   \   000034 B600                  LD        A, S:?b14
-   \   000036 8D000000              CALLF     ?Subroutine20
-   \                     ??CrossCallReturnLabel_55:
-   \   00003A 27E9                  JREQ      L:??Set_DS1307_1
-    356                 if(!I2C_WD(convert_tobcd(minutes))) return FALSE;
-   \   00003C B600                  LD        A, S:?b13
-   \   00003E 8D000000              CALLF     ?Subroutine20
-   \                     ??CrossCallReturnLabel_56:
-   \   000042 27E1                  JREQ      L:??Set_DS1307_1
-    357                 if(!I2C_WD(convert_tobcd(hours))) return FALSE;
-   \   000044 B600                  LD        A, S:?b12
-   \   000046 8D000000              CALLF     ?Subroutine20
-   \                     ??CrossCallReturnLabel_57:
-   \   00004A 27D9                  JREQ      L:??Set_DS1307_1
-    358                 if(!I2C_WD(convert_tobcd(days))) return FALSE;
-   \   00004C B600                  LD        A, S:?b11
-   \   00004E 8D000000              CALLF     ?Subroutine20
+   \   000000 8D000000              CALLF     ?Subroutine20
+    358                 if (!I2C_Start()) return FALSE;
    \                     ??CrossCallReturnLabel_58:
-   \   000052 27D1                  JREQ      L:??Set_DS1307_1
-    359                 if(!I2C_WD(convert_tobcd(date))) return FALSE;
-   \   000054 B600                  LD        A, S:?b10
-   \   000056 8D000000              CALLF     ?Subroutine20
-   \                     ??CrossCallReturnLabel_59:
-   \   00005A 27C9                  JREQ      L:??Set_DS1307_1
-    360                 if(!I2C_WD(convert_tobcd(mounts))) return FALSE;
-   \   00005C B600                  LD        A, S:?b9
-   \   00005E 8D000000              CALLF     ?Subroutine20
-   \                     ??CrossCallReturnLabel_60:
-   \   000062 27C1                  JREQ      L:??Set_DS1307_1
-    361                 if(!I2C_WD(convert_tobcd(year))) return FALSE;
-   \   000064 B600                  LD        A, S:?b8
-   \   000066 8D000000              CALLF     ?Subroutine20
+   \   000004 2602                  JRNE      L:??Set_DS1307_0
+   \                     ??Set_DS1307_1:
+   \   000006 4F                    CLR       A
+   \   000007 87                    RETF
+    359                 if(!I2C_WA(0xD0)) return FALSE;
+   \                     ??Set_DS1307_0:
+   \   000008 8D000000              CALLF     ?Subroutine21
    \                     ??CrossCallReturnLabel_61:
-   \   00006A 27B9                  JREQ      L:??Set_DS1307_1
-    362                 if(!I2C_WD(0XAA)) return FALSE;  // Byte --> time is set by program
-   \   00006C A6AA                  LD        A, #0xaa
-   \   00006E 8D000000              CALLF     ??Subroutine30_0
+   \   00000C 27F8                  JREQ      L:??Set_DS1307_1
+    360                 if(!I2C_WD(0x00)) return FALSE;
+   \   00000E 8D000000              CALLF     ?Subroutine22
+   \                     ??CrossCallReturnLabel_100:
+   \   000012 27F2                  JREQ      L:??Set_DS1307_1
+    361                 if(!I2C_WD(convert_tobcd(seconds))) return FALSE;
+   \   000014 C60000                LD        A, L:seconds
+   \   000017 8D000000              CALLF     ?Subroutine19
+   \                     ??CrossCallReturnLabel_51:
+   \   00001B 27E9                  JREQ      L:??Set_DS1307_1
+    362                 if(!I2C_WD(convert_tobcd(minutes))) return FALSE;
+   \   00001D C60000                LD        A, L:minutes
+   \   000020 8D000000              CALLF     ?Subroutine19
+   \                     ??CrossCallReturnLabel_52:
+   \   000024 27E0                  JREQ      L:??Set_DS1307_1
+    363                 if(!I2C_WD(convert_tobcd(hours))) return FALSE;
+   \   000026 C60000                LD        A, L:hours
+   \   000029 8D000000              CALLF     ?Subroutine19
+   \                     ??CrossCallReturnLabel_53:
+   \   00002D 27D7                  JREQ      L:??Set_DS1307_1
+    364                 if(!I2C_WD(convert_tobcd(days))) return FALSE;
+   \   00002F C60000                LD        A, L:days
+   \   000032 8D000000              CALLF     ?Subroutine19
+   \                     ??CrossCallReturnLabel_54:
+   \   000036 27CE                  JREQ      L:??Set_DS1307_1
+    365                 if(!I2C_WD(convert_tobcd(date))) return FALSE;
+   \   000038 C60000                LD        A, L:`date`
+   \   00003B 8D000000              CALLF     ?Subroutine19
+   \                     ??CrossCallReturnLabel_55:
+   \   00003F 27C5                  JREQ      L:??Set_DS1307_1
+    366                 if(!I2C_WD(convert_tobcd(mounts))) return FALSE;
+   \   000041 C60000                LD        A, L:mounts
+   \   000044 8D000000              CALLF     ?Subroutine19
+   \                     ??CrossCallReturnLabel_56:
+   \   000048 27BC                  JREQ      L:??Set_DS1307_1
+    367                 if(!I2C_WD(convert_tobcd(years)))return FALSE;
+   \   00004A C60000                LD        A, L:years
+   \   00004D 8D000000              CALLF     ?Subroutine19
+   \                     ??CrossCallReturnLabel_57:
+   \   000051 27B3                  JREQ      L:??Set_DS1307_1
+    368                 if(!I2C_WD(DS_Control))return FALSE;
+   \   000053 A610                  LD        A, #0x10
+   \   000055 8D000000              CALLF     ??Subroutine30_0
    \                     ??CrossCallReturnLabel_102:
-   \   000072 27B1                  JREQ      L:??Set_DS1307_1
-    363                 I2C_GenerateSTOP(ENABLE);
-   \   000074 A601                  LD        A, #0x1
-   \   000076 8D000000              CALLF     I2C_GenerateSTOP
-    364          
-    365          
-    366             return TRUE;
-   \   00007A A601                  LD        A, #0x1
-   \                     ??Set_DS1307_2:
-   \   00007C 320000                POP       S:?b14
-   \   00007F AC000000              JPF       L:?epilogue_l2_w6
-    367          }
+   \   000059 27AB                  JREQ      L:??Set_DS1307_1
+    369                 if(!I2C_WD(0XAA)) return FALSE;  // Byte --> time is set by program
+   \   00005B A6AA                  LD        A, #0xaa
+   \   00005D 8D000000              CALLF     ??Subroutine30_0
+   \                     ??CrossCallReturnLabel_103:
+   \   000061 27A3                  JREQ      L:??Set_DS1307_1
+    370                 I2C_GenerateSTOP(ENABLE);
+   \   000063 A601                  LD        A, #0x1
+   \   000065 8D000000              CALLF     I2C_GenerateSTOP
+    371          
+    372          
+    373             return TRUE;
+   \   000069 A601                  LD        A, #0x1
+   \   00006B 87                    RETF
+    374          }
 
    \                                 In section .far_func.text, align 1, keep-with-next
-   \                     ?Subroutine20:
+   \                     ?Subroutine19:
    \   000000 8D000000              CALLF     convert_tobcd
    \   000004 8D000000              CALLF     I2C_WD
    \   000008 A100                  CP        A, #0x0
    \   00000A 87                    RETF
-    368          
-    369          
+    375          
+    376          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    370          u8 convert_tobcd(u8 data)
-    371          {
+    377          u8 convert_tobcd(u8 data)
+    378          {
    \                     convert_tobcd:
    \   000000 B700                  LD        S:?b1, A
-    372             u8 data_second_decimal=data/10;
-    373             u8 data_first_decimal=data - 10*data_second_decimal;
-    374             data=16*data_second_decimal + data_first_decimal;
-    375            return data;
+    379             u8 data_second_decimal=data/10;
+    380             u8 data_first_decimal=data - 10*data_second_decimal;
+    381             data=16*data_second_decimal + data_first_decimal;
+    382            return data;
    \   000002 A60A                  LD        A, #0xa
    \   000004 5F                    CLRW      X
    \   000005 01                    RRWA      X, A
@@ -942,9 +948,33 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \   000013 9F                    LD        A, XL
    \   000014 BB00                  ADD       A, S:?b1
    \   000016 87                    RETF
-    376          }
-    377          
-    378          
+    383          }
+    384          
+
+   \                                 In section .far_func.text, align 1, keep-with-next
+    385          u8 bcd2hex(u8 bcd)
+    386          {
+   \                     bcd2hex:
+   \   000000 B700                  LD        S:?b1, A
+    387            u8 hex=0;
+    388            hex=(bcd>>4)*10 +(bcd&0x0f);
+    389            bcd=0;
+    390            return hex ;
+   \   000002 4E                    SWAP      A
+   \   000003 A40F                  AND       A, #0xf
+   \   000005 350A0000              MOV       S:?b0, #0xa
+   \   000009 97                    LD        XL, A
+   \   00000A B600                  LD        A, S:?b0
+   \   00000C 42                    MUL       X, A
+   \   00000D 41                    EXG       A, XL
+   \   00000E B700                  LD        S:?b0, A
+   \   000010 B600                  LD        A, S:?b1
+   \   000012 A40F                  AND       A, #0xf
+   \   000014 BB00                  ADD       A, S:?b0
+   \   000016 87                    RETF
+    391          }
+    392          
+    393          
 
    \                                 In section .far_func.text, align 1, keep-with-next
    \                     ?Subroutine27:
@@ -952,24 +982,24 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \   000002 AC000000              JPF       LCDInstr
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    379          bool Set_Clock()
-    380          {
-    381              //Clear Display
-    382             LCDInstr(0x01);
+    394          bool Set_Clock()
+    395          {
+    396              //Clear Display
+    397             LCDInstr(0x01);
    \                     Set_Clock:
    \   000000 8D000000              CALLF     ?Subroutine7
-    383             Delay1(1000);
-    384             line_lcd=0;
-    385              printf("\nYears:");
+    398             Delay1(1000);
+    399             line_lcd=0;
+    400              printf("\nYears:");
    \                     ??CrossCallReturnLabel_16:
    \   000004 AE0000                LDW       X, #`?<Constant "\\nYears:">`
    \   000007 8D000000              CALLF     printf
-    386                do
-    387              {
-    388               line_lcd=1;
+    401                do
+    402              {
+    403               line_lcd=1;
    \                     ??Set_Clock_0:
    \   00000B 8D000000              CALLF     ?Subroutine9
-    389               printf("\n%02d:%02d:%02d",years,mounts,date);
+    404               printf("\n%02d:%02d:%02d",years,mounts,date);
    \                     ??CrossCallReturnLabel_24:
    \   00000F 89                    PUSHW     X
    \   000010 C60000                LD        A, L:mounts
@@ -981,29 +1011,29 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \   00001A AE0000                LDW       X, #`?<Constant "\\n%02d:%02d:%02d">`
    \   00001D 8D000000              CALLF     printf
    \   000021 5B06                  ADD       SP, #0x6
-    390                 years=adj(0,99,years);
+    405                 years=adj(0,99,years);
    \   000023 C60000                LD        A, L:years
    \   000026 B700                  LD        S:?b1, A
    \   000028 35630000              MOV       S:?b0, #0x63
    \   00002C 4F                    CLR       A
    \   00002D 8D000000              CALLF     adj
    \   000031 C70000                LD        L:years, A
-    391              } while (!key_ok_on());
+    406              } while (!key_ok_on());
    \   000034 8D000000              CALLF     ?Subroutine24
    \                     ??CrossCallReturnLabel_68:
    \   000038 27D1                  JREQ      L:??Set_Clock_0
-    392          
-    393               line_lcd=0;
+    407          
+    408               line_lcd=0;
    \   00003A 725F0000              CLR       L:line_lcd
-    394              printf("\nMounts:");
+    409              printf("\nMounts:");
    \   00003E AE0000                LDW       X, #`?<Constant "\\nMounts:">`
    \   000041 8D000000              CALLF     printf
-    395                do
-    396              {
-    397               line_lcd=1;
+    410                do
+    411              {
+    412               line_lcd=1;
    \                     ??Set_Clock_1:
    \   000045 8D000000              CALLF     ?Subroutine9
-    398               printf("\n%02d:%02d:%02d",years,mounts,date);
+    413               printf("\n%02d:%02d:%02d",years,mounts,date);
    \                     ??CrossCallReturnLabel_25:
    \   000049 89                    PUSHW     X
    \   00004A C60000                LD        A, L:mounts
@@ -1015,32 +1045,32 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \   000054 AE0000                LDW       X, #`?<Constant "\\n%02d:%02d:%02d">`
    \   000057 8D000000              CALLF     printf
    \   00005B 5B06                  ADD       SP, #0x6
-    399                 mounts=adj(1,12,mounts);
+    414                 mounts=adj(1,12,mounts);
    \   00005D C60000                LD        A, L:mounts
    \   000060 B700                  LD        S:?b1, A
    \   000062 350C0000              MOV       S:?b0, #0xc
    \   000066 A601                  LD        A, #0x1
    \   000068 8D000000              CALLF     adj
    \   00006C C70000                LD        L:mounts, A
-    400              } while (!key_ok_on());
+    415              } while (!key_ok_on());
    \   00006F 8D000000              CALLF     ?Subroutine24
    \                     ??CrossCallReturnLabel_69:
    \   000073 27D0                  JREQ      L:??Set_Clock_1
-    401          
-    402              LCDInstr(0x01);
+    416          
+    417              LCDInstr(0x01);
    \   000075 8D000000              CALLF     ?Subroutine7
-    403               Delay1(1000);
-    404                line_lcd=0;
-    405              printf("\nDate:");
+    418               Delay1(1000);
+    419                line_lcd=0;
+    420              printf("\nDate:");
    \                     ??CrossCallReturnLabel_17:
    \   000079 AE0000                LDW       X, #`?<Constant "\\nDate:">`
    \   00007C 8D000000              CALLF     printf
-    406                do
-    407              {
-    408               line_lcd=1;
+    421                do
+    422              {
+    423               line_lcd=1;
    \                     ??Set_Clock_2:
    \   000080 8D000000              CALLF     ?Subroutine9
-    409               printf("\n%02d:%02d:%02d",years,mounts,date);
+    424               printf("\n%02d:%02d:%02d",years,mounts,date);
    \                     ??CrossCallReturnLabel_26:
    \   000084 89                    PUSHW     X
    \   000085 C60000                LD        A, L:mounts
@@ -1052,34 +1082,34 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \   00008F AE0000                LDW       X, #`?<Constant "\\n%02d:%02d:%02d">`
    \   000092 8D000000              CALLF     printf
    \   000096 5B06                  ADD       SP, #0x6
-    410                 date=adj(1,31,date);
+    425                 date=adj(1,31,date);
    \   000098 C60000                LD        A, L:`date`
    \   00009B B700                  LD        S:?b1, A
    \   00009D 351F0000              MOV       S:?b0, #0x1f
    \   0000A1 A601                  LD        A, #0x1
    \   0000A3 8D000000              CALLF     adj
    \   0000A7 C70000                LD        L:`date`, A
-    411              } while (!key_ok_on());
+    426              } while (!key_ok_on());
    \   0000AA 8D000000              CALLF     ?Subroutine24
    \                     ??CrossCallReturnLabel_70:
    \   0000AE 27D0                  JREQ      L:??Set_Clock_2
-    412          
-    413          
-    414              //Clear Display
-    415             LCDInstr(0x01);
+    427          
+    428          
+    429              //Clear Display
+    430             LCDInstr(0x01);
    \   0000B0 8D000000              CALLF     ?Subroutine7
-    416             Delay1(1000);
-    417             line_lcd=0;
-    418              printf("\nDays:");
+    431             Delay1(1000);
+    432             line_lcd=0;
+    433              printf("\nDays:");
    \                     ??CrossCallReturnLabel_18:
    \   0000B4 AE0000                LDW       X, #`?<Constant "\\nDays:">`
    \   0000B7 8D000000              CALLF     printf
-    419                do
-    420              {
-    421                line_lcd=1;
+    434                do
+    435              {
+    436                line_lcd=1;
    \                     ??Set_Clock_3:
    \   0000BB 35010000              MOV       L:line_lcd, #0x1
-    422               printf("\n%02d",days);
+    437               printf("\n%02d",days);
    \   0000BF C60000                LD        A, L:days
    \   0000C2 5F                    CLRW      X
    \   0000C3 97                    LD        XL, A
@@ -1087,35 +1117,35 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \   0000C5 AE0000                LDW       X, #`?<Constant "\\n%02d">`
    \   0000C8 8D000000              CALLF     printf
    \   0000CC 5B02                  ADD       SP, #0x2
-    423                 days=adj(1,7,days);
+    438                 days=adj(1,7,days);
    \   0000CE C60000                LD        A, L:days
    \   0000D1 B700                  LD        S:?b1, A
    \   0000D3 35070000              MOV       S:?b0, #0x7
    \   0000D7 A601                  LD        A, #0x1
    \   0000D9 8D000000              CALLF     adj
    \   0000DD C70000                LD        L:days, A
-    424              } while (!key_ok_on());
+    439              } while (!key_ok_on());
    \   0000E0 8D000000              CALLF     ?Subroutine24
    \                     ??CrossCallReturnLabel_71:
    \   0000E4 27D5                  JREQ      L:??Set_Clock_3
-    425          
-    426          
-    427          
-    428             //Clear Display
-    429             LCDInstr(0x01);
+    440          
+    441          
+    442          
+    443             //Clear Display
+    444             LCDInstr(0x01);
    \   0000E6 8D000000              CALLF     ?Subroutine7
-    430             Delay1(1000);
-    431             line_lcd=0;
-    432              printf("\nHours:");
+    445             Delay1(1000);
+    446             line_lcd=0;
+    447              printf("\nHours:");
    \                     ??CrossCallReturnLabel_19:
    \   0000EA AE0000                LDW       X, #`?<Constant "\\nHours:">`
    \   0000ED 8D000000              CALLF     printf
-    433                do
-    434              {
-    435                line_lcd=1;
+    448                do
+    449              {
+    450                line_lcd=1;
    \                     ??Set_Clock_4:
    \   0000F1 8D000000              CALLF     ?Subroutine8
-    436               printf("\n%02d:%02d:%02d",hours,minutes,seconds);
+    451               printf("\n%02d:%02d:%02d",hours,minutes,seconds);
    \                     ??CrossCallReturnLabel_20:
    \   0000F5 89                    PUSHW     X
    \   0000F6 C60000                LD        A, L:minutes
@@ -1127,29 +1157,29 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \   000100 AE0000                LDW       X, #`?<Constant "\\n%02d:%02d:%02d">`
    \   000103 8D000000              CALLF     printf
    \   000107 5B06                  ADD       SP, #0x6
-    437                 hours=adj(0,24,hours);
+    452                 hours=adj(0,24,hours);
    \   000109 C60000                LD        A, L:hours
    \   00010C B700                  LD        S:?b1, A
    \   00010E 35180000              MOV       S:?b0, #0x18
    \   000112 4F                    CLR       A
    \   000113 8D000000              CALLF     adj
    \   000117 C70000                LD        L:hours, A
-    438              } while (!key_ok_on());
+    453              } while (!key_ok_on());
    \   00011A 8D000000              CALLF     ?Subroutine24
    \                     ??CrossCallReturnLabel_72:
    \   00011E 27D1                  JREQ      L:??Set_Clock_4
-    439          
-    440               line_lcd=0;
+    454          
+    455               line_lcd=0;
    \   000120 725F0000              CLR       L:line_lcd
-    441               printf("\nMinutes:");
+    456               printf("\nMinutes:");
    \   000124 AE0000                LDW       X, #`?<Constant "\\nMinutes:">`
    \   000127 8D000000              CALLF     printf
-    442                do
-    443              {
-    444                line_lcd=1;
+    457                do
+    458              {
+    459                line_lcd=1;
    \                     ??Set_Clock_5:
    \   00012B 8D000000              CALLF     ?Subroutine8
-    445               printf("\n%02d:%02d:%02d",hours,minutes,seconds);
+    460               printf("\n%02d:%02d:%02d",hours,minutes,seconds);
    \                     ??CrossCallReturnLabel_21:
    \   00012F 89                    PUSHW     X
    \   000130 C60000                LD        A, L:minutes
@@ -1161,27 +1191,27 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \   00013A AE0000                LDW       X, #`?<Constant "\\n%02d:%02d:%02d">`
    \   00013D 8D000000              CALLF     printf
    \   000141 5B06                  ADD       SP, #0x6
-    446                 minutes=adj(0,60,minutes);
+    461                 minutes=adj(0,60,minutes);
    \   000143 C60000                LD        A, L:minutes
    \   000146 8D000000              CALLF     ?Subroutine18
-    447              } while (!key_ok_on());
+    462              } while (!key_ok_on());
    \                     ??CrossCallReturnLabel_50:
    \   00014A C70000                LD        L:minutes, A
    \   00014D 8D000000              CALLF     ?Subroutine24
    \                     ??CrossCallReturnLabel_73:
    \   000151 27D8                  JREQ      L:??Set_Clock_5
-    448          
-    449              line_lcd=0;
+    463          
+    464              line_lcd=0;
    \   000153 725F0000              CLR       L:line_lcd
-    450              printf("\nSeconds:");
+    465              printf("\nSeconds:");
    \   000157 AE0000                LDW       X, #`?<Constant "\\nSeconds:">`
    \   00015A 8D000000              CALLF     printf
-    451              do
-    452              {
-    453                line_lcd=1;
+    466              do
+    467              {
+    468                line_lcd=1;
    \                     ??Set_Clock_6:
    \   00015E 8D000000              CALLF     ?Subroutine8
-    454               printf("\n%02d:%02d:%02d",hours,minutes,seconds);
+    469               printf("\n%02d:%02d:%02d",hours,minutes,seconds);
    \                     ??CrossCallReturnLabel_22:
    \   000162 89                    PUSHW     X
    \   000163 C60000                LD        A, L:minutes
@@ -1193,39 +1223,26 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \   00016D AE0000                LDW       X, #`?<Constant "\\n%02d:%02d:%02d">`
    \   000170 8D000000              CALLF     printf
    \   000174 5B06                  ADD       SP, #0x6
-    455                 seconds=adj(0,60,seconds);
+    470                 seconds=adj(0,60,seconds);
    \   000176 C60000                LD        A, L:seconds
    \   000179 8D000000              CALLF     ?Subroutine18
-    456              } while (!key_ok_on());
+    471              } while (!key_ok_on());
    \                     ??CrossCallReturnLabel_49:
    \   00017D C70000                LD        L:seconds, A
    \   000180 8D000000              CALLF     ?Subroutine24
    \                     ??CrossCallReturnLabel_74:
    \   000184 27D8                  JREQ      L:??Set_Clock_6
-    457          
-    458                // Set parameter to DS1307 + time byte
-    459              Set_DS1307( years , mounts, date , days , hours, minutes, seconds);
-   \   000186 C60000                LD        A, L:seconds
-   \   000189 B700                  LD        S:?b5, A
-   \   00018B C60000                LD        A, L:minutes
-   \   00018E B700                  LD        S:?b4, A
-   \   000190 C60000                LD        A, L:hours
-   \   000193 B700                  LD        S:?b3, A
-   \   000195 C60000                LD        A, L:days
-   \   000198 B700                  LD        S:?b2, A
-   \   00019A C60000                LD        A, L:`date`
-   \   00019D B700                  LD        S:?b1, A
-   \   00019F C60000                LD        A, L:mounts
-   \   0001A2 B700                  LD        S:?b0, A
-   \   0001A4 C60000                LD        A, L:years
-   \   0001A7 8D000000              CALLF     Set_DS1307
-    460          
-    461          
-    462          
-    463            return TRUE;
-   \   0001AB A601                  LD        A, #0x1
-   \   0001AD 87                    RETF
-    464          }
+    472          
+    473                // Set parameter to DS1307 + time byte
+    474              Set_DS1307();
+   \   000186 8D000000              CALLF     Set_DS1307
+    475          
+    476          
+    477          
+    478            return TRUE;
+   \   00018A A601                  LD        A, #0x1
+   \   00018C 87                    RETF
+    479          }
 
    \                                 In section .far_func.text, align 1, keep-with-next
    \                     ?Subroutine18:
@@ -1250,33 +1267,33 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \   000007 8D000000              CALLF     Delay1
    \   00000B 725F0000              CLR       L:line_lcd
    \   00000F 87                    RETF
-    465          
-    466          
+    480          
+    481          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    467          u8 adj(u8 min,u8 max,u8 now)
-    468          {
+    482          u8 adj(u8 min,u8 max,u8 now)
+    483          {
    \                     adj:
    \   000000 8D000000              CALLF     L:?push_w4
    \   000004 3B0000                PUSH      S:?b10
    \   000007 B700                  LD        S:?b10, A
    \   000009 450000                MOV       S:?b8, S:?b0
    \   00000C 450000                MOV       S:?b9, S:?b1
-    469             u8 adj=now;
-    470             if (key_plus_on()) adj ++;
+    484             u8 adj=now;
+    485             if (key_plus_on()) adj ++;
    \   00000F 8D000000              CALLF     key_plus_on
    \   000013 A100                  CP        A, #0x0
    \   000015 2705                  JREQ      L:??adj_0
    \   000017 B600                  LD        A, S:?b9
    \   000019 4C                    INC       A
    \   00001A B700                  LD        S:?b9, A
-    471             if (adj >max) adj = min;
+    486             if (adj >max) adj = min;
    \                     ??adj_0:
    \   00001C B600                  LD        A, S:?b8
    \   00001E B100                  CP        A, S:?b9
    \   000020 2403                  JRNC      L:??adj_1
    \   000022 450000                MOV       S:?b9, S:?b10
-    472             if (key_minus_on()) adj --;
+    487             if (key_minus_on()) adj --;
    \                     ??adj_1:
    \   000025 8D000000              CALLF     key_minus_on
    \   000029 A100                  CP        A, #0x0
@@ -1284,42 +1301,42 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \   00002D B600                  LD        A, S:?b9
    \   00002F 4A                    DEC       A
    \   000030 B700                  LD        S:?b9, A
-    473             if ( adj == 255) adj=max;
+    488             if ( adj == 255) adj=max;
    \                     ??adj_2:
    \   000032 B600                  LD        A, S:?b9
    \   000034 A1FF                  CP        A, #0xff
    \   000036 2603                  JRNE      L:??adj_3
    \   000038 450000                MOV       S:?b9, S:?b8
-    474             if (adj < min) adj=max;
+    489             if (adj < min) adj=max;
    \                     ??adj_3:
    \   00003B B600                  LD        A, S:?b9
    \   00003D B100                  CP        A, S:?b10
    \   00003F 2403                  JRNC      L:??adj_4
    \   000041 450000                MOV       S:?b9, S:?b8
-    475             return adj ;
+    490             return adj ;
    \                     ??adj_4:
    \   000044 B600                  LD        A, S:?b9
    \   000046 320000                POP       S:?b10
    \   000049 AC000000              JPF       L:?epilogue_w4
-    476          }
-    477          
-    478          
+    491          }
+    492          
+    493          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    479          bool key_ok_on()
-    480          {
-    481            //Read Key OK
-    482            if (!(GPIO_ReadInputData(GPIOF)& key_ok))
+    494          bool key_ok_on()
+    495          {
+    496            //Read Key OK
+    497            if (!(GPIO_ReadInputData(GPIOF)& key_ok))
    \                     key_ok_on:
    \   000000 AE5019                LDW       X, #0x5019
    \   000003 8D000000              CALLF     GPIO_ReadInputData
    \   000007 A510                  BCP       A, #0x10
    \   000009 2622                  JRNE      L:??key_ok_on_0
-    483             {
-    484               timer2=0;  // Key must be push for timer2 time
+    498             {
+    499               timer2=0;  // Key must be push for timer2 time
    \   00000B 5F                    CLRW      X
    \   00000C CF0000                LDW       L:timer2, X
-    485                while((timer2 < key_time_ok) && !(GPIO_ReadInputData(GPIOF)& key_ok) );;
+    500                while((timer2 < key_time_ok) && !(GPIO_ReadInputData(GPIOF)& key_ok) );;
    \                     ??key_ok_on_1:
    \   00000F CE0000                LDW       X, L:timer2
    \   000012 A33A98                CPW       X, #0x3a98
@@ -1328,62 +1345,62 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \   00001A 8D000000              CALLF     GPIO_ReadInputData
    \   00001E A510                  BCP       A, #0x10
    \   000020 27ED                  JREQ      L:??key_ok_on_1
-    486                  if (timer2>=key_time_ok) return TRUE;
+    501                  if (timer2>=key_time_ok) return TRUE;
    \                     ??key_ok_on_2:
    \   000022 CE0000                LDW       X, L:timer2
    \   000025 A33A98                CPW       X, #0x3a98
    \   000028 2503                  JRC       L:??key_ok_on_0
    \   00002A A601                  LD        A, #0x1
    \   00002C 87                    RETF
-    487             }
-    488          
-    489            return FALSE;
+    502             }
+    503          
+    504            return FALSE;
    \                     ??key_ok_on_0:
    \   00002D 4F                    CLR       A
    \   00002E 87                    RETF
-    490          }
-    491          
+    505          }
+    506          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    492           bool key_plus_on()
-    493          {
-    494            //Read Key OK
-    495              if (!(GPIO_ReadInputData(GPIOA)& key_plus))
+    507           bool key_plus_on()
+    508          {
+    509            //Read Key OK
+    510              if (!(GPIO_ReadInputData(GPIOA)& key_plus))
    \                     key_plus_on:
-   \   000000 8D000000              CALLF     ?Subroutine16
-   \                     ??CrossCallReturnLabel_43:
+   \   000000 8D000000              CALLF     ?Subroutine17
+   \                     ??CrossCallReturnLabel_46:
    \   000004 A502                  BCP       A, #0x2
    \   000006 261B                  JRNE      L:??key_plus_on_0
-    496               {
-    497               timer2=0;  // Key must be push for timer2 time
+    511               {
+    512               timer2=0;  // Key must be push for timer2 time
    \   000008 5F                    CLRW      X
    \   000009 CF0000                LDW       L:timer2, X
-    498                while((timer2 < key_time) && !(GPIO_ReadInputData(GPIOA)& key_plus) );;
+    513                while((timer2 < key_time) && !(GPIO_ReadInputData(GPIOA)& key_plus) );;
    \                     ??key_plus_on_1:
    \   00000C 8D000000              CALLF     ?Subroutine5
    \                     ??CrossCallReturnLabel_12:
    \   000010 2408                  JRNC      L:??key_plus_on_2
-   \   000012 8D000000              CALLF     ?Subroutine16
-   \                     ??CrossCallReturnLabel_42:
+   \   000012 8D000000              CALLF     ?Subroutine17
+   \                     ??CrossCallReturnLabel_45:
    \   000016 A502                  BCP       A, #0x2
    \   000018 27F2                  JREQ      L:??key_plus_on_1
-    499                  if (timer2>=key_time) return TRUE;
+    514                  if (timer2>=key_time) return TRUE;
    \                     ??key_plus_on_2:
    \   00001A 8D000000              CALLF     ?Subroutine5
    \                     ??CrossCallReturnLabel_13:
    \   00001E 2503                  JRC       L:??key_plus_on_0
    \   000020 A601                  LD        A, #0x1
    \   000022 87                    RETF
-    500               }
-    501          
-    502            return FALSE;
+    515               }
+    516          
+    517            return FALSE;
    \                     ??key_plus_on_0:
    \   000023 4F                    CLR       A
    \   000024 87                    RETF
-    503          }
+    518          }
 
    \                                 In section .far_func.text, align 1, keep-with-next
-   \                     ?Subroutine16:
+   \                     ?Subroutine17:
    \   000000 AE5000                LDW       X, #0x5000
    \   000003 AC000000              JPF       GPIO_ReadInputData
 
@@ -1392,312 +1409,295 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \   000000 CE0000                LDW       X, L:timer2
    \   000003 A31F40                CPW       X, #0x1f40
    \   000006 87                    RETF
-    504          
+    519          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    505            bool key_minus_on()
-    506          {
-    507            //Read Key OK
-    508             if (!(GPIO_ReadInputData(GPIOA)& key_minus))
+    520            bool key_minus_on()
+    521          {
+    522            //Read Key OK
+    523             if (!(GPIO_ReadInputData(GPIOA)& key_minus))
    \                     key_minus_on:
-   \   000000 8D000000              CALLF     ?Subroutine16
-   \                     ??CrossCallReturnLabel_45:
+   \   000000 8D000000              CALLF     ?Subroutine17
+   \                     ??CrossCallReturnLabel_48:
    \   000004 A504                  BCP       A, #0x4
    \   000006 261B                  JRNE      L:??key_minus_on_0
-    509               {
-    510               timer2=0;  // Key must be push for timer2 time
+    524               {
+    525               timer2=0;  // Key must be push for timer2 time
    \   000008 5F                    CLRW      X
    \   000009 CF0000                LDW       L:timer2, X
-    511                while((timer2 < key_time) && !(GPIO_ReadInputData(GPIOA)& key_minus) );;
+    526                while((timer2 < key_time) && !(GPIO_ReadInputData(GPIOA)& key_minus) );;
    \                     ??key_minus_on_1:
    \   00000C 8D000000              CALLF     ?Subroutine5
    \                     ??CrossCallReturnLabel_10:
    \   000010 2408                  JRNC      L:??key_minus_on_2
-   \   000012 8D000000              CALLF     ?Subroutine16
-   \                     ??CrossCallReturnLabel_44:
+   \   000012 8D000000              CALLF     ?Subroutine17
+   \                     ??CrossCallReturnLabel_47:
    \   000016 A504                  BCP       A, #0x4
    \   000018 27F2                  JREQ      L:??key_minus_on_1
-    512                  if (timer2>=key_time) return TRUE;
+    527                  if (timer2>=key_time) return TRUE;
    \                     ??key_minus_on_2:
    \   00001A 8D000000              CALLF     ?Subroutine5
    \                     ??CrossCallReturnLabel_11:
    \   00001E 2503                  JRC       L:??key_minus_on_0
    \   000020 A601                  LD        A, #0x1
    \   000022 87                    RETF
-    513               }
-    514          
-    515            return FALSE;
+    528               }
+    529          
+    530            return FALSE;
    \                     ??key_minus_on_0:
    \   000023 4F                    CLR       A
    \   000024 87                    RETF
-    516          }
-    517          
-    518          
-    519          
-    520          
+    531          }
+    532          
+    533          
+    534          
+    535          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    521          void GpioConfiguration()
-    522          {
-    523          
-    524            GPIO_Init(LCD_PORT,(GPIO_Pin_TypeDef)LCD_GPIO_PIN,GPIO_MODE_OUT_PP_HIGH_FAST);
+    536          void GpioConfiguration()
+    537          {
+    538          
+    539            GPIO_Init(LCD_PORT,(GPIO_Pin_TypeDef)LCD_GPIO_PIN,GPIO_MODE_OUT_PP_HIGH_FAST);
    \                     GpioConfiguration:
    \   000000 35F00000              MOV       S:?b0, #0xf0
    \   000004 A6FE                  LD        A, #0xfe
    \   000006 AE500A                LDW       X, #0x500a
    \   000009 8D000000              CALLF     GPIO_Init
-    525          
-    526            // ADC PE6 NEW PB0
-    527            GPIO_Init(GPIOB,GPIO_PIN_0,GPIO_MODE_IN_FL_NO_IT);
+    540          
+    541            // ADC PE6 NEW PB0
+    542            GPIO_Init(GPIOB,GPIO_PIN_0,GPIO_MODE_IN_FL_NO_IT);
    \   00000D 3F00                  CLR       S:?b0
    \   00000F A601                  LD        A, #0x1
    \   000011 AE5005                LDW       X, #0x5005
    \   000014 8D000000              CALLF     GPIO_Init
-    528          
-    529            // PD6/UART2_RX   PD5/UART2_TX  No need to init  PD7 485 R/W;
-    530            GPIO_Init(GPIOD,GPIO_PIN_7,GPIO_MODE_OUT_PP_HIGH_FAST);
+    543          
+    544            // PD6/UART2_RX   PD5/UART2_TX  No need to init  PD7 485 R/W;
+    545            GPIO_Init(GPIOD,GPIO_PIN_7,GPIO_MODE_OUT_PP_HIGH_FAST);
    \   000018 35F00000              MOV       S:?b0, #0xf0
    \   00001C A680                  LD        A, #0x80
    \   00001E AE500F                LDW       X, #0x500f
    \   000021 8D000000              CALLF     GPIO_Init
-    531          
-    532            //PD0 Led
-    533            GPIO_Init(GPIOD,GPIO_PIN_0,GPIO_MODE_OUT_PP_HIGH_FAST);
+    546          
+    547            //PD0 Led
+    548            GPIO_Init(GPIOD,GPIO_PIN_0,GPIO_MODE_OUT_PP_HIGH_FAST);
    \   000025 35F00000              MOV       S:?b0, #0xf0
    \   000029 A601                  LD        A, #0x1
    \   00002B AE500F                LDW       X, #0x500f
    \   00002E 8D000000              CALLF     GPIO_Init
-    534            //I2C
-    535            GPIO_Init(GPIOB,GPIO_PIN_4 ,GPIO_MODE_OUT_OD_HIZ_FAST);
+    549            //I2C
+    550            GPIO_Init(GPIOB,GPIO_PIN_4 ,GPIO_MODE_OUT_OD_HIZ_FAST);
    \   000032 35B00000              MOV       S:?b0, #0xb0
    \   000036 A610                  LD        A, #0x10
    \   000038 AE5005                LDW       X, #0x5005
    \   00003B 8D000000              CALLF     GPIO_Init
-    536            GPIO_Init(GPIOB,GPIO_PIN_5 ,GPIO_MODE_OUT_OD_HIZ_FAST);
+    551            GPIO_Init(GPIOB,GPIO_PIN_5 ,GPIO_MODE_OUT_OD_HIZ_FAST);
    \   00003F 35B00000              MOV       S:?b0, #0xb0
    \   000043 A620                  LD        A, #0x20
    \   000045 AE5005                LDW       X, #0x5005
-   \   000048 8D000000              CALLF     ?Subroutine15
-    537            // Remap Pins pb4,pb5  sda,scl ;
-    538          
-    539             //Init KEY OK,PLUS,MINUS
-    540            GPIO_Init(GPIOF,key_ok,GPIO_MODE_IN_PU_NO_IT);
-   \                     ??CrossCallReturnLabel_39:
+   \   000048 8D000000              CALLF     ?Subroutine14
+    552            // Remap Pins pb4,pb5  sda,scl ;
+    553          
+    554             //Init KEY OK,PLUS,MINUS
+    555            GPIO_Init(GPIOF,key_ok,GPIO_MODE_IN_PU_NO_IT);
+   \                     ??CrossCallReturnLabel_37:
    \   00004C A610                  LD        A, #0x10
    \   00004E AE5019                LDW       X, #0x5019
-   \   000051 8D000000              CALLF     ?Subroutine15
-    541            GPIO_Init(GPIOA,key_plus,GPIO_MODE_IN_PU_NO_IT);
-   \                     ??CrossCallReturnLabel_40:
+   \   000051 8D000000              CALLF     ?Subroutine14
+    556            GPIO_Init(GPIOA,key_plus,GPIO_MODE_IN_PU_NO_IT);
+   \                     ??CrossCallReturnLabel_38:
    \   000055 A602                  LD        A, #0x2
    \   000057 AE5000                LDW       X, #0x5000
-   \   00005A 8D000000              CALLF     ?Subroutine15
-    542            GPIO_Init(GPIOA,key_minus,GPIO_MODE_IN_PU_NO_IT);
-   \                     ??CrossCallReturnLabel_41:
+   \   00005A 8D000000              CALLF     ?Subroutine14
+    557            GPIO_Init(GPIOA,key_minus,GPIO_MODE_IN_PU_NO_IT);
+   \                     ??CrossCallReturnLabel_39:
    \   00005E A604                  LD        A, #0x4
    \   000060 AE5000                LDW       X, #0x5000
    \   000063 AC000000              JPF       GPIO_Init
-    543          }
+    558          }
 
    \                                 In section .far_func.text, align 1, keep-with-next
-   \                     ?Subroutine15:
+   \                     ?Subroutine14:
    \   000000 8D000000              CALLF     GPIO_Init
    \   000004 35400000              MOV       S:?b0, #0x40
    \   000008 87                    RETF
-    544          
+    559          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    545          void InitClk()
-    546          {
-    547            CLK_DeInit();
+    560          void InitClk()
+    561          {
+    562            CLK_DeInit();
    \                     InitClk:
    \   000000 8D000000              CALLF     CLK_DeInit
-    548            CLK_SYSCLKConfig(CLK_PRESCALER_CPUDIV1);    // CPU Prescalar = 1.
+    563            CLK_SYSCLKConfig(CLK_PRESCALER_CPUDIV1);    // CPU Prescalar = 1.
    \   000004 A680                  LD        A, #0x80
    \   000006 8D000000              CALLF     CLK_SYSCLKConfig
-    549            CLK_SYSCLKConfig(CLK_PRESCALER_HSIDIV1);    // Prescalar = 1, 16 MHz.
+    564            CLK_SYSCLKConfig(CLK_PRESCALER_HSIDIV1);    // Prescalar = 1, 16 MHz.
    \   00000A 4F                    CLR       A
    \   00000B 8D000000              CALLF     CLK_SYSCLKConfig
-    550            CLK_ClockSwitchConfig(CLK_SWITCHMODE_AUTO,  // Automatically switch
-    551            CLK_SOURCE_HSI,       // Switch to internal timer.
-    552            DISABLE,              // Disable the clock switch interrupt.
-    553            CLK_CURRENTCLOCKSTATE_DISABLE);   // Disable the previous clock.
+    565            CLK_ClockSwitchConfig(CLK_SWITCHMODE_AUTO,  // Automatically switch
+    566            CLK_SOURCE_HSI,       // Switch to internal timer.
+    567            DISABLE,              // Disable the clock switch interrupt.
+    568            CLK_CURRENTCLOCKSTATE_DISABLE);   // Disable the previous clock.
    \   00000F 3F00                  CLR       S:?b2
    \   000011 3F00                  CLR       S:?b1
    \   000013 35E10000              MOV       S:?b0, #0xe1
    \   000017 A601                  LD        A, #0x1
    \   000019 8D000000              CALLF     CLK_ClockSwitchConfig
-    554          
-    555            CLK_PeripheralClockConfig(CLK_PERIPHERAL_TIMER2 , ENABLE);
+    569          
+    570            CLK_PeripheralClockConfig(CLK_PERIPHERAL_TIMER2 , ENABLE);
    \   00001D 35010000              MOV       S:?b0, #0x1
    \   000021 A605                  LD        A, #0x5
-   \   000023 8D000000              CALLF     ?Subroutine17
-    556            CLK_PeripheralClockConfig(CLK_PERIPHERAL_UART2,ENABLE);
-   \                     ??CrossCallReturnLabel_46:
+   \   000023 8D000000              CALLF     ?Subroutine16
+    571            CLK_PeripheralClockConfig(CLK_PERIPHERAL_UART2,ENABLE);
+   \                     ??CrossCallReturnLabel_42:
    \   000027 A603                  LD        A, #0x3
-   \   000029 8D000000              CALLF     ?Subroutine17
-    557            CLK_PeripheralClockConfig(CLK_PERIPHERAL_ADC,ENABLE);
-   \                     ??CrossCallReturnLabel_47:
+   \   000029 8D000000              CALLF     ?Subroutine16
+    572            CLK_PeripheralClockConfig(CLK_PERIPHERAL_ADC,ENABLE);
+   \                     ??CrossCallReturnLabel_43:
    \   00002D A613                  LD        A, #0x13
-   \   00002F 8D000000              CALLF     ?Subroutine17
-    558            CLK_PeripheralClockConfig(CLK_PERIPHERAL_I2C,ENABLE);
-   \                     ??CrossCallReturnLabel_48:
+   \   00002F 8D000000              CALLF     ?Subroutine16
+    573            CLK_PeripheralClockConfig(CLK_PERIPHERAL_I2C,ENABLE);
+   \                     ??CrossCallReturnLabel_44:
    \   000033 4F                    CLR       A
    \   000034 AC000000              JPF       CLK_PeripheralClockConfig
-    559          
-    560          
-    561          }
+    574          
+    575          
+    576          }
 
    \                                 In section .far_func.text, align 1, keep-with-next
-   \                     ?Subroutine17:
+   \                     ?Subroutine16:
    \   000000 8D000000              CALLF     CLK_PeripheralClockConfig
    \   000004 35010000              MOV       S:?b0, #0x1
    \   000008 87                    RETF
-    562          
-    563          
+    577          
+    578          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    564          void InitAdc()
-    565          {
-    566               ADC1_DeInit();
+    579          void InitAdc()
+    580          {
+    581               ADC1_DeInit();
    \                     InitAdc:
    \   000000 8D000000              CALLF     ADC1_DeInit
-    567               ADC1_StartConversion();
+    582               ADC1_StartConversion();
    \   000004 8D000000              CALLF     ADC1_StartConversion
-    568               /*
-    569               ADC1_Init(ADC1_CONVERSIONMODE_SINGLE,
-    570                          ADC1_CHANNEL_0,
-    571                          ADC1_PRESSEL_FCPU_D4,
-    572                           ADC1_EXTTRIG_TIM,
-    573          
-    574                 */
-    575               ADC1_PrescalerConfig(ADC1_PRESSEL_FCPU_D3);
+    583               /*
+    584               ADC1_Init(ADC1_CONVERSIONMODE_SINGLE,
+    585                          ADC1_CHANNEL_0,
+    586                          ADC1_PRESSEL_FCPU_D4,
+    587                           ADC1_EXTTRIG_TIM,
+    588          
+    589                 */
+    590               ADC1_PrescalerConfig(ADC1_PRESSEL_FCPU_D3);
    \   000008 A610                  LD        A, #0x10
    \   00000A 8D000000              CALLF     ADC1_PrescalerConfig
-    576               ADC1_ConversionConfig( ADC1_CONVERSIONMODE_SINGLE,
-    577                                      ADC1_CHANNEL_0,
-    578                                      ADC1_ALIGN_RIGHT
-    579                                     );
+    591               ADC1_ConversionConfig( ADC1_CONVERSIONMODE_SINGLE,
+    592                                      ADC1_CHANNEL_0,
+    593                                      ADC1_ALIGN_RIGHT
+    594                                     );
    \   00000E 35080000              MOV       S:?b1, #0x8
    \   000012 3F00                  CLR       S:?b0
    \   000014 4F                    CLR       A
    \   000015 8D000000              CALLF     ADC1_ConversionConfig
-    580          
-    581          
-    582               ADC1_SchmittTriggerConfig(ADC1_SCHMITTTRIG_CHANNEL0,DISABLE);
+    595          
+    596          
+    597               ADC1_SchmittTriggerConfig(ADC1_SCHMITTTRIG_CHANNEL0,DISABLE);
    \   000019 3F00                  CLR       S:?b0
    \   00001B 4F                    CLR       A
    \   00001C 8D000000              CALLF     ADC1_SchmittTriggerConfig
-    583          
-    584          
-    585               //ADC1_Cmd (ENABLE);
-    586               //ADC1->CR1 |= ADC1_CR1_ADON ;
-    587               ADC1_StartConversion();
+    598          
+    599          
+    600               //ADC1_Cmd (ENABLE);
+    601               //ADC1->CR1 |= ADC1_CR1_ADON ;
+    602               ADC1_StartConversion();
    \   000020 8D000000              CALLF     ADC1_StartConversion
-    588               ADC1_ITConfig (ADC1_IT_EOCIE,ENABLE);
+    603               ADC1_ITConfig (ADC1_IT_EOCIE,ENABLE);
    \   000024 A601                  LD        A, #0x1
    \   000026 AE0020                LDW       X, #0x20
    \   000029 AC000000              JPF       ADC1_ITConfig
-    589          
-    590          }
-    591          
+    604          
+    605          }
+    606          
+    607          /*
+    608          void InitUart()
+    609          {
+    610             UART2_DeInit();
+    611             UART2_Init((u32)9600,
+    612                        UART2_WORDLENGTH_8D,
+    613                        UART2_STOPBITS_1,
+    614                        UART2_PARITY_NO,
+    615                        UART2_SYNCMODE_CLOCK_DISABLE,
+    616                        UART2_MODE_TXRX_ENABLE
+    617                          );
+    618          
+    619             UART2_ITConfig( UART2_IT_RXNE,ENABLE);
+    620             UART2_Cmd(ENABLE);
+    621          
+    622            // UART2_ITConfig(UART2_IT_RXNE,ENABLE);
+    623          }
+    624            */
+    625          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    592          void InitUart()
-    593          {
-    594             UART2_DeInit();
-   \                     InitUart:
-   \   000000 8D000000              CALLF     UART2_DeInit
-    595             UART2_Init((u32)9600,
-    596                        UART2_WORDLENGTH_8D,
-    597                        UART2_STOPBITS_1,
-    598                        UART2_PARITY_NO,
-    599                        UART2_SYNCMODE_CLOCK_DISABLE,
-    600                        UART2_MODE_TXRX_ENABLE
-    601                          );
-   \   000004 350C0000              MOV       S:?b7, #0xc
-   \   000008 35800000              MOV       S:?b6, #0x80
-   \   00000C 3F00                  CLR       S:?b5
-   \   00000E 3F00                  CLR       S:?b4
-   \   000010 4F                    CLR       A
-   \   000011 AE2580                LDW       X, #0x2580
-   \   000014 BF00                  LDW       S:?w1, X
-   \   000016 5F                    CLRW      X
-   \   000017 BF00                  LDW       S:?w0, X
-   \   000019 8D000000              CALLF     UART2_Init
-    602          
-    603             UART2_ITConfig( UART2_IT_RXNE,ENABLE);
-   \   00001D A601                  LD        A, #0x1
-   \   00001F AE0255                LDW       X, #0x255
-   \   000022 8D000000              CALLF     UART2_ITConfig
-    604             UART2_Cmd(ENABLE);
-   \   000026 A601                  LD        A, #0x1
-   \   000028 AC000000              JPF       UART2_Cmd
-    605          
-    606            // UART2_ITConfig(UART2_IT_RXNE,ENABLE);
-    607          }
-    608          
-
-   \                                 In section .far_func.text, align 1, keep-with-next
-    609          void SendChar( u8 Char)
-    610          {
-    611             UART2->DR = Char;
+    626          void SendChar( u8 Char)
+    627          {
+    628             UART2->DR = Char;
    \                     SendChar:
    \   000000 C75241                LD        L:0x5241, A
-    612            while (UART2_GetFlagStatus(UART2_FLAG_TXE) == RESET);;
+    629            while (UART2_GetFlagStatus(UART2_FLAG_TXE) == RESET);;
    \                     ??SendChar_0:
    \   000003 AE0080                LDW       X, #0x80
    \   000006 8D000000              CALLF     UART2_GetFlagStatus
    \   00000A A100                  CP        A, #0x0
    \   00000C 27F5                  JREQ      L:??SendChar_0
-    613          }
-   \   00000E 87                    RETF
-    614            /*
-    615          void Send_Hello()
-    616          {
-    617            GPIO_WriteHigh(GPIOD,GPIO_PIN_7); //R_W Line
-    618             Delay1(10);
-    619             sprintf(data,"Hello");
-    620              u8 i=0;
-    621            do
-    622           {
-    623            SendChar(data[i++]);
-    624           } while (data[i]!=0);
-    625            while (UART2_GetFlagStatus(UART2_FLAG_TC) == RESET);;  //Wait to send last byte
-    626            GPIO_WriteLow(GPIOD,GPIO_PIN_7); //R_W Line
-    627          
-    628          
-    629          
     630          }
-    631              */
-    632          
-    633          
-    634              /*
-    635          
-    636          void SendData()
-    637          {
-    638           GPIO_WriteHigh(GPIOD,GPIO_PIN_7); //R_W Line
-    639            Delay1(10);
-    640            u8 i=0;
-    641            sprintf(data,"%d %c",adcdata,0x0d);
-    642           do
-    643           {
-    644             SendChar(data[i++]);
+   \   00000E 87                    RETF
+    631            /*
+    632          void Send_Hello()
+    633          {
+    634            GPIO_WriteHigh(GPIOD,GPIO_PIN_7); //R_W Line
+    635             Delay1(10);
+    636             sprintf(data,"Hello");
+    637              u8 i=0;
+    638            do
+    639           {
+    640            SendChar(data[i++]);
+    641           } while (data[i]!=0);
+    642            while (UART2_GetFlagStatus(UART2_FLAG_TC) == RESET);;  //Wait to send last byte
+    643            GPIO_WriteLow(GPIOD,GPIO_PIN_7); //R_W Line
+    644          
     645          
-    646           } while (data[i]!=0);
-    647             while (UART2_GetFlagStatus(UART2_FLAG_TC) == RESET);;  //Wait to send last byte
-    648            GPIO_WriteLow(GPIOD,GPIO_PIN_7); //R_W Line
-    649            rx_data=0;
-    650          }
-    651          */
+    646          
+    647          }
+    648              */
+    649          
+    650          
+    651              /*
     652          
+    653          void SendData()
+    654          {
+    655           GPIO_WriteHigh(GPIOD,GPIO_PIN_7); //R_W Line
+    656            Delay1(10);
+    657            u8 i=0;
+    658            sprintf(data,"%d %c",adcdata,0x0d);
+    659           do
+    660           {
+    661             SendChar(data[i++]);
+    662          
+    663           } while (data[i]!=0);
+    664             while (UART2_GetFlagStatus(UART2_FLAG_TC) == RESET);;  //Wait to send last byte
+    665            GPIO_WriteLow(GPIOD,GPIO_PIN_7); //R_W Line
+    666            rx_data=0;
+    667          }
+    668          */
+    669          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    653          void LCDDataOut(u8 data)
-    654          {
+    670          void LCDDataOut(u8 data)
+    671          {
    \                     LCDDataOut:
    \   000000 3B0000                PUSH      S:?b8
    \   000003 B700                  LD        S:?b8, A
-    655            (data&0x1)? GPIO_WriteHigh(LCD_PORT,DATA4):GPIO_WriteLow(LCD_PORT,DATA4);
+    672            (data&0x1)? GPIO_WriteHigh(LCD_PORT,DATA4):GPIO_WriteLow(LCD_PORT,DATA4);
    \   000005 A501                  BCP       A, #0x1
    \   000007 2708                  JREQ      L:??LCDDataOut_0
    \   000009 A610                  LD        A, #0x10
@@ -1707,7 +1707,7 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \                     ??LCDDataOut_0:
    \   000011 A610                  LD        A, #0x10
    \   000013 8D000000              CALLF     ??Subroutine29_0
-    656            (data&0x2)? GPIO_WriteHigh(LCD_PORT,DATA5):GPIO_WriteLow(LCD_PORT,DATA5);
+    673            (data&0x2)? GPIO_WriteHigh(LCD_PORT,DATA5):GPIO_WriteLow(LCD_PORT,DATA5);
    \                     ??CrossCallReturnLabel_90:
    \   000017 B600                  LD        A, S:?b8
    \   000019 A502                  BCP       A, #0x2
@@ -1719,7 +1719,7 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \                     ??LCDDataOut_1:
    \   000025 A620                  LD        A, #0x20
    \   000027 8D000000              CALLF     ??Subroutine29_0
-    657            (data&0x4)? GPIO_WriteHigh(LCD_PORT,DATA6):GPIO_WriteLow(LCD_PORT,DATA6);
+    674            (data&0x4)? GPIO_WriteHigh(LCD_PORT,DATA6):GPIO_WriteLow(LCD_PORT,DATA6);
    \                     ??CrossCallReturnLabel_91:
    \   00002B B600                  LD        A, S:?b8
    \   00002D A504                  BCP       A, #0x4
@@ -1731,7 +1731,7 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \                     ??LCDDataOut_2:
    \   000039 A640                  LD        A, #0x40
    \   00003B 8D000000              CALLF     ??Subroutine29_0
-    658            (data&0x8)? GPIO_WriteHigh(LCD_PORT,DATA7):GPIO_WriteLow(LCD_PORT,DATA7);
+    675            (data&0x8)? GPIO_WriteHigh(LCD_PORT,DATA7):GPIO_WriteLow(LCD_PORT,DATA7);
    \                     ??CrossCallReturnLabel_92:
    \   00003F B600                  LD        A, S:?b8
    \   000041 A508                  BCP       A, #0x8
@@ -1743,7 +1743,7 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \                     ??LCDDataOut_3:
    \   00004D A680                  LD        A, #0x80
    \   00004F 8D000000              CALLF     ??Subroutine29_0
-    659          }
+    676          }
    \                     ??CrossCallReturnLabel_93:
    \   000053 320000                POP       S:?b8
    \   000056 87                    RETF
@@ -1763,7 +1763,7 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \                     ?Subroutine26:
    \   000000 AE500A                LDW       X, #0x500a
    \   000003 AC000000              JPF       GPIO_WriteLow
-    660          
+    677          
 
    \                                 In section .far_func.text, align 1, keep-with-next
    \                     ?Subroutine4:
@@ -1772,71 +1772,71 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \   000002                       ;               // Fall through to label ??Subroutine29_0
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    661          void InitLcd()
-    662          {
-    663           LCD_EN(0);
+    678          void InitLcd()
+    679          {
+    680           LCD_EN(0);
    \                     InitLcd:
    \   000000 A608                  LD        A, #0x8
    \   000002 8D000000              CALLF     ?Subroutine3
-    664            LCD_RW(0);
-    665            LCD_RS(0);
+    681            LCD_RW(0);
+    682            LCD_RS(0);
    \                     ??CrossCallReturnLabel_9:
    \   000006 8D000000              CALLF     ?Subroutine4
-    666            Delay1(4000); // 40ms
+    683            Delay1(4000); // 40ms
    \                     ??CrossCallReturnLabel_88:
    \   00000A AE0FA0                LDW       X, #0xfa0
    \   00000D 8D000000              CALLF     ?Subroutine6
-    667          
-    668            LCDInstrNibble(0x03);
-    669             Delay1(10);
-    670            LCDInstrNibble(0x03);
+    684          
+    685            LCDInstrNibble(0x03);
+    686             Delay1(10);
+    687            LCDInstrNibble(0x03);
    \                     ??CrossCallReturnLabel_15:
    \   000011 A603                  LD        A, #0x3
    \   000013 8D000000              CALLF     LCDInstrNibble
-    671             Delay1(10);
+    688             Delay1(10);
    \   000017 AE000A                LDW       X, #0xa
    \   00001A 8D000000              CALLF     ?Subroutine6
-    672            LCDInstrNibble(0x03);
-    673             Delay1(10);
-    674          
-    675             //Line 4
-    676            LCDInstrNibble(0x02);
+    689            LCDInstrNibble(0x03);
+    690             Delay1(10);
+    691          
+    692             //Line 4
+    693            LCDInstrNibble(0x02);
    \                     ??CrossCallReturnLabel_14:
    \   00001E A602                  LD        A, #0x2
    \   000020 8D000000              CALLF     LCDInstrNibble
-    677            LCDInstrNibble(0x02);
+    694            LCDInstrNibble(0x02);
    \   000024 A602                  LD        A, #0x2
    \   000026 8D000000              CALLF     LCDInstrNibble
-    678            LCDInstrNibble(0x08);
+    695            LCDInstrNibble(0x08);
    \   00002A A608                  LD        A, #0x8
    \   00002C 8D000000              CALLF     LCDInstrNibble
-    679            Delay1(100);
+    696            Delay1(100);
    \   000030 AE0064                LDW       X, #0x64
    \   000033 8D000000              CALLF     Delay1
-    680          
-    681            LCDInstr(0x0C);
+    697          
+    698            LCDInstr(0x0C);
    \   000037 A60C                  LD        A, #0xc
    \   000039 8D000000              CALLF     LCDInstr
-    682            Delay1(10);
+    699            Delay1(10);
    \   00003D AE000A                LDW       X, #0xa
    \   000040 8D000000              CALLF     Delay1
-    683          
-    684            LCDInstr(0x01) ;
+    700          
+    701            LCDInstr(0x01) ;
    \   000044 8D000000              CALLF     ?Subroutine27
-    685            Delay1(250);
+    702            Delay1(250);
    \                     ??CrossCallReturnLabel_81:
    \   000048 AE00FA                LDW       X, #0xfa
    \   00004B 8D000000              CALLF     Delay1
-    686          
-    687            LCDInstr(0x06);
+    703          
+    704            LCDInstr(0x06);
    \   00004F A606                  LD        A, #0x6
    \   000051 8D000000              CALLF     LCDInstr
-    688            Delay1(10);
+    705            Delay1(10);
    \   000055 AE000A                LDW       X, #0xa
    \   000058 AC000000              JPF       Delay1
-    689          
-    690          
-    691          }
+    706          
+    707          
+    708          }
 
    \                                 In section .far_func.text, align 1, keep-with-next
    \                     ?Subroutine6:
@@ -1854,7 +1854,7 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \   000006 8D000000              CALLF     ?Subroutine26
    \                     ??CrossCallReturnLabel_96:
    \   00000A 87                    RETF
-    692          
+    709          
 
    \                                 In section .far_func.text, align 1, keep-with-next
    \                     ?Subroutine0:
@@ -1883,79 +1883,79 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \   000006 AC000000              JPF       PulseEnable
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    693          void LCDInstr(u8 Instr)
-    694          {
+    710          void LCDInstr(u8 Instr)
+    711          {
    \                     LCDInstr:
    \   000000 3B0000                PUSH      S:?b8
    \   000003 B700                  LD        S:?b8, A
-    695            LCD_RS(0);
+    712            LCD_RS(0);
    \   000005 8D000000              CALLF     ?Subroutine4
-    696            LCD_RW(0);
+    713            LCD_RW(0);
    \                     ??CrossCallReturnLabel_86:
    \   000009 2000                  JRA       ?Subroutine0
-    697            LCDDataOut(Instr>>4);
-    698            PulseEnable();
-    699            LCDDataOut(Instr & 0x0F);
-    700            PulseEnable();
-    701          }
-    702          
+    714            LCDDataOut(Instr>>4);
+    715            PulseEnable();
+    716            LCDDataOut(Instr & 0x0F);
+    717            PulseEnable();
+    718          }
+    719          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    703          void LCDData(u8 Data)
-    704          {
+    720          void LCDData(u8 Data)
+    721          {
    \                     LCDData:
    \   000000 3B0000                PUSH      S:?b8
    \   000003 B700                  LD        S:?b8, A
-    705            LCD_RS(1);
+    722            LCD_RS(1);
    \   000005 A604                  LD        A, #0x4
    \   000007 8D000000              CALLF     ?Subroutine2
-    706            LCD_RW(0);
+    723            LCD_RW(0);
    \                     ??CrossCallReturnLabel_3:
    \   00000B                       REQUIRE ?Subroutine0
    \   00000B                       ;               // Fall through to label ?Subroutine0
-    707            LCDDataOut(Data>>4);
-    708            PulseEnable() ;
-    709            LCDDataOut(Data & 0x0F) ;
-    710            PulseEnable();
-    711          }
-    712          
+    724            LCDDataOut(Data>>4);
+    725            PulseEnable() ;
+    726            LCDDataOut(Data & 0x0F) ;
+    727            PulseEnable();
+    728          }
+    729          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    713          void LCDInstrNibble(u8 Instr)
-    714          {
+    730          void LCDInstrNibble(u8 Instr)
+    731          {
    \                     LCDInstrNibble:
    \   000000 3B0000                PUSH      S:?b8
    \   000003 B700                  LD        S:?b8, A
-    715            LCD_RS(0);
+    732            LCD_RS(0);
    \   000005 A604                  LD        A, #0x4
    \   000007 8D000000              CALLF     ?Subroutine3
-    716            LCD_RW(0);
-    717            LCDDataOut(Instr & 0x0F);
+    733            LCD_RW(0);
+    734            LCDDataOut(Instr & 0x0F);
    \                     ??CrossCallReturnLabel_8:
    \   00000B AC000000              JPF       ??Subroutine28_0
-    718            PulseEnable();
-    719          }
-    720          
+    735            PulseEnable();
+    736          }
+    737          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    721          void PulseEnable(void)
-    722          {
-    723            LCD_EN(0);
+    738          void PulseEnable(void)
+    739          {
+    740            LCD_EN(0);
    \                     PulseEnable:
    \   000000 8D000000              CALLF     ?Subroutine1
-    724             Delay1(1);
-    725            LCD_EN(1);
-    726             Delay1(1);
-    727            LCD_EN(0);
+    741             Delay1(1);
+    742            LCD_EN(1);
+    743             Delay1(1);
+    744            LCD_EN(0);
    \                     ??CrossCallReturnLabel_0:
    \   000004 A608                  LD        A, #0x8
    \   000006 8D000000              CALLF     ??Subroutine29_0
-    728             Delay1(1);
+    745             Delay1(1);
    \                     ??CrossCallReturnLabel_89:
    \   00000A 5F                    CLRW      X
    \   00000B 5C                    INCW      X
    \   00000C AC000000              JPF       Delay1
-    729          }
+    746          }
 
    \                                 In section .far_func.text, align 1, keep-with-next
    \                     ?Subroutine1:
@@ -1976,80 +1976,80 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \   000000 5F                    CLRW      X
    \   000001 5C                    INCW      X
    \   000002 AC000000              JPF       Delay1
-    730          
+    747          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    731          void LCD_Busy(void)
-    732          {
-    733             //set Port D7 as Input
-    734             GPIO_Init(LCD_PORT,DATA7,GPIO_MODE_IN_PU_NO_IT);
+    748          void LCD_Busy(void)
+    749          {
+    750             //set Port D7 as Input
+    751             GPIO_Init(LCD_PORT,DATA7,GPIO_MODE_IN_PU_NO_IT);
    \                     LCD_Busy:
    \   000000 35400000              MOV       S:?b0, #0x40
    \   000004 A680                  LD        A, #0x80
    \   000006 AE500A                LDW       X, #0x500a
    \   000009 8D000000              CALLF     GPIO_Init
-    735             //Set Read
-    736             LCD_RW(1);
+    752             //Set Read
+    753             LCD_RW(1);
    \   00000D A602                  LD        A, #0x2
    \   00000F 8D000000              CALLF     ?Subroutine2
-    737             LCD_RS(0);
+    754             LCD_RS(0);
    \                     ??CrossCallReturnLabel_2:
    \   000013 8D000000              CALLF     ?Subroutine4
-    738             // Read Busy Flag
-    739                timer2=0;
+    755             // Read Busy Flag
+    756                timer2=0;
    \                     ??CrossCallReturnLabel_87:
    \   000017 5F                    CLRW      X
    \   000018 CF0000                LDW       L:timer2, X
-    740             do
-    741             {
-    742             // Enable set
-    743               LCD_EN(0);
+    757             do
+    758             {
+    759             // Enable set
+    760               LCD_EN(0);
    \                     ??LCD_Busy_0:
    \   00001B 8D000000              CALLF     ?Subroutine1
-    744                Delay1(1);
-    745               LCD_EN(1);
-    746                Delay1(1);
-    747             } while (GPIO_ReadInputPin(LCD_PORT, DATA7));
+    761                Delay1(1);
+    762               LCD_EN(1);
+    763                Delay1(1);
+    764             } while (GPIO_ReadInputPin(LCD_PORT, DATA7));
    \                     ??CrossCallReturnLabel_1:
    \   00001F A680                  LD        A, #0x80
    \   000021 AE500A                LDW       X, #0x500a
    \   000024 8D000000              CALLF     GPIO_ReadInputPin
    \   000028 A100                  CP        A, #0x0
    \   00002A 26EF                  JRNE      L:??LCD_Busy_0
-    748                k=timer2;
+    765                k=timer2;
    \   00002C CE0000                LDW       X, L:timer2
    \   00002F CF0000                LDW       L:k, X
-    749                //Clear read
-    750              LCD_RW(0);
+    766                //Clear read
+    767              LCD_RW(0);
    \   000032 A602                  LD        A, #0x2
    \   000034 8D000000              CALLF     ??Subroutine29_0
-    751             //set Port D7 as Output
-    752             GPIO_Init(LCD_PORT,DATA7,GPIO_MODE_OUT_PP_HIGH_FAST);
+    768             //set Port D7 as Output
+    769             GPIO_Init(LCD_PORT,DATA7,GPIO_MODE_OUT_PP_HIGH_FAST);
    \                     ??CrossCallReturnLabel_95:
    \   000038 35F00000              MOV       S:?b0, #0xf0
    \   00003C A680                  LD        A, #0x80
    \   00003E AE500A                LDW       X, #0x500a
    \   000041 AC000000              JPF       GPIO_Init
-    753          
-    754          }
-    755          
-    756          
+    770          
+    771          }
+    772          
+    773          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    757          void LCD(u8 data)
-    758           {
+    774          void LCD(u8 data)
+    775           {
    \                     LCD:
    \   000000 3B0000                PUSH      S:?b8
    \   000003 B700                  LD        S:?b8, A
-    759             //  static u8 linet=0;
-    760          
-    761          
-    762               if (data =='\n')     //r
+    776             //  static u8 linet=0;
+    777          
+    778          
+    779               if (data =='\n')     //r
    \   000005 A10A                  CP        A, #0xa
    \   000007 265C                  JRNE      L:??CrossCallReturnLabel_79
-    763               {
-    764          
-    765                   switch(line_lcd)
+    780               {
+    781          
+    782                   switch(line_lcd)
    \   000009 C60000                LD        A, L:line_lcd
    \   00000C 270B                  JREQ      L:??LCD_0
    \   00000E 4A                    DEC       A
@@ -2059,332 +2059,299 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \   000014 4A                    DEC       A
    \   000015 2726                  JREQ      L:??LCD_3
    \   000017 202E                  JRA       L:??LCD_4
-    766                   {
-    767                   case 0:
-    768                     LCDInstr(0x80 | 0x00);
+    783                   {
+    784                   case 0:
+    785                     LCDInstr(0x80 | 0x00);
    \                     ??LCD_0:
    \   000019 A680                  LD        A, #0x80
    \   00001B 8D000000              CALLF     LCDInstr
-    769                     count=0;
+    786                     count=0;
    \   00001F 725F0000              CLR       L:count
-    770                     break;
+    787                     break;
    \   000023 2022                  JRA       L:??LCD_4
-    771                   case 1:
-    772                     LCDInstr(0x80 | 0x40);
+    788                   case 1:
+    789                     LCDInstr(0x80 | 0x40);
    \                     ??LCD_1:
    \   000025 A6C0                  LD        A, #0xc0
    \   000027 8D000000              CALLF     LCDInstr
-    773                     count=20;
+    790                     count=20;
    \   00002B 35140000              MOV       L:count, #0x14
-    774                     break;
+    791                     break;
    \   00002F 2016                  JRA       L:??LCD_4
-    775                   case 2:
-    776                     LCDInstr(0x80 | 0x14);
+    792                   case 2:
+    793                     LCDInstr(0x80 | 0x14);
    \                     ??LCD_2:
    \   000031 A694                  LD        A, #0x94
    \   000033 8D000000              CALLF     LCDInstr
-    777                     count=40;
+    794                     count=40;
    \   000037 35280000              MOV       L:count, #0x28
-    778                     break;
+    795                     break;
    \   00003B 200A                  JRA       L:??LCD_4
-    779                   case 3:
-    780                     LCDInstr(0x80 | 0x54);
+    796                   case 3:
+    797                     LCDInstr(0x80 | 0x54);
    \                     ??LCD_3:
    \   00003D A6D4                  LD        A, #0xd4
    \   00003F 8D000000              CALLF     LCDInstr
-    781                     count=60;
+    798                     count=60;
    \   000043 353C0000              MOV       L:count, #0x3c
-    782                     break;
-    783                   //default:
-    784                    //  LCDInstr(0x80 |0x40);    //Line 1
-    785                    }
-    786                   line_lcd++;
+    799                     break;
+    800                   //default:
+    801                    //  LCDInstr(0x80 |0x40);    //Line 1
+    802                    }
+    803                   line_lcd++;
    \                     ??LCD_4:
    \   000047 C60000                LD        A, L:line_lcd
    \   00004A 4C                    INC       A
    \   00004B C70000                LD        L:line_lcd, A
-    787                   if (line_lcd>=5)
+    804                   if (line_lcd>=5)
    \   00004E A105                  CP        A, #0x5
    \   000050 250F                  JRC       L:??LCD_5
-    788                   {
-    789                    line_lcd=1;   //line >=5
+    805                   {
+    806                    line_lcd=1;   //line >=5
    \   000052 35010000              MOV       L:line_lcd, #0x1
-    790                    LCDInstr(0x01); //Clear LCD
+    807                    LCDInstr(0x01); //Clear LCD
    \   000056 8D000000              CALLF     ?Subroutine27
-    791                    Delay1(2500);
+    808                    Delay1(2500);
    \                     ??CrossCallReturnLabel_83:
    \   00005A AE09C4                LDW       X, #0x9c4
    \   00005D 8D000000              CALLF     Delay1
-    792                   }
-    793          
-    794                   Delay1(1);
+    809                   }
+    810          
+    811                   Delay1(1);
    \                     ??LCD_5:
    \   000061 8D000000              CALLF     ?Subroutine25
-    795          
-    796          
-    797               }
-    798          
-    799          
-    800               if (count==20)
+    812          
+    813          
+    814               }
+    815          
+    816          
+    817               if (count==20)
    \                     ??CrossCallReturnLabel_79:
    \   000065 C60000                LD        A, L:count
    \   000068 A114                  CP        A, #0x14
    \   00006A 260A                  JRNE      L:??LCD_6
-    801                {
-    802                  LCDInstr(0x80 | 0x40);
+    818                {
+    819                  LCDInstr(0x80 | 0x40);
    \   00006C A6C0                  LD        A, #0xc0
    \                     ??LCD_7:
    \   00006E 8D000000              CALLF     LCDInstr
-    803                  Delay1(1);
+    820                  Delay1(1);
    \                     ??LCD_8:
    \   000072 5F                    CLRW      X
    \   000073 5C                    INCW      X
    \   000074 2027                  JRA       ??LCD_9
-    804                }
-    805                   else if(count==40)
+    821                }
+    822                   else if(count==40)
    \                     ??LCD_6:
    \   000076 A128                  CP        A, #0x28
    \   000078 2604                  JRNE      L:??LCD_10
-    806                  {
-    807                    LCDInstr(0x80 | 0x14);
+    823                  {
+    824                    LCDInstr(0x80 | 0x14);
    \   00007A A694                  LD        A, #0x94
    \   00007C 20F0                  JRA       ??LCD_7
-    808                    Delay1(1);
-    809                  }
-    810                    else if(count==60)
+    825                    Delay1(1);
+    826                  }
+    827                    else if(count==60)
    \                     ??LCD_10:
    \   00007E A13C                  CP        A, #0x3c
    \   000080 260C                  JRNE      L:??LCD_11
-    811                    {
-    812                      LCDInstr(0x80 | 0x54);
+    828                    {
+    829                      LCDInstr(0x80 | 0x54);
    \   000082 A6D4                  LD        A, #0xd4
    \   000084 8D000000              CALLF     LCDInstr
-    813                      count=0;
+    830                      count=0;
    \   000088 725F0000              CLR       L:count
-    814                      Delay1(1);
+    831                      Delay1(1);
    \   00008C 20E4                  JRA       ??LCD_8
-    815                    }
-    816                      else if(count >80)
+    832                    }
+    833                      else if(count >80)
    \                     ??LCD_11:
    \   00008E A151                  CP        A, #0x51
    \   000090 250F                  JRC       L:??LCD_12
-    817                        {
-    818                          count=0;
+    834                        {
+    835                          count=0;
    \   000092 725F0000              CLR       L:count
-    819                          LCDInstr(0x01); //Clear LCD
+    836                          LCDInstr(0x01); //Clear LCD
    \   000096 8D000000              CALLF     ?Subroutine27
-    820                          Delay1(250);
+    837                          Delay1(250);
    \                     ??CrossCallReturnLabel_82:
    \   00009A AE00FA                LDW       X, #0xfa
    \                     ??LCD_9:
    \   00009D 8D000000              CALLF     Delay1
-    821                        }
-    822          
-    823          
-    824              /*
-    825                   line++;
-    826                   if (line>3)
-    827                   {
-    828                     line=1;  //Line 0 for Time
-    829                   }
-    830                 switch(line)
-    831                   {
-    832                   case 1 :LCDInstr(0x80 | 0x40);break;  //Line 1
-    833                   case 2 :LCDInstr(0x80 | 0x14);break;  //Line 2
-    834                   case 3 :LCDInstr(0x80 | 0x54);break;  //Line 3
-    835                   default : LCDInstr(0x80 | 0x40); // Line 1
-    836                   }
-    837                   Delay(1);
-    838                   count=0;
-    839                }
+    838                        }
+    839          
     840          
-    841               */
-    842          
-    843               if (data > 0x1b)   //Display only valid data
+    841              /*
+    842                   line++;
+    843                   if (line>3)
+    844                   {
+    845                     line=1;  //Line 0 for Time
+    846                   }
+    847                 switch(line)
+    848                   {
+    849                   case 1 :LCDInstr(0x80 | 0x40);break;  //Line 1
+    850                   case 2 :LCDInstr(0x80 | 0x14);break;  //Line 2
+    851                   case 3 :LCDInstr(0x80 | 0x54);break;  //Line 3
+    852                   default : LCDInstr(0x80 | 0x40); // Line 1
+    853                   }
+    854                   Delay(1);
+    855                   count=0;
+    856                }
+    857          
+    858               */
+    859          
+    860               if (data > 0x1b)   //Display only valid data
    \                     ??LCD_12:
    \   0000A1 B600                  LD        A, S:?b8
    \   0000A3 A11C                  CP        A, #0x1c
    \   0000A5 250F                  JRC       L:??LCD_13
-    844               {
-    845                 LCDData(data);
+    861               {
+    862                 LCDData(data);
    \   0000A7 8D000000              CALLF     LCDData
-    846                  Delay1(1);
+    863                  Delay1(1);
    \   0000AB 8D000000              CALLF     ?Subroutine25
-    847                 count++;
+    864                 count++;
    \                     ??CrossCallReturnLabel_78:
    \   0000AF C60000                LD        A, L:count
    \   0000B2 4C                    INC       A
    \   0000B3 C70000                LD        L:count, A
-    848               }
-    849           }
+    865               }
+    866           }
    \                     ??LCD_13:
    \   0000B6 320000                POP       S:?b8
    \   0000B9 87                    RETF
-    850          
+    867          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    851          void InitDelayTimer()
-    852          {
-    853             //Timer 2 use for Delay  long Delay is 40ms for lcd
-    854             //Tclock 16/8=2Mhz  /20 10us
-    855                 TIM2_DeInit();
+    868          void InitDelayTimer()
+    869          {
+    870             //Timer 2 use for Delay  long Delay is 40ms for lcd
+    871             //Tclock 16/8=2Mhz  /20 10us
+    872                 TIM2_DeInit();
    \                     InitDelayTimer:
    \   000000 8D000000              CALLF     TIM2_DeInit
-    856                 TIM2_TimeBaseInit(TIM2_PRESCALER_2,0X0050);
+    873                 TIM2_TimeBaseInit(TIM2_PRESCALER_2,0X0050);
    \   000004 AE0050                LDW       X, #0x50
    \   000007 A601                  LD        A, #0x1
    \   000009 8D000000              CALLF     TIM2_TimeBaseInit
-    857                 //TIM2_PrescalerConfig(TIM2_PRESCALER_1, TIM2_PSCRELOADMODE_IMMEDIATE);
-    858                 TIM2_ITConfig(TIM2_IT_UPDATE, ENABLE);
+    874                 //TIM2_PrescalerConfig(TIM2_PRESCALER_1, TIM2_PSCRELOADMODE_IMMEDIATE);
+    875                 TIM2_ITConfig(TIM2_IT_UPDATE, ENABLE);
    \   00000D 35010000              MOV       S:?b0, #0x1
    \   000011 A601                  LD        A, #0x1
    \   000013 8D000000              CALLF     TIM2_ITConfig
-    859            //Enable TIM2
-    860                 TIM2_Cmd(ENABLE);
+    876            //Enable TIM2
+    877                 TIM2_Cmd(ENABLE);
    \   000017 A601                  LD        A, #0x1
    \   000019 AC000000              JPF       TIM2_Cmd
-    861          
-    862          }
-    863          
-    864          
+    878          
+    879          }
+    880          
+    881           /*
+    882          u16 Average()
+    883          {
+    884           //Find average in measure
+    885            u8 i=0;
+    886            u16 Summa=0;
+    887            do
+    888            {
+    889             Summa+=measure[i++];
+    890            } while ( measure[i]!=0);
+    891             if(i!=0) Summa=Summa/i;
+    892             return Summa;
+    893          }
+    894             */
+    895          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    865          u16 Average()
-    866          {
-    867           //Find average in measure
-    868            u8 i=0;
-   \                     Average:
-   \   000000 3F00                  CLR       S:?b0
-    869            u16 Summa=0;
-   \   000002 3F00                  CLR       S:?b3
-   \   000004 3F00                  CLR       S:?b2
-    870            do
-    871            {
-    872             Summa+=measure[i++];
-   \                     ??Average_0:
-   \   000006 5F                    CLRW      X
-   \   000007 41                    EXG       A, XL
-   \   000008 B600                  LD        A, S:?b0
-   \   00000A 41                    EXG       A, XL
-   \   00000B 58                    SLLW      X
-   \   00000C DE0000                LDW       X, (L:measure,X)
-   \   00000F 72BB0000              ADDW      X, S:?w1
-   \   000013 BF00                  LDW       S:?w1, X
-   \   000015 B600                  LD        A, S:?b0
-   \   000017 4C                    INC       A
-   \   000018 B700                  LD        S:?b0, A
-    873            } while ( measure[i]!=0);
-   \   00001A 5F                    CLRW      X
-   \   00001B 41                    EXG       A, XL
-   \   00001C B600                  LD        A, S:?b0
-   \   00001E 58                    SLLW      X
-   \   00001F DE0000                LDW       X, (L:measure,X)
-   \   000022 26E2                  JRNE      L:??Average_0
-    874             if(i!=0) Summa=Summa/i;
-   \   000024 3D00                  TNZ       S:?b0
-   \   000026 2708                  JREQ      L:??Average_1
-   \   000028 905F                  CLRW      Y
-   \   00002A 61                    EXG       A, YL
-   \   00002B BE00                  LDW       X, S:?w1
-   \   00002D 65                    DIVW      X, Y
-   \   00002E BF00                  LDW       S:?w1, X
-    875             return Summa;
-   \                     ??Average_1:
-   \   000030 BE00                  LDW       X, S:?w1
-   \   000032 87                    RETF
-    876          }
-    877          
-
-   \                                 In section .far_func.text, align 1, keep-with-next
-    878          PUTCHAR_PROTOTYPE
-    879          {
+    896          PUTCHAR_PROTOTYPE
+    897          {
    \                     fputc:
    \   000000 8D000000              CALLF     L:?push_w4
    \   000004 BF00                  LDW       S:?w4, X
-    880            /* Place your implementation of fputc here */
-    881            /* e.g. write a character to the USART */
-    882                //USART_SendData(USART3, (u8) ch);
-    883               LCD(ch);
+    898            /* Place your implementation of fputc here */
+    899            /* e.g. write a character to the USART */
+    900                //USART_SendData(USART3, (u8) ch);
+    901               LCD(ch);
    \   000006 B600                  LD        A, S:?b9
    \   000008 8D000000              CALLF     LCD
-    884             /* Loop until the end of transmission */
-    885              //while(USART_GetFlagStatus(USART3, USART_FLAG_TC) == RESET);;
-    886            return ch;
+    902             /* Loop until the end of transmission */
+    903              //while(USART_GetFlagStatus(USART3, USART_FLAG_TC) == RESET);;
+    904            return ch;
    \   00000C BE00                  LDW       X, S:?w4
    \   00000E AC000000              JPF       L:?epilogue_w4
-    887          }
-    888          
-    889          
+    905          }
+    906          
+    907          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    890          void Delay1(u16 Delay)
-    891          {
+    908          void Delay1(u16 Delay)
+    909          {
    \                     Delay1:
    \   000000 BF00                  LDW       S:?w0, X
-    892            timer1=0;
+    910            timer1=0;
    \   000002 5F                    CLRW      X
    \   000003 CF0000                LDW       L:timer1, X
-    893            while ( timer1 < Delay); ;
+    911            while ( timer1 < Delay); ;
    \                     ??Delay1_0:
    \   000006 CE0000                LDW       X, L:timer1
    \   000009 B300                  CPW       X, S:?w0
    \   00000B 25F9                  JRC       L:??Delay1_0
-    894          }
+    912          }
    \   00000D 87                    RETF
-    895          
+    913          
 
    \                                 In section .far_func.text, align 1, keep-with-next
-    896           void Delay2(u16 Delay)
-    897          {
+    914           void Delay2(u16 Delay)
+    915          {
    \                     Delay2:
    \   000000 BF00                  LDW       S:?w0, X
-    898            timer2=0;
+    916            timer2=0;
    \   000002 5F                    CLRW      X
    \   000003 CF0000                LDW       L:timer2, X
-    899            while ( timer2 < Delay); ;
+    917            while ( timer2 < Delay); ;
    \                     ??Delay2_0:
    \   000006 CE0000                LDW       X, L:timer2
    \   000009 B300                  CPW       X, S:?w0
    \   00000B 25F9                  JRC       L:??Delay2_0
-    900          }
+    918          }
    \   00000D 87                    RETF
-    901          
-    902          
-    903          
-    904          /*
-    905          void Delay12 (u16 Delay)
-    906          {
-    907            timer2=0;
-    908            while ( timer2 < Delay); ;
-    909          }
-    910          */
-    911          
-    912          
-    913          #ifdef USE_FULL_ASSERT
-    914          
-    915          /**
-    916            * @brief  Reports the name of the source file and the source line number
-    917            *   where the assert_param error has occurred.
-    918            * @param file: pointer to the source file name
-    919            * @param line: assert_param error line source number
-    920            * @retval : None
-    921            */
+    919          
+    920          
+    921          
+    922          /*
+    923          void Delay12 (u16 Delay)
+    924          {
+    925            timer2=0;
+    926            while ( timer2 < Delay); ;
+    927          }
+    928          */
+    929          
+    930          
+    931          #ifdef USE_FULL_ASSERT
+    932          
+    933          /**
+    934            * @brief  Reports the name of the source file and the source line number
+    935            *   where the assert_param error has occurred.
+    936            * @param file: pointer to the source file name
+    937            * @param line: assert_param error line source number
+    938            * @retval : None
+    939            */
 
    \                                 In section .far_func.text, align 1
-    922          void assert_failed(u8* file, u32 line)
-    923          {
-    924            /* User can add his own implementation to report the file name and line number,
-    925               ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-    926          
-    927            /* Infinite loop */
-    928            while (1)
+    940          void assert_failed(u8* file, u32 line)
+    941          {
+    942            /* User can add his own implementation to report the file name and line number,
+    943               ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+    944          
+    945            /* Infinite loop */
+    946            while (1)
    \                     assert_failed:
    \                     ??assert_failed_0:
    \   000000 20FE                  JRA       L:??assert_failed_0
-    929            {
-    930          
-    931            }
-    932          }
+    947            {
+    948          
+    949            }
+    950          }
 
    \                                 In section .near.rodata, align 1
    \                     `?<Constant "\\n E2:%d">`:
@@ -2399,16 +2366,12 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \   000000 0A2020202020          DC8 "\012      "
 
    \                                 In section .near.rodata, align 1
-   \                     `?<Constant "\\n%02x:%02x:%02x">`:
-   \   000000 0A253032783A          DC8 "\012%02x:%02x:%02x"
+   \                     `?<Constant "\\n%02d:%02d:%02d">`:
+   \   000000 0A253032643A          DC8 "\012%02d:%02d:%02d"
 
    \                                 In section .near.rodata, align 1
    \                     `?<Constant "\\nYears:">`:
    \   000000 0A5965617273          DC8 "\012Years:"
-
-   \                                 In section .near.rodata, align 1
-   \                     `?<Constant "\\n%02d:%02d:%02d">`:
-   \   000000 0A253032643A          DC8 "\012%02d:%02d:%02d"
 
    \                                 In section .near.rodata, align 1
    \                     `?<Constant "\\nMounts:">`:
@@ -2437,9 +2400,9 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \                                 In section .near.rodata, align 1
    \                     `?<Constant "\\nSeconds:">`:
    \   000000 0A5365636F6E          DC8 "\012Seconds:"
-    933          #endif
-    934          
-    935          /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+    951          #endif
+    952          
+    953          /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
 
    Section sizes:
 
@@ -2462,48 +2425,49 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
      mounts                            1
      years                             1
      error                             1
+     temp_flag                         1
      result                            4
      k                                 2
-     main                            212
+     main                            208
      ?Subroutine24                     7
      ?Subroutine12                    16
      ?Subroutine8                     10
      InitI2C                          38
      I2C_Start                        38
-     ?Subroutine19                     7
+     ?Subroutine23                     7
      I2C_WA                           38
      I2C_RA                           40
      I2C_WD                           36
      I2C_RD                           35
-     ?Subroutine23                     1
+     ?Subroutine22                     1
      ??Subroutine30_0                  7
-     ?Subroutine22                     9
-     ?Subroutine21                    11
-     ReadDS1307                       88
-     ?Subroutine14                    15
-     ?Subroutine13                    13
-     ?Subroutine11                    10
-     Check_DS1307                     49
-     Set_DS1307                      131
+     ?Subroutine21                     9
      ?Subroutine20                    11
+     ReadDS1307                       92
+     ?Subroutine15                    15
+     ?Subroutine13                    13
+     ?Subroutine11                    14
+     Check_DS1307                     56
+     Set_DS1307                      108
+     ?Subroutine19                    11
      convert_tobcd                    23
+     bcd2hex                          23
      ?Subroutine27                     6
-     Set_Clock                       430
+     Set_Clock                       397
      ?Subroutine18                    11
      ?Subroutine9                     10
      ?Subroutine7                     16
      adj                              77
      key_ok_on                        47
      key_plus_on                      37
-     ?Subroutine16                     7
+     ?Subroutine17                     7
      ?Subroutine5                      7
      key_minus_on                     37
      GpioConfiguration               103
-     ?Subroutine15                     9
+     ?Subroutine14                     9
      InitClk                          56
-     ?Subroutine17                     9
+     ?Subroutine16                     9
      InitAdc                          45
-     InitUart                         44
      SendChar                         15
      LCDDataOut                       87
      ?Subroutine2                      7
@@ -2525,7 +2489,6 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
      LCD_Busy                         69
      LCD                             186
      InitDelayTimer                   29
-     Average                          51
      fputc                            18
      Delay1                           14
      Delay2                           14
@@ -2533,9 +2496,8 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
      ?<Constant "\n E2:%d">            8
      ?<Constant "\nSetClock">         10
      ?<Constant "\n      ">            8
-     ?<Constant "\n%02x:%02x:%02x">   16
-     ?<Constant "\nYears:">            8
      ?<Constant "\n%02d:%02d:%02d">   16
+     ?<Constant "\nYears:">            8
      ?<Constant "\nMounts:">           9
      ?<Constant "\nDate:">             7
      ?<Constant "\nDays:">             7
@@ -2545,14 +2507,14 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
      ?<Constant "\nSeconds:">         10
 
  
- 2 538 bytes in section .far_func.text
-    81 bytes in section .near.bss
+ 2 421 bytes in section .far_func.text
+    82 bytes in section .near.bss
      3 bytes in section .near.data
-   123 bytes in section .near.rodata
+   107 bytes in section .near.rodata
  
- 2 538 bytes of CODE  memory
-   123 bytes of CONST memory
-    84 bytes of DATA  memory
+ 2 421 bytes of CODE  memory
+   107 bytes of CONST memory
+    85 bytes of DATA  memory
 
 Errors: none
 Warnings: none
