@@ -10,6 +10,23 @@
 /** New Device STM8S105K4  */
 /* Controller LCD DS1307,DS18B20 */
 
+/* Daily Allarm ON OFF
+                        ON
+                        |
+  First bit set ON      100H:HHHH MMMM:MMMM
+                           OFF
+                            |
+  Second bit set OFF       010H:HHHH MMMM:MMMM
+
+
+  Daily Allarm ON TimeLong(in minute for 24h 1440 minute 0x5A0)
+
+
+
+
+*/
+
+
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm8s.h"
@@ -53,6 +70,7 @@
 #define key_time 8000
 #define key_time_ok 15000
 #define DS_Control  0x10  // Out 1s
+#define EEPROM_ADDR 0x4000
 
 
 
@@ -75,6 +93,12 @@ u8 mounts=1;
 u8 years;
 u8 error;
 u8 temp_flag;
+u8 temp2;
+u8 daily_hour_on;
+u8 daily_minute_on;
+u8 daily_hour_off;
+u8 daily_minute_off;
+u16 daily_long_on;
 //u8 index=0;
 float  result;
 int volatile k=0;
@@ -92,6 +116,7 @@ void GpioConfiguration();
 void InitClk();
 void InitAdc();
 void InitI2C();
+void EEPROM_INIT();
 bool ReadDS1307();
 //void InitUart();
 void InitLcd();
@@ -110,6 +135,7 @@ bool Set_Clock();
 bool key_ok_on();
 bool key_plus_on();
 bool key_minus_on();
+bool key_ok_plus();
 bool Init_DS1307(void);
 bool Check_DS1307(void);
 bool I2C_Start(void);
@@ -117,6 +143,8 @@ bool I2C_WA(u8 address);
 bool I2C_WD(u8 data);
 bool I2C_RA(u8 address);
 bool Set_DS1307();
+bool Set_Delay_Allarm();
+bool Read_Allarm();
 u8 convert_tobcd(u8 data);
 u8 I2C_RD(void);
 u8 adj(u8 min,u8 max,u8 now);
@@ -141,6 +169,7 @@ void main(void)
     InitLcd();
     InitAdc();
     InitI2C();
+    Read_Allarm();
     //years=bcd2hex(13);
     Delay1(1000);
      if (!ReadDS1307())
@@ -154,8 +183,15 @@ void main(void)
     //line_lcd=0;
     //printf("\nHello");
 
+
     if (!Check_DS1307())
     {
+       if (error!=0)
+       {
+        printf("\n E:%d",error);
+         while (!key_ok_on());
+
+       }
      line_lcd=0;
      printf("\nSetClock");
       Set_Clock();
@@ -201,6 +237,14 @@ void main(void)
         line_lcd=0;
         printf("\n%02d:%02d:%02d",years,mounts,date);
       }
+
+      if(key_ok_plus())
+      {
+       //Set Daily Allarm
+        Set_Delay_Allarm();
+      }
+
+
 
 
     }
@@ -276,7 +320,7 @@ u8 I2C_RD(void)
  //while((!(I2C->SR1 & 0x40))&&timeout);
  if (!timeout)
  {
-   error=4;
+   error=5;
    return FALSE;
  }
  u8 data=I2C_ReceiveData();
@@ -322,10 +366,14 @@ bool  ReadDS1307(void)
        date = bcd2hex(I2C_RD());
        I2C_AcknowledgeConfig(I2C_ACK_CURR);
        mounts = bcd2hex(I2C_RD());
+       I2C_AcknowledgeConfig(I2C_ACK_CURR);
+        years= bcd2hex(I2C_RD());
+       I2C_AcknowledgeConfig(I2C_ACK_CURR);
+        u8 data1 = I2C_RD();
       //Last read byte by I2C slave
        I2C_AcknowledgeConfig(I2C_ACK_NONE);
        I2C_GenerateSTOP(ENABLE);
-       years= bcd2hex(I2C_RD());
+       temp2= I2C_RD();
        return TRUE;
 }
 
@@ -340,11 +388,10 @@ bool Check_DS1307(void)
         //Last read byte by I2C slave
        if (!I2C_Start()) return FALSE;
        if(!I2C_RA(0xD0))return FALSE;
+       I2C_AcknowledgeConfig(I2C_ACK_CURR);
+       u8 data = I2C_RD();
        I2C_AcknowledgeConfig(I2C_ACK_NONE);
        I2C_GenerateSTOP(ENABLE);
-       u8 data = I2C_RD();
-        Delay1(100);
-       //temp_flag=data;
        if (data != 0xAA) return FALSE;
        else return TRUE;
 }
@@ -449,7 +496,7 @@ bool Set_Clock()
     {
       line_lcd=1;
      printf("\n%02d:%02d:%02d",hours,minutes,seconds);
-       hours=adj(0,24,hours);
+       hours=adj(0,23,hours);
     } while (!key_ok_on());
 
      line_lcd=0;
@@ -458,7 +505,7 @@ bool Set_Clock()
     {
       line_lcd=1;
      printf("\n%02d:%02d:%02d",hours,minutes,seconds);
-       minutes=adj(0,60,minutes);
+       minutes=adj(0,59,minutes);
     } while (!key_ok_on());
 
     line_lcd=0;
@@ -467,13 +514,13 @@ bool Set_Clock()
     {
       line_lcd=1;
      printf("\n%02d:%02d:%02d",hours,minutes,seconds);
-       seconds=adj(0,60,seconds);
+       seconds=adj(0,59,seconds);
     } while (!key_ok_on());
 
       // Set parameter to DS1307 + time byte
     Set_DS1307();
 
-
+      bool k=Check_DS1307();
 
   return TRUE;
 }
@@ -531,6 +578,145 @@ bool key_ok_on()
 }
 
 
+bool  key_ok_plus()
+{
+  if (!((GPIO_ReadInputData(GPIOF)& key_ok)|(GPIO_ReadInputData(GPIOA)& key_plus)))
+  {
+      timer2=0;  // Key must be push for timer2 time
+      while((timer2 < key_time) && !((GPIO_ReadInputData(GPIOF)& key_ok)|(GPIO_ReadInputData(GPIOA)& key_plus)));;
+       if (timer2>=key_time) return TRUE;
+  }
+
+ return FALSE;
+}
+
+
+bool Set_Delay_Allarm()
+{
+
+   //clr
+   LCDInstr(0x01);
+   Delay1(1000);
+   line_lcd=0;
+   printf("\nH On:");
+  do
+    {
+     line_lcd=1;
+     printf("\n%02d:%02d",daily_hour_on,daily_minute_on);
+       daily_hour_on=adj(0,23,daily_hour_on);
+    } while (!key_ok_on());
+
+   LCDInstr(0x01);
+   Delay1(1000);
+   line_lcd=0;
+   printf("\nMin On:");
+  do
+    {
+     line_lcd=1;
+     printf("\n%02d:%02d",daily_hour_on,daily_minute_on);
+       daily_minute_on=adj(0,59,daily_minute_on);
+    } while (!key_ok_on());
+
+    LCDInstr(0x01);
+    Delay1(1000);
+    line_lcd=0;
+    printf("\nH Off:");
+  do
+    {
+     line_lcd=1;
+     printf("\n%02d:%02d",daily_hour_off,daily_minute_off);
+       daily_hour_off=adj(0,23,daily_hour_off);
+    } while (!key_ok_on());
+
+  LCDInstr(0x01);
+   Delay1(1000);
+   line_lcd=0;
+   printf("\nMin Off:");
+  do
+    {
+     line_lcd=1;
+     printf("\n%02d:%02d",daily_hour_off,daily_minute_off);
+       daily_minute_off=adj(0,59,daily_minute_off);
+    } while (!key_ok_on());
+
+     //Computing time_long_on
+
+     u8 hour=daily_hour_on;
+     u8 minute=daily_minute_on;
+     daily_long_on=0;
+     do
+     {
+          daily_long_on++;
+          minute++;
+          if (minute==60)
+          {
+            minute=0;
+            hour++;
+          }
+          if(hour==24) hour=0;
+
+     } while ( !((hour==daily_hour_off) & (minute==daily_minute_off)));
+
+      //Display daily_long_on
+    LCDInstr(0x01);
+    Delay1(1000);
+    line_lcd=0;
+    printf("\nLong :");
+
+      do
+    {
+     line_lcd=1;
+     printf("\n%d",daily_long_on);
+       //daily_long_on=adj(0,1440,daily_long_on);
+    } while (!key_ok_on());
+
+
+    //Save data to eeprom
+     EEPROM_INIT();
+     FLASH_ProgramByte(EEPROM_ADDR,daily_hour_on);
+     FLASH_ProgramByte(EEPROM_ADDR+1,daily_minute_on);
+     FLASH_ProgramByte(EEPROM_ADDR+2,daily_hour_off);
+     FLASH_ProgramByte(EEPROM_ADDR+3,daily_minute_off);
+
+   return TRUE;
+
+}
+
+bool Read_Allarm()
+{
+   daily_hour_on=FLASH_ReadByte(EEPROM_ADDR);
+   daily_minute_on=FLASH_ReadByte(EEPROM_ADDR+1);
+   daily_hour_off=FLASH_ReadByte(EEPROM_ADDR+2);
+   daily_minute_off=FLASH_ReadByte(EEPROM_ADDR+3);
+     // Computting daily_long_on
+     u8 hour=daily_hour_on;
+     u8 minute=daily_minute_on;
+     daily_long_on=0;
+     do
+     {
+          daily_long_on++;
+          minute++;
+          if (minute==60)
+          {
+            minute=0;
+            hour++;
+          }
+          if(hour==24) hour=0;
+
+     } while ( !((hour==daily_hour_off) & (minute==daily_minute_off)));
+
+  return TRUE;
+}
+
+void EEPROM_INIT()
+{
+  FLASH_DeInit();
+  FLASH_Unlock(FLASH_MEMTYPE_DATA);
+  FLASH_SetProgrammingTime(FLASH_PROGRAMTIME_STANDARD);
+
+
+
+}
 
 
 void GpioConfiguration()
