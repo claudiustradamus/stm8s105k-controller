@@ -169,7 +169,7 @@ void main(void)
     InitLcd();
     InitAdc();
     InitI2C();
-    Read_Allarm();
+
     //years=bcd2hex(13);
     Delay1(1000);
      if (!ReadDS1307())
@@ -197,6 +197,11 @@ void main(void)
       Set_Clock();
 
     }
+
+
+    //When Start Check for Allarm and computing Daily_long_on
+      Read_Allarm();
+
 
 
      //UART2_Cmd(DISABLE);  // Disable UART for the moment
@@ -245,6 +250,27 @@ void main(void)
       }
 
 
+      //Check for Allarm
+
+      u16 time_now=hours*60+minutes;
+      u16 time_on=daily_hour_on*60+daily_minute_on;
+      u16 time_off= daily_hour_off*60+daily_minute_off;
+      //(time_now > (time_on)&& (time_now<(time_off)))
+      if( (time_now > (time_on)&& (time_now<(time_off))) || (time_now < time_off)||(time_now > (time_on)&& (time_now<1440))   )
+
+         {
+           // Allarm ON
+           line_lcd=0;
+           printf("\n ON");
+
+         }
+
+          else
+          {
+            line_lcd=0;
+            printf("\n OFF");
+
+          }
 
 
     }
