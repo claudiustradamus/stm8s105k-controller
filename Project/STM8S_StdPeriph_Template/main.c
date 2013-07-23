@@ -99,6 +99,8 @@ u8 daily_minute_on;
 u8 daily_hour_off;
 u8 daily_minute_off;
 u16 daily_long_on;
+u16 time_on;
+u16 time_off;
 //u8 index=0;
 float  result;
 int volatile k=0;
@@ -201,7 +203,8 @@ void main(void)
 
     //When Start Check for Allarm and computing Daily_long_on
       Read_Allarm();
-
+       time_on=daily_hour_on*60+daily_minute_on;
+       time_off= daily_hour_off*60+daily_minute_off;
 
 
      //UART2_Cmd(DISABLE);  // Disable UART for the moment
@@ -253,23 +256,45 @@ void main(void)
       //Check for Allarm
 
       u16 time_now=hours*60+minutes;
-      u16 time_on=daily_hour_on*60+daily_minute_on;
-      u16 time_off= daily_hour_off*60+daily_minute_off;
-      //(time_now > (time_on)&& (time_now<(time_off)))
-      if( (time_now > (time_on)&& (time_now<(time_off))) || (time_now < time_off)||(time_now > (time_on)&& (time_now<1440))   )
+      bool allarm=FALSE;
 
+         //if((time_now > time_on) && (time_now > time_off)) allarm=FALSE;
+         // if ((time_now > time_on)&& (time_now<time_off)) allarm=TRUE;
+          // else  if (time_now < time_off)  allarm=TRUE;
+            //else if((time_now >time_on)&& (time_now<1440))allarm=TRUE;
+
+
+           u16 time=time_on;
+           do
+          {
+             if(time==time_now)
+             {
+               allarm=TRUE;
+                break ;
+             }
+              time++;
+               if( time==1441) time=0;
+          } while(!(time==time_off));
+
+
+
+
+
+
+
+
+
+            if(allarm)
          {
            // Allarm ON
            line_lcd=0;
            printf("\n ON");
-
          }
 
           else
           {
             line_lcd=0;
             printf("\n OFF");
-
           }
 
 
@@ -544,9 +569,9 @@ bool Set_Clock()
     } while (!key_ok_on());
 
       // Set parameter to DS1307 + time byte
-    Set_DS1307();
+      Set_DS1307();
 
-      bool k=Check_DS1307();
+      //bool k=Check_DS1307();
 
   return TRUE;
 }
@@ -696,7 +721,8 @@ bool Set_Delay_Allarm()
        //daily_long_on=adj(0,1440,daily_long_on);
     } while (!key_ok_on());
 
-
+    time_on=daily_hour_on*60+daily_minute_on;
+    time_off= daily_hour_off*60+daily_minute_off;
     //Save data to eeprom
      EEPROM_INIT();
      FLASH_ProgramByte(EEPROM_ADDR,daily_hour_on);
