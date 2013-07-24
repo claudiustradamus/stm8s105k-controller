@@ -54,6 +54,9 @@
 #define key_plus  GPIO_PIN_1
 #define key_minus GPIO_PIN_2
 
+#define ds18_data GPIO_PIN_2
+#define DS18(x)   x ? GPIO_WriteHigh(GPIOD,ds18_data):GPIO_WriteLow(GPIOD,ds18_data);
+
 #ifdef __GNUC__
   /* With GCC/RAISONANCE, small printf (option LD Linker->Libraries->Small printf
      set to 'Yes') calls __io_putchar() */
@@ -147,6 +150,7 @@ bool I2C_RA(u8 address);
 bool Set_DS1307();
 bool Set_Delay_Allarm();
 bool Read_Allarm();
+bool Read_DS18();
 u8 convert_tobcd(u8 data);
 u8 I2C_RD(void);
 u8 adj(u8 min,u8 max,u8 now);
@@ -171,6 +175,12 @@ void main(void)
     InitLcd();
     InitAdc();
     InitI2C();
+    line_lcd=0;
+    if (!Read_DS18())
+    {
+     printf("\nDS_Err_I");
+      while (!key_ok_on());
+    }
 
     //years=bcd2hex(13);
     Delay1(1000);
@@ -257,11 +267,6 @@ void main(void)
 
       u16 time_now=hours*60+minutes;
       bool allarm=FALSE;
-
-         //if((time_now > time_on) && (time_now > time_off)) allarm=FALSE;
-         // if ((time_now > time_on)&& (time_now<time_off)) allarm=TRUE;
-          // else  if (time_now < time_off)  allarm=TRUE;
-            //else if((time_now >time_on)&& (time_now<1440))allarm=TRUE;
 
 
            u16 time=time_on;
@@ -793,6 +798,10 @@ void GpioConfiguration()
   GPIO_Init(GPIOF,key_ok,GPIO_MODE_IN_PU_NO_IT);
   GPIO_Init(GPIOA,key_plus,GPIO_MODE_IN_PU_NO_IT);
   GPIO_Init(GPIOA,key_minus,GPIO_MODE_IN_PU_NO_IT);
+
+  //Init DS18b20 data pin
+  GPIO_Init(GPIOD,ds18_data,GPIO_MODE_IN_PU_NO_IT);
+
 }
 
 void InitClk()
@@ -1114,6 +1123,33 @@ void InitDelayTimer()
   //Enable TIM2
        TIM2_Cmd(ENABLE);
 
+}
+
+bool Read_DS18()
+{
+
+   //Init Reset Pulse
+    DS18(0);
+    Delay1(10);
+    DS18(1);
+    Delay1(1);
+    timer2=0;
+    while ((timer2 < 10000) && (GPIO_ReadInputPin(GPIOD, ds18_data)));;   //Wait for ack from DS18B20
+    if (timer2>=10000) return FALSE;
+     Delay1(10);
+   //Skip ROM Command 0xCC
+   //Function command  CONVERT T [44h]
+   //READ SCRATCHPAD [BEh]
+
+
+
+
+
+
+
+
+
+    return TRUE;
 }
 
  /*
