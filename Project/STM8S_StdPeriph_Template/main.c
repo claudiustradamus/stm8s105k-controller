@@ -151,6 +151,9 @@ bool Set_DS1307();
 bool Set_Delay_Allarm();
 bool Read_Allarm();
 bool Read_DS18();
+bool DS18_Write( u8 data);
+bool DS18_Reset();
+u16 DS18_Read();
 u8 convert_tobcd(u8 data);
 u8 I2C_RD(void);
 u8 adj(u8 min,u8 max,u8 now);
@@ -166,7 +169,7 @@ void main(void)
     /*High speed internal clock prescaler: 1*/
     //CLK_HSIPrescalerConfig(CLK_PRESCALER_HSIDIV1);
 
-    InitClk();
+     InitClk();
     InitDelayTimer();
     GpioConfiguration();
     //InitUart();
@@ -800,7 +803,7 @@ void GpioConfiguration()
   GPIO_Init(GPIOA,key_minus,GPIO_MODE_IN_PU_NO_IT);
 
   //Init DS18b20 data pin
-  GPIO_Init(GPIOD,ds18_data,GPIO_MODE_IN_PU_NO_IT);
+  GPIO_Init(GPIOD,ds18_data,GPIO_MODE_OUT_OD_HIZ_FAST);
 
 }
 
@@ -1125,21 +1128,82 @@ void InitDelayTimer()
 
 }
 
-bool Read_DS18()
+bool DS18_Write(u8 data)
 {
+  for ( u8 i=0;i<7;i++)
+  {
+   DS18(0);
+   Delay1(0); //Start time slot 4,5 us
+   if( data & (1<<i)) DS18(1)
+     else DS18(0);
+   Delay1(2);  // 60us end time slot
+   DS18(1);
+   Delay1(0);
+  }
+  return TRUE;
+}
 
+
+u16  DS18_Read()
+{
+  u16 data=0;
+
+  for (u8 i=0;i<8;i++)
+  {
+    DS18(0);
+    Delay1(0); //Start time slot 4,5 us
+    DS18(1);
+    Delay1(1); // Wait for ds18b20 set bit
+    data +=((1<<i)&(GPIO_ReadInputPin(GPIOD, ds18_data)));
+    Delay1(2); // Wait 60 us until end of read slot
+
+  }
+
+   return data;
+}
+
+bool DS18_Reset()
+{
    //Init Reset Pulse
     DS18(0);
-    Delay1(10);
+    Delay1(25);    //25=524us
     DS18(1);
     Delay1(1);
     timer2=0;
     while ((timer2 < 10000) && (GPIO_ReadInputPin(GPIOD, ds18_data)));;   //Wait for ack from DS18B20
     if (timer2>=10000) return FALSE;
-     Delay1(10);
+    // Delay1(10);
+    return TRUE;
+}
+
+bool Read_DS18()
+{
+
+   //Init Reset Pulse
+    if(!DS18_Reset()) return FALSE;
    //Skip ROM Command 0xCC
+    DS18_Write(0xCC);
    //Function command  CONVERT T [44h]
-   //READ SCRATCHPAD [BEh]
+    DS18_Write(0x44);
+    //Wait util end convert
+    timer2=0;
+     while ((timer2 < 10000) && !(DS18_Read()));;
+      if (timer2>10000) return FALSE;
+
+    //Init Reset Pulse
+    if(!DS18_Reset()) return FALSE;
+    // Skip ROM Command 0xCC
+    DS18_Write(0xCC);
+    //Function command READ SCRATCHPAD [BEh]
+    DS18_Write(0xBE);
+     u8 temp1=DS18_Read();
+     u8 temp2=DS18_Read();
+
+      line_lcd=0;
+      printf("\n %x,%x",temp1,temp2);
+        while (!key_ok_on());
+
+     //u8 temp3=DS18_Read();
 
 
 
@@ -1181,6 +1245,7 @@ PUTCHAR_PROTOTYPE
 
 void Delay1(u16 Delay)
 {
+    //1 = 40us,2=60us,3=80us,10=200us, 15=320us,
   timer1=0;
   while ( timer1 < Delay); ;
 }
