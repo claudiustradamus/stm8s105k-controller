@@ -53,8 +53,8 @@
 #define key_ok    GPIO_PIN_4
 #define key_plus  GPIO_PIN_1
 #define key_minus GPIO_PIN_2
-
-#define ds18_data GPIO_PIN_2
+  //DS18B20  Temp Sensor
+#define ds18_data GPIO_PIN_2 //2
 #define DS18(x)   x ? GPIO_WriteHigh(GPIOD,ds18_data):GPIO_WriteLow(GPIOD,ds18_data);
 
 #ifdef __GNUC__
@@ -104,6 +104,7 @@ u8 daily_minute_off;
 u16 daily_long_on;
 u16 time_on;
 u16 time_off;
+u8 l=0;
 //u8 index=0;
 float  result;
 int volatile k=0;
@@ -153,7 +154,7 @@ bool Read_Allarm();
 bool Read_DS18();
 bool DS18_Write( u8 data);
 bool DS18_Reset();
-u16 DS18_Read();
+u8 DS18_Read();
 u8 convert_tobcd(u8 data);
 u8 I2C_RD(void);
 u8 adj(u8 min,u8 max,u8 now);
@@ -169,14 +170,14 @@ void main(void)
     /*High speed internal clock prescaler: 1*/
     //CLK_HSIPrescalerConfig(CLK_PRESCALER_HSIDIV1);
 
-     InitClk();
+    InitClk();
     InitDelayTimer();
     GpioConfiguration();
     //InitUart();
     enableInterrupts();
     GPIO_WriteLow(GPIOD,GPIO_PIN_7); //R/W Line Read Mode
     InitLcd();
-    InitAdc();
+    //InitAdc();
     InitI2C();
     line_lcd=0;
     if (!Read_DS18())
@@ -1130,7 +1131,8 @@ void InitDelayTimer()
 
 bool DS18_Write(u8 data)
 {
-  for ( u8 i=0;i<7;i++)
+
+  for ( u8 i=0;i<8;i++)
   {
    DS18(0);
    Delay1(0); //Start time slot 4,5 us
@@ -1141,12 +1143,15 @@ bool DS18_Write(u8 data)
    Delay1(0);
   }
   return TRUE;
+
 }
 
 
-u16  DS18_Read()
+u8  DS18_Read()
 {
-  u16 data=0;
+    //Init DS18b20 data pin as Input
+
+  u8 data=0;
 
   for (u8 i=0;i<8;i++)
   {
@@ -1154,11 +1159,15 @@ u16  DS18_Read()
     Delay1(0); //Start time slot 4,5 us
     DS18(1);
     Delay1(1); // Wait for ds18b20 set bit
-    data +=((1<<i)&(GPIO_ReadInputPin(GPIOD, ds18_data)));
+    //Delay1(0);
+   data +=((1<<i)*(GPIO_ReadInputPin(GPIOD,ds18_data)&&ds18_data));
     Delay1(2); // Wait 60 us until end of read slot
+    DS18(1);  // Next bit
+    Delay1(0);
 
   }
-
+    //Init DS18b20 data pin
+   // GPIO_Init(GPIOD,ds18_data,GPIO_MODE_OUT_OD_HIZ_FAST);
    return data;
 }
 
@@ -1189,7 +1198,7 @@ bool Read_DS18()
     timer2=0;
      while ((timer2 < 10000) && !(DS18_Read()));;
       if (timer2>10000) return FALSE;
-
+     u8 temp8=timer2;
     //Init Reset Pulse
     if(!DS18_Reset()) return FALSE;
     // Skip ROM Command 0xCC
@@ -1198,9 +1207,20 @@ bool Read_DS18()
     DS18_Write(0xBE);
      u8 temp1=DS18_Read();
      u8 temp2=DS18_Read();
+     u8 temp3=DS18_Read();
+     u8 temp4=DS18_Read();
+     u8 temp5=DS18_Read();
+     u8 temp6=DS18_Read();
+     u8 temp7=DS18_Read();
+     //u8 temp8=DS18_Read();
+     //u8 temp9=DS18_Read();
+
+
 
       line_lcd=0;
-      printf("\n %x,%x",temp1,temp2);
+      printf("\n%x%x%x%x",temp1,temp2,temp3,temp4);
+      line_lcd=1;
+      printf("\n%x%x%x%x",temp5,temp6,temp7,temp8);
         while (!key_ok_on());
 
      //u8 temp3=DS18_Read();
