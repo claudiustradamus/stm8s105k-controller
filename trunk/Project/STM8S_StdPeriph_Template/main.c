@@ -129,6 +129,7 @@ void InitLcd();
 void InitDelayTimer();
 void Delay1( u16 Delay);
 void Delay2( u16 Delay);
+void Delay_us(u16 Delay);
 void LCDInstrNibble (u8 Instr);
 void LCDInstr(u8 Instr);
 void LCDDataOut(u8 data);
@@ -173,6 +174,24 @@ void main(void)
     InitClk();
     InitDelayTimer();
     GpioConfiguration();
+
+    /*
+     for(;;)
+    {
+
+      DS18(1);
+      Delay_us(1);
+      DS18(0);
+      Delay_us(160);
+
+
+
+
+    }
+
+      */
+
+
     //InitUart();
     enableInterrupts();
     GPIO_WriteLow(GPIOD,GPIO_PIN_7); //R/W Line Read Mode
@@ -185,6 +204,10 @@ void main(void)
      printf("\nDS_Err_I");
       while (!key_ok_on());
     }
+
+
+
+
 
     //years=bcd2hex(13);
     Delay1(1000);
@@ -1131,17 +1154,18 @@ void InitDelayTimer()
 
 bool DS18_Write(u8 data)
 {
-
+  disableInterrupts();
   for ( u8 i=0;i<8;i++)
   {
    DS18(0);
-   Delay1(0); //Start time slot 4,5 us
+   Delay_us(1); //Delay1(0); //Start time slot 4,5 us
    if( data & (1<<i)) DS18(1)
-     else DS18(0);
-   Delay1(2);  // 60us end time slot
+     //else DS18(0);
+   Delay_us(160);  // 60us end time slot
    DS18(1);
-   Delay1(0);
+   //Delay1(0);
   }
+  enableInterrupts();
   return TRUE;
 
 }
@@ -1152,20 +1176,21 @@ u8  DS18_Read()
     //Init DS18b20 data pin as Input
 
   u8 data=0;
-
+    disableInterrupts();
   for (u8 i=0;i<8;i++)
   {
     DS18(0);
-    Delay1(0); //Start time slot 4,5 us
+    Delay_us(1); //Start time slot 4,5 us
     DS18(1);
-    Delay1(1); // Wait for ds18b20 set bit
+    Delay_us(35); // Wait for ds18b20 set bit 15us
     //Delay1(0);
    data +=((1<<i)*(GPIO_ReadInputPin(GPIOD,ds18_data)&&ds18_data));
-    Delay1(2); // Wait 60 us until end of read slot
-    DS18(1);  // Next bit
-    Delay1(0);
+    Delay_us(120); // Wait 60 us until end of read slot  45us
+    //  DS18(1);  // Next bit
+   // Delay1(0);
 
   }
+    enableInterrupts();
     //Init DS18b20 data pin
    // GPIO_Init(GPIOD,ds18_data,GPIO_MODE_OUT_OD_HIZ_FAST);
    return data;
@@ -1177,11 +1202,13 @@ bool DS18_Reset()
     DS18(0);
     Delay1(25);    //25=524us
     DS18(1);
-    Delay1(1);
+    //Delay1(1);
     timer2=0;
     while ((timer2 < 10000) && (GPIO_ReadInputPin(GPIOD, ds18_data)));;   //Wait for ack from DS18B20
     if (timer2>=10000) return FALSE;
     // Delay1(10);
+    Delay1(20);    //25=524us
+
     return TRUE;
 }
 
@@ -1189,7 +1216,7 @@ bool Read_DS18()
 {
 
    //Init Reset Pulse
-    if(!DS18_Reset()) return FALSE;
+     if(!DS18_Reset()) return FALSE;
    //Skip ROM Command 0xCC
     DS18_Write(0xCC);
    //Function command  CONVERT T [44h]
@@ -1198,7 +1225,7 @@ bool Read_DS18()
     timer2=0;
      while ((timer2 < 10000) && !(DS18_Read()));;
       if (timer2>10000) return FALSE;
-     u8 temp8=timer2;
+     //u8 temp8=timer2;
     //Init Reset Pulse
     if(!DS18_Reset()) return FALSE;
     // Skip ROM Command 0xCC
@@ -1212,15 +1239,15 @@ bool Read_DS18()
      u8 temp5=DS18_Read();
      u8 temp6=DS18_Read();
      u8 temp7=DS18_Read();
-     //u8 temp8=DS18_Read();
-     //u8 temp9=DS18_Read();
-
+     u8 temp8=DS18_Read();
+     u8 temp9=DS18_Read();
+     DS18_Reset();
 
 
       line_lcd=0;
-      printf("\n%x%x%x%x",temp1,temp2,temp3,temp4);
+      printf("\n%02x%02x%02x",temp2,temp1,temp5);
       line_lcd=1;
-      printf("\n%x%x%x%x",temp5,temp6,temp7,temp8);
+      printf("\n%02x%02x%02x",temp7,temp8,temp9);
         while (!key_ok_on());
 
      //u8 temp3=DS18_Read();
@@ -1274,6 +1301,19 @@ void Delay1(u16 Delay)
 {
   timer2=0;
   while ( timer2 < Delay); ;
+}
+
+
+void Delay_us (u16 time) //1:3.2us,100:39us,200:77us,35:15.2us,120:45us,160:60us
+{
+  //disableInterrupts();
+  do
+    {
+      time--;
+      nop();
+    }
+    while (time);
+  //enableInterrupts();
 }
 
 
