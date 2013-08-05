@@ -155,6 +155,8 @@ bool Read_Allarm();
 bool Read_DS18();
 bool DS18_Write( u8 data);
 bool DS18_Reset();
+bool DS18Set();
+u8 temperature();
 u8 DS18_Read();
 u8 convert_tobcd(u8 data);
 u8 I2C_RD(void);
@@ -198,6 +200,8 @@ void main(void)
     InitLcd();
     //InitAdc();
     InitI2C();
+    //Init DS18B20
+    //DS18Set();
     line_lcd=0;
     if (!Read_DS18())
     {
@@ -269,7 +273,8 @@ void main(void)
 
 
      }
-       else  printf("\n      ");
+       else
+         //printf("\n      ");
      line_lcd=1;
      printf("\n%02d:%02d:%02d",hours,minutes,seconds);
      //line_lcd=2;
@@ -281,6 +286,9 @@ void main(void)
       {
         line_lcd=0;
         printf("\n%02d:%02d:%02d",years,mounts,date);
+        Delay2(50000);
+        //Delay2(10000);
+        //Delay2(10000);
       }
 
       if(key_ok_plus())
@@ -312,6 +320,12 @@ void main(void)
 
 
 
+            u8 result1=temperature();
+            u8 result2=0;
+            if(result1%2!=0) result2=5;
+            result1/=2;
+
+         //printf("\n%d.%d",result1,result2);
 
 
 
@@ -320,13 +334,13 @@ void main(void)
          {
            // Allarm ON
            line_lcd=0;
-           printf("\n ON");
+           printf("\n1 %d.%d   ",result1,result2);
          }
 
           else
           {
             line_lcd=0;
-            printf("\n OFF");
+            printf("\n0 %d.%d   ",result1,result2);
           }
 
 
@@ -1212,6 +1226,32 @@ bool DS18_Reset()
     return TRUE;
 }
 
+u8 temperature ()
+{
+
+   //Init Reset Pulse
+     if(!DS18_Reset()) return FALSE;
+   //Skip ROM Command 0xCC
+    DS18_Write(0xCC);
+   //Function command  CONVERT T [44h]
+    DS18_Write(0x44);
+    //Wait util end convert
+    timer2=0;
+     while ((timer2 < 10000) && !(DS18_Read()));;
+      if (timer2>10000) return FALSE;
+     //u8 temp8=timer2;
+    //Init Reset Pulse
+    if(!DS18_Reset()) return FALSE;
+    // Skip ROM Command 0xCC
+    DS18_Write(0xCC);
+    //Function command READ SCRATCHPAD [BEh]
+    DS18_Write(0xBE);
+     u8 temp1=DS18_Read();
+     u8 temp2=DS18_Read();
+    DS18_Reset();
+    return temp1;
+}
+
 bool Read_DS18()
 {
 
@@ -1241,27 +1281,45 @@ bool Read_DS18()
      u8 temp7=DS18_Read();
      u8 temp8=DS18_Read();
      u8 temp9=DS18_Read();
+
      DS18_Reset();
 
+       line_lcd=0;
+       u8 result1=temp1/2;
+       u8 result2=0;
+       if(temp1%2!=0) result2=5;
 
-      line_lcd=0;
-      printf("\n%02x%02x%02x",temp2,temp1,temp5);
-      line_lcd=1;
-      printf("\n%02x%02x%02x",temp7,temp8,temp9);
+      printf("\n%d.%d",result1,result2);
+     // line_lcd=1;
+     // printf("\n%02x%02x%02x",temp3,temp4,temp9);
         while (!key_ok_on());
 
      //u8 temp3=DS18_Read();
 
-
-
-
-
-
-
-
-
     return TRUE;
 }
+
+bool DS18Set ()
+{
+     //Init Reset Pulse
+    if(!DS18_Reset()) return FALSE;
+   //Skip ROM Command 0xCC
+    DS18_Write(0xCC);
+   //Function command  WRITE SCRATCHPAD 0x4E
+    DS18_Write(0x4E);
+   //Write 3 bytes last is config reg
+    DS18_Write(125);
+    DS18_Write(0xDC); //-55
+    DS18_Write(0x1F);
+
+
+
+
+  return TRUE;
+}
+
+
+
 
  /*
 u16 Average()
