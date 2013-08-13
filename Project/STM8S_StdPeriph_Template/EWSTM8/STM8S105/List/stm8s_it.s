@@ -1,33 +1,29 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                            /
-// IAR C/C++ Compiler V1.30.1.50036 for STM8            20/Jul/2013  22:50:31 /
+// IAR C/C++ Compiler V1.30.1.50036 for STM8            08/Aug/2013  20:14:37 /
 // Copyright 2010-2011 IAR Systems AB.                                        /
 //                                                                            /
-//    Source file  =  C:\Documents and Settings\Administrator\Desktop\stm8s10 /
-//                    5k-controller\Project\STM8S_StdPeriph_Template\stm8s_it /
-//                    .c                                                      /
-//    Command line =  "C:\Documents and Settings\Administrator\Desktop\stm8s1 /
-//                    05k-controller\Project\STM8S_StdPeriph_Template\stm8s_i /
-//                    t.c" -e -Ohz --debug --code_model medium --data_model   /
-//                    medium -o "C:\Documents and                             /
-//                    Settings\Administrator\Desktop\stm8s105k-controller\Pro /
-//                    ject\STM8S_StdPeriph_Template\EWSTM8\STM8S105\Obj\"     /
-//                    --dlib_config "C:\Program Files\IAR Systems\Embedded    /
-//                    Workbench 6.0\stm8\LIB\dlstm8mmf.h" -D STM8S105 -lC     /
-//                    "C:\Documents and Settings\Administrator\Desktop\stm8s1 /
-//                    05k-controller\Project\STM8S_StdPeriph_Template\EWSTM8\ /
-//                    STM8S105\List\" -lA "C:\Documents and                   /
-//                    Settings\Administrator\Desktop\stm8s105k-controller\Pro /
-//                    ject\STM8S_StdPeriph_Template\EWSTM8\STM8S105\List\"    /
-//                    -I "C:\Documents and Settings\Administrator\Desktop\stm /
-//                    8s105k-controller\Project\STM8S_StdPeriph_Template\EWST /
-//                    M8\..\" -I "C:\Documents and                            /
-//                    Settings\Administrator\Desktop\stm8s105k-controller\Pro /
-//                    ject\STM8S_StdPeriph_Template\EWSTM8\..\..\..\Libraries /
-//                    \STM8S_StdPeriph_Driver\inc\" --vregs 16                /
-//    List file    =  C:\Documents and Settings\Administrator\Desktop\stm8s10 /
+//    Source file  =  C:\Users\Administrator\Desktop\stm8s105k-controller\Pro /
+//                    ject\STM8S_StdPeriph_Template\stm8s_it.c                /
+//    Command line =  C:\Users\Administrator\Desktop\stm8s105k-controller\Pro /
+//                    ject\STM8S_StdPeriph_Template\stm8s_it.c -e -Ohz        /
+//                    --debug --code_model medium --data_model medium -o      /
+//                    C:\Users\Administrator\Desktop\stm8s105k-controller\Pro /
+//                    ject\STM8S_StdPeriph_Template\EWSTM8\STM8S105\Obj\      /
+//                    --dlib_config "C:\Program Files (x86)\IAR               /
+//                    Systems\Embedded Workbench 6.0\stm8\LIB\dlstm8mmf.h"    /
+//                    -D STM8S105 -lC C:\Users\Administrator\Desktop\stm8s105 /
+//                    k-controller\Project\STM8S_StdPeriph_Template\EWSTM8\ST /
+//                    M8S105\List\ -lA C:\Users\Administrator\Desktop\stm8s10 /
 //                    5k-controller\Project\STM8S_StdPeriph_Template\EWSTM8\S /
-//                    TM8S105\List\stm8s_it.s                                 /
+//                    TM8S105\List\ -I C:\Users\Administrator\Desktop\stm8s10 /
+//                    5k-controller\Project\STM8S_StdPeriph_Template\EWSTM8\. /
+//                    .\ -I C:\Users\Administrator\Desktop\stm8s105k-controll /
+//                    er\Project\STM8S_StdPeriph_Template\EWSTM8\..\..\..\Lib /
+//                    raries\STM8S_StdPeriph_Driver\inc\ --vregs 16           /
+//    List file    =  C:\Users\Administrator\Desktop\stm8s105k-controller\Pro /
+//                    ject\STM8S_StdPeriph_Template\EWSTM8\STM8S105\List\stm8 /
+//                    s_it.s                                                  /
 //                                                                            /
 //                                                                            /
 ///////////////////////////////////////////////////////////////////////////////
@@ -147,7 +143,7 @@
         CFI ?b15 SameValue
         CFI EndCommon cfiCommon0
         
-// C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM8S_StdPeriph_Template\stm8s_it.c
+// C:\Users\Administrator\Desktop\stm8s105k-controller\Project\STM8S_StdPeriph_Template\stm8s_it.c
 //    1 /**
 //    2   ******************************************************************************
 //    3   * @file     stm8s_it.c
