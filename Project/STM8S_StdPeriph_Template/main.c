@@ -57,6 +57,17 @@
 #define ds18_data GPIO_PIN_2 //2
 #define DS18(x)   x ? GPIO_WriteHigh(GPIOD,ds18_data):GPIO_WriteLow(GPIOD,ds18_data);
 
+//EEPROM Address;
+#define EEPROM_ADDR 0x4000
+#define EEPROM_ADR_STATUSH EEPROM_ADDR + 0
+#define EEPROM_ADR_STATUSL EEPROM_ADDR + 1
+#define EEPROM_ADR_TIME_ON_HOURS EEPROM_ADDR +2
+#define EEPROM_ADR_TIME_ON_MINUTES EEPROM_ADDR +3
+#define EEPROM_ADR_TIME_OFF_HOURS EEPROM_ADDR +4
+#define EEPROM_ADR_TIME_OFF_MINUTES EEPROM_ADDR +5
+
+
+
 #ifdef __GNUC__
   /* With GCC/RAISONANCE, small printf (option LD Linker->Libraries->Small printf
      set to 'Yes') calls __io_putchar() */
@@ -73,7 +84,7 @@
 #define key_time 8000
 #define key_time_ok 15000
 #define DS_Control  0x10  // Out 1s
-#define EEPROM_ADDR 0x4000
+
 
 
 
@@ -105,11 +116,21 @@ u16 daily_long_on;
 u16 time_on;
 u16 time_off;
 u8 l=0;
+u16 status_check;
+u8 test1;
+u8 test2;
 //u8 index=0;
 float  result;
 int volatile k=0;
 
 
+ struct   status_reg
+ {
+   unsigned on:1;
+   unsigned timer_on:1;
+   unsigned daily:1;
+ }  volatile   status  ;
+   
 
 
 
@@ -162,6 +183,9 @@ u8 convert_tobcd(u8 data);
 u8 I2C_RD(void);
 u8 adj(u8 min,u8 max,u8 now);
 u8 bcd2hex(u8 bcd);
+void Power_On(void);
+void Power_Off();
+
 
 u16  Average();
 
@@ -241,12 +265,17 @@ void main(void)
 
     }
 
-
+       //Read Status register from eepom and update it
+      //size=sizeof(status);
+     //u16 status
+     *(u16*)(&status)=(u16)(FLASH_ReadByte(EEPROM_ADR_STATUSH)*256)+(u16)FLASH_ReadByte(EEPROM_ADR_STATUSL);
+      status_check = *(u16*)(&status);
     //When Start Check for Allarm and computing Daily_long_on
-      Read_Allarm();
+     if ( Read_Allarm() == TRUE)
+     {
        time_on=daily_hour_on*60+daily_minute_on;
        time_off= daily_hour_off*60+daily_minute_off;
-
+     }
 
      //UART2_Cmd(DISABLE);  // Disable UART for the moment
 
@@ -261,7 +290,9 @@ void main(void)
          Delay2(10000);
        GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
          Delay2(10000);
-
+         
+           //status_check = *(u16*)(&status);
+           
       line_lcd=0;
      if (!ReadDS1307())
      {
@@ -291,34 +322,28 @@ void main(void)
         //Delay2(10000);
       }
 
-      if(key_ok_plus())
-      {
-       //Set Daily Allarm
-        Set_Delay_Allarm();
-      }
+      if(key_ok_plus()) Set_Delay_Allarm();  //Set Daily Allarm
+      if(key_plus_on()) Power_On();
+      if(key_minus_on())Power_Off();
 
 
       //Check for Allarm
-
+          if (status.daily==1)
+        {
       u16 time_now=hours*60+minutes;
-      bool allarm=FALSE;
-
-
+      status.on=0;
            u16 time=time_on;
            do
           {
              if(time==time_now)
              {
-               allarm=TRUE;
+               status.on=1;
                 break ;
              }
               time++;
                if( time==1441) time=0;
           } while(!(time==time_off));
-
-
-
-
+            };
 
             u8 result1=temperature();
             u8 result2=0;
@@ -330,17 +355,21 @@ void main(void)
 
 
 
-            if(allarm)
+            if(status.on)
          {
            // Allarm ON
            line_lcd=0;
-           printf("\n1 %d.%d   ",result1,result2);
+           char result3=' ';
+           if (status.daily==1)  result3 ='d';
+           printf("\n1 %d.%d %c",result1,result2,result3);
          }
 
           else
           {
             line_lcd=0;
-            printf("\n0 %d.%d   ",result1,result2);
+            char result3=' ';
+           if (status.daily==1)   result3 ='d';
+            printf("\n0 %d.%d %c",result1,result2,result3);
           }
 
 
@@ -348,6 +377,36 @@ void main(void)
 
 
 
+}
+
+void Power_On()
+{
+ status.on=1; 
+status.daily=1;  //On Daily Timer
+   EEPROM_INIT();
+  FLASH_ProgramByte(EEPROM_ADR_STATUSH,(u8)(*(u16*)(&status)>>8));
+  FLASH_ProgramByte(EEPROM_ADR_STATUSL,(u8)(*(u16*)(&status)));
+}
+
+void Power_Off()
+{
+   
+   status_check = *(u16*)(&status);
+  // test1 = (u8)status_check;
+   //test2 = (u8)(status_check>>8);
+  // test1 = *(u8*)(&status);
+  // test2 = *(u8*)((&status)+1);
+   
+  status.on=0;
+  if(status.daily) status.daily=0; //Off Daily timer 
+ 
+   
+   EEPROM_INIT();
+  FLASH_ProgramByte(EEPROM_ADR_STATUSH,(u8)(*(u16*)(&status)>>8));
+  FLASH_ProgramByte(EEPROM_ADR_STATUSL,(u8)(*(u16*)(&status)));
+   status.on=0;
+ // FLASH_ProgramByte(EEPROM_ADR_STATUS,*(u8*)(&status));
+  
 }
 
 void InitI2C(void)
@@ -770,11 +829,17 @@ bool Set_Delay_Allarm()
     time_on=daily_hour_on*60+daily_minute_on;
     time_off= daily_hour_off*60+daily_minute_off;
     //Save data to eeprom
+      status.daily=1;
      EEPROM_INIT();
-     FLASH_ProgramByte(EEPROM_ADDR,daily_hour_on);
-     FLASH_ProgramByte(EEPROM_ADDR+1,daily_minute_on);
-     FLASH_ProgramByte(EEPROM_ADDR+2,daily_hour_off);
-     FLASH_ProgramByte(EEPROM_ADDR+3,daily_minute_off);
+    //u8 temp =*(u8*)(&status);
+    // FLASH_ProgramByte(EEPROM_ADR_STATUS,*(u8*)(&status)); //save Status to eeprom
+     FLASH_ProgramByte(EEPROM_ADR_STATUSH,(u8)(*(u16*)(&status)>>8));
+     FLASH_ProgramByte(EEPROM_ADR_STATUSL,(u8)(*(u16*)(&status)));
+     FLASH_ProgramByte(EEPROM_ADR_TIME_ON_HOURS,daily_hour_on);
+     FLASH_ProgramByte(EEPROM_ADR_TIME_ON_MINUTES,daily_minute_on);
+     FLASH_ProgramByte(EEPROM_ADR_TIME_OFF_HOURS,daily_hour_off);
+     FLASH_ProgramByte(EEPROM_ADR_TIME_OFF_MINUTES,daily_minute_off);
+     FLASH_Lock(FLASH_MEMTYPE_DATA); //Locking  Flash Data
 
    return TRUE;
 
@@ -782,12 +847,16 @@ bool Set_Delay_Allarm()
 
 bool Read_Allarm()
 {
-   daily_hour_on=FLASH_ReadByte(EEPROM_ADDR);
-   daily_minute_on=FLASH_ReadByte(EEPROM_ADDR+1);
-   daily_hour_off=FLASH_ReadByte(EEPROM_ADDR+2);
-   daily_minute_off=FLASH_ReadByte(EEPROM_ADDR+3);
+   daily_hour_on=FLASH_ReadByte(EEPROM_ADR_TIME_ON_HOURS);
+    if(daily_hour_on > 24) return FALSE;
+   daily_minute_on=FLASH_ReadByte(EEPROM_ADR_TIME_ON_MINUTES);
+    if(daily_minute_on > 59) return FALSE;
+   daily_hour_off=FLASH_ReadByte(EEPROM_ADR_TIME_OFF_HOURS);
+    if(daily_hour_off > 24) return FALSE;
+   daily_minute_off=FLASH_ReadByte(EEPROM_ADR_TIME_OFF_MINUTES);
+    if(daily_hour_off > 59) return FALSE;
      // Computting daily_long_on
-     u8 hour=daily_hour_on;
+      u8 hour=daily_hour_on;
      u8 minute=daily_minute_on;
      daily_long_on=0;
      do
@@ -1290,9 +1359,9 @@ bool Read_DS18()
        if(temp1%2!=0) result2=5;
 
       printf("\n%d.%d",result1,result2);
-     // line_lcd=1;
-     // printf("\n%02x%02x%02x",temp3,temp4,temp9);
-        while (!key_ok_on());
+      //line_lcd=1;
+     // printf("\n%02x%02x%02x",temp7,temp8,temp9);
+        // while (!key_ok_on());
 
      //u8 temp3=DS18_Read();
 
