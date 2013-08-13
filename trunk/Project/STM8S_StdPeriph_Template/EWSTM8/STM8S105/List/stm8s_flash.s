@@ -1,33 +1,29 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                            /
-// IAR C/C++ Compiler V1.30.1.50036 for STM8            20/Jul/2013  22:50:25 /
+// IAR C/C++ Compiler V1.30.1.50036 for STM8            08/Aug/2013  20:14:36 /
 // Copyright 2010-2011 IAR Systems AB.                                        /
 //                                                                            /
-//    Source file  =  C:\Documents and Settings\Administrator\Desktop\stm8s10 /
-//                    5k-controller\Libraries\STM8S_StdPeriph_Driver\src\stm8 /
-//                    s_flash.c                                               /
-//    Command line =  "C:\Documents and Settings\Administrator\Desktop\stm8s1 /
-//                    05k-controller\Libraries\STM8S_StdPeriph_Driver\src\stm /
-//                    8s_flash.c" -e -Ohz --debug --code_model medium         /
-//                    --data_model medium -o "C:\Documents and                /
-//                    Settings\Administrator\Desktop\stm8s105k-controller\Pro /
-//                    ject\STM8S_StdPeriph_Template\EWSTM8\STM8S105\Obj\"     /
-//                    --dlib_config "C:\Program Files\IAR Systems\Embedded    /
-//                    Workbench 6.0\stm8\LIB\dlstm8mmf.h" -D STM8S105 -lC     /
-//                    "C:\Documents and Settings\Administrator\Desktop\stm8s1 /
-//                    05k-controller\Project\STM8S_StdPeriph_Template\EWSTM8\ /
-//                    STM8S105\List\" -lA "C:\Documents and                   /
-//                    Settings\Administrator\Desktop\stm8s105k-controller\Pro /
-//                    ject\STM8S_StdPeriph_Template\EWSTM8\STM8S105\List\"    /
-//                    -I "C:\Documents and Settings\Administrator\Desktop\stm /
-//                    8s105k-controller\Project\STM8S_StdPeriph_Template\EWST /
-//                    M8\..\" -I "C:\Documents and                            /
-//                    Settings\Administrator\Desktop\stm8s105k-controller\Pro /
-//                    ject\STM8S_StdPeriph_Template\EWSTM8\..\..\..\Libraries /
-//                    \STM8S_StdPeriph_Driver\inc\" --vregs 16                /
-//    List file    =  C:\Documents and Settings\Administrator\Desktop\stm8s10 /
+//    Source file  =  C:\Users\Administrator\Desktop\stm8s105k-controller\Lib /
+//                    raries\STM8S_StdPeriph_Driver\src\stm8s_flash.c         /
+//    Command line =  C:\Users\Administrator\Desktop\stm8s105k-controller\Lib /
+//                    raries\STM8S_StdPeriph_Driver\src\stm8s_flash.c -e      /
+//                    -Ohz --debug --code_model medium --data_model medium    /
+//                    -o C:\Users\Administrator\Desktop\stm8s105k-controller\ /
+//                    Project\STM8S_StdPeriph_Template\EWSTM8\STM8S105\Obj\   /
+//                    --dlib_config "C:\Program Files (x86)\IAR               /
+//                    Systems\Embedded Workbench 6.0\stm8\LIB\dlstm8mmf.h"    /
+//                    -D STM8S105 -lC C:\Users\Administrator\Desktop\stm8s105 /
+//                    k-controller\Project\STM8S_StdPeriph_Template\EWSTM8\ST /
+//                    M8S105\List\ -lA C:\Users\Administrator\Desktop\stm8s10 /
 //                    5k-controller\Project\STM8S_StdPeriph_Template\EWSTM8\S /
-//                    TM8S105\List\stm8s_flash.s                              /
+//                    TM8S105\List\ -I C:\Users\Administrator\Desktop\stm8s10 /
+//                    5k-controller\Project\STM8S_StdPeriph_Template\EWSTM8\. /
+//                    .\ -I C:\Users\Administrator\Desktop\stm8s105k-controll /
+//                    er\Project\STM8S_StdPeriph_Template\EWSTM8\..\..\..\Lib /
+//                    raries\STM8S_StdPeriph_Driver\inc\ --vregs 16           /
+//    List file    =  C:\Users\Administrator\Desktop\stm8s105k-controller\Pro /
+//                    ject\STM8S_StdPeriph_Template\EWSTM8\STM8S105\List\stm8 /
+//                    s_flash.s                                               /
 //                                                                            /
 //                                                                            /
 ///////////////////////////////////////////////////////////////////////////////
@@ -170,7 +166,7 @@
         CFI ?b15 SameValue
         CFI EndCommon cfiCommon1
         
-// C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Libraries\STM8S_StdPeriph_Driver\src\stm8s_flash.c
+// C:\Users\Administrator\Desktop\stm8s105k-controller\Libraries\STM8S_StdPeriph_Driver\src\stm8s_flash.c
 //    1 /**
 //    2   ******************************************************************************
 //    3   * @file    stm8s_flash.c
@@ -406,7 +402,7 @@
         LDW       S:?w1, X
         CLRW      X
         LDW       S:?w0, X
-        LDW       X, #`?<Constant "C:\\\\Documents and Sett...">`
+        LDW       X, #`?<Constant "C:\\\\Users\\\\Administrato...">`
         JPF       assert_failed
         CFI EndBlock cfiCond0
         CFI EndBlock cfiCond1
@@ -1929,22 +1925,20 @@ FLASH_ProgramBlock:
         SECTION VREGS:DATA:REORDER:NOROOT(0)
 
         SECTION `.near.rodata`:CONST:REORDER:NOROOT(0)
-`?<Constant "C:\\\\Documents and Sett...">`:
-        DC8 43H, 3AH, 5CH, 44H, 6FH, 63H, 75H, 6DH
-        DC8 65H, 6EH, 74H, 73H, 20H, 61H, 6EH, 64H
-        DC8 20H, 53H, 65H, 74H, 74H, 69H, 6EH, 67H
-        DC8 73H, 5CH, 41H, 64H, 6DH, 69H, 6EH, 69H
-        DC8 73H, 74H, 72H, 61H, 74H, 6FH, 72H, 5CH
-        DC8 44H, 65H, 73H, 6BH, 74H, 6FH, 70H, 5CH
-        DC8 73H, 74H, 6DH, 38H, 73H, 31H, 30H, 35H
-        DC8 6BH, 2DH, 63H, 6FH, 6EH, 74H, 72H, 6FH
-        DC8 6CH, 6CH, 65H, 72H, 5CH, 4CH, 69H, 62H
-        DC8 72H, 61H, 72H, 69H, 65H, 73H, 5CH, 53H
-        DC8 54H, 4DH, 38H, 53H, 5FH, 53H, 74H, 64H
-        DC8 50H, 65H, 72H, 69H, 70H, 68H, 5FH, 44H
-        DC8 72H, 69H, 76H, 65H, 72H, 5CH, 73H, 72H
-        DC8 63H, 5CH, 73H, 74H, 6DH, 38H, 73H, 5FH
-        DC8 66H, 6CH, 61H, 73H, 68H, 2EH, 63H, 0
+`?<Constant "C:\\\\Users\\\\Administrato...">`:
+        DC8 43H, 3AH, 5CH, 55H, 73H, 65H, 72H, 73H
+        DC8 5CH, 41H, 64H, 6DH, 69H, 6EH, 69H, 73H
+        DC8 74H, 72H, 61H, 74H, 6FH, 72H, 5CH, 44H
+        DC8 65H, 73H, 6BH, 74H, 6FH, 70H, 5CH, 73H
+        DC8 74H, 6DH, 38H, 73H, 31H, 30H, 35H, 6BH
+        DC8 2DH, 63H, 6FH, 6EH, 74H, 72H, 6FH, 6CH
+        DC8 6CH, 65H, 72H, 5CH, 4CH, 69H, 62H, 72H
+        DC8 61H, 72H, 69H, 65H, 73H, 5CH, 53H, 54H
+        DC8 4DH, 38H, 53H, 5FH, 53H, 74H, 64H, 50H
+        DC8 65H, 72H, 69H, 70H, 68H, 5FH, 44H, 72H
+        DC8 69H, 76H, 65H, 72H, 5CH, 73H, 72H, 63H
+        DC8 5CH, 73H, 74H, 6DH, 38H, 73H, 5FH, 66H
+        DC8 6CH, 61H, 73H, 68H, 2EH, 63H, 0
 
         END
 //  686 
@@ -1965,10 +1959,10 @@ FLASH_ProgramBlock:
 //  701 /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
 // 
 // 1 131 bytes in section .far_func.text
-//   120 bytes in section .near.rodata
+//   103 bytes in section .near.rodata
 // 
 // 1 131 bytes of CODE  memory
-//   120 bytes of CONST memory
+//   103 bytes of CONST memory
 //
 //Errors: none
 //Warnings: none
