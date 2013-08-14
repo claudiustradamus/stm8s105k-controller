@@ -185,6 +185,7 @@ u8 adj(u8 min,u8 max,u8 now);
 u8 bcd2hex(u8 bcd);
 void Power_On(void);
 void Power_Off();
+void Save_Status();
 
 
 u16  Average();
@@ -317,6 +318,8 @@ void main(void)
       {
         line_lcd=0;
         printf("\n%02d:%02d:%02d",years,mounts,date);
+        status.daily=1; //On Daily timer
+        Save_Status();
         Delay2(50000);
         //Delay2(10000);
         //Delay2(10000);
@@ -381,32 +384,16 @@ void main(void)
 
 void Power_On()
 {
- status.on=1; 
-status.daily=1;  //On Daily Timer
-   EEPROM_INIT();
-  FLASH_ProgramByte(EEPROM_ADR_STATUSH,(u8)(*(u16*)(&status)>>8));
-  FLASH_ProgramByte(EEPROM_ADR_STATUSL,(u8)(*(u16*)(&status)));
+  status.on=1; 
+  status.daily=0; //Off Daily timer 
+  Save_Status();
 }
 
 void Power_Off()
-{
-   
-   status_check = *(u16*)(&status);
-  // test1 = (u8)status_check;
-   //test2 = (u8)(status_check>>8);
-  // test1 = *(u8*)(&status);
-  // test2 = *(u8*)((&status)+1);
-   
+{ 
   status.on=0;
-  if(status.daily) status.daily=0; //Off Daily timer 
- 
-   
-   EEPROM_INIT();
-  FLASH_ProgramByte(EEPROM_ADR_STATUSH,(u8)(*(u16*)(&status)>>8));
-  FLASH_ProgramByte(EEPROM_ADR_STATUSL,(u8)(*(u16*)(&status)));
-   status.on=0;
- // FLASH_ProgramByte(EEPROM_ADR_STATUS,*(u8*)(&status));
-  
+  status.daily=0; //Off Daily timer 
+  Save_Status();
 }
 
 void InitI2C(void)
@@ -843,6 +830,14 @@ bool Set_Delay_Allarm()
 
    return TRUE;
 
+}
+
+void Save_Status()
+{
+  EEPROM_INIT();
+  FLASH_ProgramByte(EEPROM_ADR_STATUSH,(u8)(*(u16*)(&status)>>8));
+  FLASH_ProgramByte(EEPROM_ADR_STATUSL,(u8)(*(u16*)(&status)));
+  FLASH_Lock(FLASH_MEMTYPE_DATA); //Locking  Flash Data
 }
 
 bool Read_Allarm()
