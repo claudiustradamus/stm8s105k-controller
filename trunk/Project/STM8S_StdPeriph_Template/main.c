@@ -115,6 +115,9 @@ u8 daily_minute_off;
 u16 daily_long_on;
 u16 time_on;
 u16 time_off;
+u8 ttimer;
+u8 result1;
+u8 result2;
 u8 l=0;
 u16 status_check;
 u8 test1;
@@ -201,24 +204,6 @@ void main(void)
     InitClk();
     InitDelayTimer();
     GpioConfiguration();
-
-    /*
-     for(;;)
-    {
-
-      DS18(1);
-      Delay_us(1);
-      DS18(0);
-      Delay_us(160);
-
-
-
-
-    }
-
-      */
-
-
     //InitUart();
     enableInterrupts();
     GPIO_WriteLow(GPIOD,GPIO_PIN_7); //R/W Line Read Mode
@@ -226,7 +211,7 @@ void main(void)
     //InitAdc();
     InitI2C();
     //Init DS18B20
-    //DS18Set();
+    DS18Set();
     line_lcd=0;
     if (!Read_DS18())
     {
@@ -289,6 +274,7 @@ void main(void)
 
        GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
          Delay2(10000);
+        // ttimer++;
        GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
          Delay2(10000);
          
@@ -302,7 +288,6 @@ void main(void)
       // Reset the CPU: Enable the watchdog and wait until it expires
        IWDG->KR = IWDG_KEY_ENABLE;
        while ( 1 );    // Wait until reset occurs from IWDG
-
 
      }
        else
@@ -346,12 +331,18 @@ void main(void)
               time++;
                if( time==1441) time=0;
           } while(!(time==time_off));
-            };
+         };
 
-            u8 result1=temperature();
-            u8 result2=0;
+         
+            //Read Temperature
+        // if( ttimer > 5 )
+         //{
+            result1=temperature();
+            result2=0;
             if(result1%2!=0) result2=5;
             result1/=2;
+           // ttimer=0;
+       //  }
 
          //printf("\n%d.%d",result1,result2);
 
@@ -509,14 +500,22 @@ bool  ReadDS1307(void)
        date = bcd2hex(I2C_RD());
        I2C_AcknowledgeConfig(I2C_ACK_CURR);
        mounts = bcd2hex(I2C_RD());
-       I2C_AcknowledgeConfig(I2C_ACK_CURR);
-        years= bcd2hex(I2C_RD());
-       I2C_AcknowledgeConfig(I2C_ACK_CURR);
-        u8 data1 = I2C_RD();
-      //Last read byte by I2C slave
        I2C_AcknowledgeConfig(I2C_ACK_NONE);
-       I2C_GenerateSTOP(ENABLE);
-       temp2= I2C_RD();
+         I2C_GenerateSTOP(ENABLE);
+          years= bcd2hex(I2C_RD());
+      
+     //  I2C_AcknowledgeConfig(I2C_ACK_CURR);
+     //   u8 data1 = I2C_RD();
+      //Last read byte by I2C slave
+     //  I2C_AcknowledgeConfig(I2C_ACK_NONE);
+     //  I2C_GenerateSTOP(ENABLE);
+     //  temp2= I2C_RD();
+       if( seconds & 0x80 )    //if not enable the oscillator ?
+          {
+            seconds &= 0x7f;
+            Set_DS1307();
+          }
+          
        return TRUE;
 }
 
@@ -1313,7 +1312,9 @@ u8 temperature ()
      u8 temp1=DS18_Read();
      u8 temp2=DS18_Read();
     DS18_Reset();
-    return temp1;
+      u16 result = temp2*256+temp1;
+      temp1= (u8)(result>>3); 
+     return temp1;
 }
 
 bool Read_DS18()
@@ -1348,15 +1349,19 @@ bool Read_DS18()
 
      DS18_Reset();
 
-       line_lcd=0;
-       u8 result1=temp1/2;
-       u8 result2=0;
-       if(temp1%2!=0) result2=5;
+      line_lcd=0;
+      result2=0;
+      u16 result = temp2*256+temp1;
+      result1= (u8)(result>>3); 
+      if(result1%2!=0) result2=5;
+      result1 /=2;
+      
 
       printf("\n%d.%d",result1,result2);
-      //line_lcd=1;
+     // printf("\n%02x%02x%02x",temp1,temp2,temp5);
+     //line_lcd=1;
      // printf("\n%02x%02x%02x",temp7,temp8,temp9);
-        // while (!key_ok_on());
+     // while (!key_ok_on());
 
      //u8 temp3=DS18_Read();
 
