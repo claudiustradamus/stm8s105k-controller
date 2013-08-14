@@ -56,6 +56,10 @@
   //DS18B20  Temp Sensor
 #define ds18_data GPIO_PIN_2 //2
 #define DS18(x)   x ? GPIO_WriteHigh(GPIOD,ds18_data):GPIO_WriteLow(GPIOD,ds18_data);
+  //Power 
+#define power_pin GPIO_PIN_3
+
+
 
 //EEPROM Address;
 #define EEPROM_ADDR 0x4000
@@ -273,10 +277,10 @@ void main(void)
       ADC1_Cmd (ENABLE);
 
        GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
-         Delay2(10000);
+         Delay2(23437);
         // ttimer++;
        GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
-         Delay2(10000);
+         Delay2(23437);
          
            //status_check = *(u16*)(&status);
            
@@ -292,8 +296,7 @@ void main(void)
      }
        else
          //printf("\n      ");
-     line_lcd=1;
-     printf("\n%02d:%02d:%02d",hours,minutes,seconds);
+    
      //line_lcd=2;
      //printf("\n Just Test:%X", timer2);
          //if (rx_data==SpecialSymbol) SendData();
@@ -341,30 +344,23 @@ void main(void)
             result2=0;
             if(result1%2!=0) result2=5;
             result1/=2;
+            char result3;
            // ttimer=0;
        //  }
 
          //printf("\n%d.%d",result1,result2);
 
+           //Display
+          line_lcd=0;
+          if (status.daily==1)  result3 ='d';
+          printf("\n %d.%d %c",result1,result2,result3);
+          line_lcd=1;
+          printf("\n%02d:%02d:%02d",hours,minutes,seconds);
 
 
-
-            if(status.on)
-         {
-           // Allarm ON
-           line_lcd=0;
-           char result3=' ';
-           if (status.daily==1)  result3 ='d';
-           printf("\n1 %d.%d %c",result1,result2,result3);
-         }
-
-          else
-          {
-            line_lcd=0;
-            char result3=' ';
-           if (status.daily==1)   result3 ='d';
-            printf("\n0 %d.%d %c",result1,result2,result3);
-          }
+           if(status.on) GPIO_WriteHigh(GPIOD, power_pin );
+             else   GPIO_WriteLow(GPIOD, power_pin );
+         
 
 
     }
@@ -905,6 +901,9 @@ void GpioConfiguration()
 
   //Init DS18b20 data pin
   GPIO_Init(GPIOD,ds18_data,GPIO_MODE_OUT_OD_HIZ_FAST);
+  
+  // Power Pin 
+   GPIO_Init(GPIOD,power_pin,GPIO_MODE_OUT_PP_HIGH_FAST);
 
 }
 
