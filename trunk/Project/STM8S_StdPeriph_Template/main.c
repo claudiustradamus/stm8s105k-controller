@@ -193,7 +193,7 @@ u8 bcd2hex(u8 bcd);
 void Power_On(void);
 void Power_Off();
 void Save_Status();
-
+void Rotate_Line( char * line);
 
 u16  Average();
 
@@ -1474,5 +1474,30 @@ void assert_failed(u8* file, u32 line)
   }
 }
 #endif
+
+
+void Rotate_Line( char * line)
+{
+  
+   char temp_first = *line;
+   char temp_next=*line++;
+   do 
+   {
+     *line=temp_next;
+      line++;
+      temp_next=*line++;
+    //*line=*line++;    
+   } while (temp_next!=0x0d);
+   line--;
+   *line=temp_first;
+  
+  
+  
+}
+
+
+
+
+
 
 /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
