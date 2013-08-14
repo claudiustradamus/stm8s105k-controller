@@ -84,7 +84,7 @@
 
 
 #define SpecialSymbol 0x1b //Esc to start message
-#define data_size 20
+//#define data_size 20
 #define key_time 8000
 #define key_time_ok 15000
 #define DS_Control  0x10  // Out 1s
@@ -98,8 +98,8 @@ volatile u16 timer2;
 volatile u8 timeout;
 volatile u16 adcdata;
 volatile u8 rx_data;
-char data[data_size];
-u16  measure[data_size];
+//char data[data_size];
+//u16  measure[data_size];
 u8 line_lcd;
 u8 count;
 u8 seconds;
@@ -126,6 +126,7 @@ u8 l=0;
 u16 status_check;
 u8 test1;
 u8 test2;
+char line1[];
 //u8 index=0;
 float  result;
 int volatile k=0;
@@ -194,6 +195,7 @@ void Power_On(void);
 void Power_Off();
 void Save_Status();
 void Rotate_Line( char * line);
+void Display_Line(char * line);
 
 u16  Average();
 
@@ -271,6 +273,16 @@ void main(void)
 
      // Working fuction
     //Set_DS1307(13,7,13,34,0);//u8 year ,u8 mounts,u8 hours,u8 minutes,u8 seconds)
+     
+     
+     
+    // strcpy(line1,"Hello I am here! ");
+    //  while(1)
+    //  {
+    //     Display_Line(line1);
+    //     Delay2(20000);
+    //  }
+    //  while (!key_ok_on());
 
     while(1)
     {
@@ -351,9 +363,11 @@ void main(void)
          //printf("\n%d.%d",result1,result2);
 
            //Display
-          line_lcd=0;
-          if (status.daily==1)  result3 ='d';
-          printf("\n %d.%d %c",result1,result2,result3);
+           // line_lcd=0;
+            if (status.daily==1)  result3 ='d';
+             else result3=' ';
+            sprintf(line1,"%d.%d %c",result1,result2,result3);
+            Display_Line(line1);
           line_lcd=1;
           printf("\n%02d:%02d:%02d",hours,minutes,seconds);
 
@@ -1476,23 +1490,47 @@ void assert_failed(u8* file, u32 line)
 #endif
 
 
+void Display_Line(char* line)
+{
+  char current_char= *line++;
+  u8 count;
+    //Set Cursor to First Line
+   LCDInstr(0x80 | 0x00);
+   count=0;
+   Delay1(1);           
+  do
+  {
+    
+    if (current_char > 0x1b)   //Display only valid data
+     {
+       LCDData(current_char);
+        Delay1(1);
+       count++;
+     } 
+     current_char=*line++;
+  }  while ((current_char != 0x00) && (count<7));
+  
+   Rotate_Line(line1);
+  
+}
+
 void Rotate_Line( char * line)
 {
-  
+   
    char temp_first = *line;
-   char temp_next=*line++;
+   char temp_next;
+  
    do 
    {
-     *line=temp_next;
-      line++;
-      temp_next=*line++;
-    //*line=*line++;    
-   } while (temp_next!=0x0d);
+      temp_next=*(line+1);
+     *line++=temp_next;
+      //line++;
+      //temp_next=*line;
+     //*line=*line++;    
+   } while (*line !=0);
    line--;
    *line=temp_first;
-  
-  
-  
+   
 }
 
 

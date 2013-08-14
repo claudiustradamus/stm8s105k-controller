@@ -39,7 +39,7 @@ extern  volatile u16 adcdata;
 extern  volatile u8 timeout;
 extern  volatile u8 rx_data;
 extern  volatile u8 index=0;
-extern   u16  measure[data_size];
+//extern   u16  measure[data_size];
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
@@ -454,6 +454,7 @@ INTERRUPT_HANDLER(I2C_IRQHandler, 19)
        it is recommended to set a breakpoint on the following instruction.
     */
    //ADC1_Cmd (DISABLE);
+    /*
    ADC1_ClearFlag(ADC1_FLAG_EOC);
    adcdata = ADC1_GetConversionValue();
    measure[index++]=adcdata;
@@ -463,6 +464,7 @@ INTERRUPT_HANDLER(I2C_IRQHandler, 19)
         index=0;
       }
    ADC1_ClearITPendingBit(ADC1_IT_EOC);
+     */
     //ADC1_Cmd (ENABLE);
     //ADC1_Cmd (ENABLE);  //Second Start conversion
  }

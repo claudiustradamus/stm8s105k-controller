@@ -1,6 +1,6 @@
 ###############################################################################
 #                                                                             #
-# IAR C/C++ Compiler V1.30.1.50036 for STM8             14/Aug/2013  17:29:21 #
+# IAR C/C++ Compiler V1.30.1.50036 for STM8             14/Aug/2013  23:44:57 #
 # Copyright 2010-2011 IAR Systems AB.                                         #
 #                                                                             #
 #    Source file  =  C:\Users\Administrator\Desktop\stm8s105k-controller\Proj #
@@ -77,7 +77,7 @@ C:\Users\Administrator\Desktop\stm8s105k-controller\Project\STM8S_StdPeriph_Temp
      41          extern  volatile u8 index=0;
    \                     index:
    \   000000                       DS8 1
-     42          extern   u16  measure[data_size];
+     42          //extern   u16  measure[data_size];
      43          
      44          /* Private function prototypes -----------------------------------------------*/
      45          /* Private functions ---------------------------------------------------------*/
@@ -622,120 +622,82 @@ C:\Users\Administrator\Desktop\stm8s105k-controller\Project\STM8S_StdPeriph_Temp
    \                                 In section .far_func.text, align 1
     451           INTERRUPT_HANDLER(ADC1_IRQHandler, 22)
     452           {
-   \                     ADC1_IRQHandler:
-   \                     _interrupt_24:
-   \   000000 8A                    PUSH      CC
-   \   000001 84                    POP       A
-   \   000002 A4BF                  AND       A, #0xbf
-   \   000004 88                    PUSH      A
-   \   000005 86                    POP       CC
-   \   000006 8D000000              CALLF     L:?push_l0
-   \   00000A 8D000000              CALLF     L:?push_l1
     453              /* In order to detect unexpected events during development,
     454                 it is recommended to set a breakpoint on the following instruction.
     455              */
     456             //ADC1_Cmd (DISABLE);
-    457             ADC1_ClearFlag(ADC1_FLAG_EOC);
-   \   00000E A680                  LD        A, #0x80
-   \   000010 8D000000              CALLF     ADC1_ClearFlag
-    458             adcdata = ADC1_GetConversionValue();
-   \   000014 8D000000              CALLF     ADC1_GetConversionValue
-   \   000018 CF0000                LDW       L:adcdata, X
-    459             measure[index++]=adcdata;
-                    ^
-Warning[Pa082]: undefined behavior: the order of volatile accesses is
-          undefined in this statement
-   \   00001B C60000                LD        A, L:index
-   \   00001E B700                  LD        S:?b0, A
-   \   000020 4C                    INC       A
-   \   000021 C70000                LD        L:index, A
-   \   000024 5F                    CLRW      X
-   \   000025 41                    EXG       A, XL
-   \   000026 B600                  LD        A, S:?b0
-   \   000028 41                    EXG       A, XL
-   \   000029 58                    SLLW      X
-   \   00002A 90CE0000              LDW       Y, L:adcdata
-   \   00002E DF0000                LDW       (L:measure,X), Y
-    460                if (index==data_size)
-   \   000031 C60000                LD        A, L:index
-   \   000034 A10A                  CP        A, #0xa
-   \   000036 260F                  JRNE      L:??ADC1_IRQHandler_0
-    461                {
-    462                  measure[index]=0;
-   \   000038 C60000                LD        A, L:index
-   \   00003B 5F                    CLRW      X
-   \   00003C 97                    LD        XL, A
-   \   00003D 58                    SLLW      X
-   \   00003E 905F                  CLRW      Y
-   \   000040 DF0000                LDW       (L:measure,X), Y
-    463                  index=0;
-   \   000043 725F0000              CLR       L:index
-    464                }
-    465             ADC1_ClearITPendingBit(ADC1_IT_EOC);
-   \                     ??ADC1_IRQHandler_0:
-   \   000047 AE0080                LDW       X, #0x80
-   \   00004A 8D000000              CALLF     ADC1_ClearITPendingBit
-    466              //ADC1_Cmd (ENABLE);
-    467              //ADC1_Cmd (ENABLE);  //Second Start conversion
-    468           }
-   \   00004E 8D000000              CALLF     L:?pop_l1
-   \   000052 8D000000              CALLF     L:?pop_l0
-   \   000056 80                    IRET
-    469          #endif /*STM8S208 or STM8S207 or STM8AF52Ax or STM8AF62Ax */
-    470          
-    471          #ifdef STM8S903
-    472          /**
-    473            * @brief Timer6 Update/Overflow/Trigger Interrupt routine.
-    474            * @param  None
-    475            * @retval None
-    476            */
-    477          INTERRUPT_HANDLER(TIM6_UPD_OVF_TRG_IRQHandler, 23)
-    478           {
-    479            /* In order to detect unexpected events during development,
-    480               it is recommended to set a breakpoint on the following instruction.
-    481            */
-    482           }
-    483          #else /*STM8S208, STM8S207, STM8S105 or STM8S103 or STM8AF52Ax or STM8AF62Ax or STM8AF626x */
-    484          /**
-    485            * @brief Timer4 Update/Overflow Interrupt routine.
-    486            * @param  None
-    487            * @retval None
-    488            */
+    457              /*
+    458             ADC1_ClearFlag(ADC1_FLAG_EOC);
+    459             adcdata = ADC1_GetConversionValue();
+    460             measure[index++]=adcdata;
+    461                if (index==data_size)
+    462                {
+    463                  measure[index]=0;
+    464                  index=0;
+    465                }
+    466             ADC1_ClearITPendingBit(ADC1_IT_EOC);
+    467               */
+    468              //ADC1_Cmd (ENABLE);
+    469              //ADC1_Cmd (ENABLE);  //Second Start conversion
+    470           }
+   \                     ADC1_IRQHandler:
+   \                     _interrupt_24:
+   \   000000 80                    IRET
+    471          #endif /*STM8S208 or STM8S207 or STM8AF52Ax or STM8AF62Ax */
+    472          
+    473          #ifdef STM8S903
+    474          /**
+    475            * @brief Timer6 Update/Overflow/Trigger Interrupt routine.
+    476            * @param  None
+    477            * @retval None
+    478            */
+    479          INTERRUPT_HANDLER(TIM6_UPD_OVF_TRG_IRQHandler, 23)
+    480           {
+    481            /* In order to detect unexpected events during development,
+    482               it is recommended to set a breakpoint on the following instruction.
+    483            */
+    484           }
+    485          #else /*STM8S208, STM8S207, STM8S105 or STM8S103 or STM8AF52Ax or STM8AF62Ax or STM8AF626x */
+    486          /**
+    487            * @brief Timer4 Update/Overflow Interrupt routine.
+    488            * @param  None
+    489            * @retval None
+    490            */
 
    \                                 In section .far_func.text, align 1
-    489           INTERRUPT_HANDLER(TIM4_UPD_OVF_IRQHandler, 23)
-    490           {
-    491            /* In order to detect unexpected events during development,
-    492               it is recommended to set a breakpoint on the following instruction.
-    493            */
-    494           }
+    491           INTERRUPT_HANDLER(TIM4_UPD_OVF_IRQHandler, 23)
+    492           {
+    493            /* In order to detect unexpected events during development,
+    494               it is recommended to set a breakpoint on the following instruction.
+    495            */
+    496           }
    \                     TIM4_UPD_OVF_IRQHandler:
    \                     _interrupt_25:
    \   000000 80                    IRET
-    495          #endif /*STM8S903*/
-    496          
-    497          /**
-    498            * @brief Eeprom EEC Interrupt routine.
-    499            * @param  None
-    500            * @retval None
-    501            */
+    497          #endif /*STM8S903*/
+    498          
+    499          /**
+    500            * @brief Eeprom EEC Interrupt routine.
+    501            * @param  None
+    502            * @retval None
+    503            */
 
    \                                 In section .far_func.text, align 1
-    502          INTERRUPT_HANDLER(EEPROM_EEC_IRQHandler, 24)
-    503          {
-    504            /* In order to detect unexpected events during development,
-    505               it is recommended to set a breakpoint on the following instruction.
-    506            */
-    507          }
+    504          INTERRUPT_HANDLER(EEPROM_EEC_IRQHandler, 24)
+    505          {
+    506            /* In order to detect unexpected events during development,
+    507               it is recommended to set a breakpoint on the following instruction.
+    508            */
+    509          }
    \                     EEPROM_EEC_IRQHandler:
    \                     _interrupt_26:
    \   000000 80                    IRET
-    508          
-    509          /**
-    510            * @}
-    511            */
-    512          
-    513          /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+    510          
+    511          /**
+    512            * @}
+    513            */
+    514          
+    515          /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
 
    Section sizes:
 
@@ -762,16 +724,16 @@ Warning[Pa082]: undefined behavior: the order of volatile accesses is
      I2C_IRQHandler                    1
      UART2_TX_IRQHandler               1
      UART2_RX_IRQHandler              37
-     ADC1_IRQHandler                  87
+     ADC1_IRQHandler                   1
      TIM4_UPD_OVF_IRQHandler           1
      EEPROM_EEC_IRQHandler             1
 
  
- 202 bytes in section .far_func.text
+ 116 bytes in section .far_func.text
    1 byte  in section .near.bss
  
- 202 bytes of CODE memory
+ 116 bytes of CODE memory
    1 byte  of DATA memory
 
 Errors: none
-Warnings: 1
+Warnings: none

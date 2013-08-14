@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                            /
-// IAR C/C++ Compiler V1.30.1.50036 for STM8            14/Aug/2013  17:29:21 /
+// IAR C/C++ Compiler V1.30.1.50036 for STM8            14/Aug/2013  23:44:57 /
 // Copyright 2010-2011 IAR Systems AB.                                        /
 //                                                                            /
 //    Source file  =  C:\Users\Administrator\Desktop\stm8s105k-controller\Pro /
@@ -37,19 +37,13 @@
         RTMODEL "__rt_version", "4"
         RTMODEL "__size_limit", "4294966272"
 
-        EXTERN ?b0
         EXTERN ?pop_l0
         EXTERN ?pop_l1
         EXTERN ?push_l0
         EXTERN ?push_l1
-        EXTERN ADC1_ClearFlag
-        EXTERN ADC1_ClearITPendingBit
-        EXTERN ADC1_GetConversionValue
         EXTERN TIM2_ClearITPendingBit
         EXTERN UART2_ClearITPendingBit
         EXTERN UART2_ReceiveData8
-        EXTERN adcdata
-        EXTERN measure
         EXTERN rx_data
         EXTERN timeout
         EXTERN timer1
@@ -189,7 +183,7 @@
 //   41 extern  volatile u8 index=0;
 index:
         DS8 1
-//   42 extern   u16  measure[data_size];
+//   42 //extern   u16  measure[data_size];
 //   43 
 //   44 /* Private function prototypes -----------------------------------------------*/
 //   45 /* Private functions ---------------------------------------------------------*/
@@ -861,140 +855,81 @@ _interrupt_23:
         CODE
 //  451  INTERRUPT_HANDLER(ADC1_IRQHandler, 22)
 //  452  {
-ADC1_IRQHandler:
-_interrupt_24:
-        PUSH      CC
-        CFI CFA SP+10
-        POP       A
-        CFI CFA SP+9
-        AND       A, #0xbf
-        PUSH      A
-        CFI CFA SP+10
-        POP       CC
-        CFI CFA SP+9
-        CALLF     L:?push_l0
-        CFI ?b3 Frame(CFA, -9)
-        CFI ?b2 Frame(CFA, -10)
-        CFI ?b1 Frame(CFA, -11)
-        CFI ?b0 Frame(CFA, -12)
-        CFI CFA SP+13
-        CALLF     L:?push_l1
-        CFI ?b7 Frame(CFA, -13)
-        CFI ?b6 Frame(CFA, -14)
-        CFI ?b5 Frame(CFA, -15)
-        CFI ?b4 Frame(CFA, -16)
-        CFI CFA SP+17
 //  453     /* In order to detect unexpected events during development,
 //  454        it is recommended to set a breakpoint on the following instruction.
 //  455     */
 //  456    //ADC1_Cmd (DISABLE);
-//  457    ADC1_ClearFlag(ADC1_FLAG_EOC);
-        LD        A, #0x80
-        CALLF     ADC1_ClearFlag
-//  458    adcdata = ADC1_GetConversionValue();
-        CALLF     ADC1_GetConversionValue
-        LDW       L:adcdata, X
-//  459    measure[index++]=adcdata;
-        LD        A, L:index
-        LD        S:?b0, A
-        INC       A
-        LD        L:index, A
-        CLRW      X
-        EXG       A, XL
-        LD        A, S:?b0
-        EXG       A, XL
-        SLLW      X
-        LDW       Y, L:adcdata
-        LDW       (L:measure,X), Y
-//  460       if (index==data_size)
-        LD        A, L:index
-        CP        A, #0xa
-        JRNE      L:??ADC1_IRQHandler_0
-//  461       {
-//  462         measure[index]=0;
-        LD        A, L:index
-        CLRW      X
-        LD        XL, A
-        SLLW      X
-        CLRW      Y
-        LDW       (L:measure,X), Y
-//  463         index=0;
-        CLR       L:index
-//  464       }
-//  465    ADC1_ClearITPendingBit(ADC1_IT_EOC);
-??ADC1_IRQHandler_0:
-        LDW       X, #0x80
-        CALLF     ADC1_ClearITPendingBit
-//  466     //ADC1_Cmd (ENABLE);
-//  467     //ADC1_Cmd (ENABLE);  //Second Start conversion
-//  468  }
-        CALLF     L:?pop_l1
-        CFI ?b4 SameValue
-        CFI ?b5 SameValue
-        CFI ?b6 SameValue
-        CFI ?b7 SameValue
-        CFI CFA SP+13
-        CALLF     L:?pop_l0
-        CFI ?b0 SameValue
-        CFI ?b1 SameValue
-        CFI ?b2 SameValue
-        CFI ?b3 SameValue
-        CFI CFA SP+9
+//  457     /*
+//  458    ADC1_ClearFlag(ADC1_FLAG_EOC);
+//  459    adcdata = ADC1_GetConversionValue();
+//  460    measure[index++]=adcdata;
+//  461       if (index==data_size)
+//  462       {
+//  463         measure[index]=0;
+//  464         index=0;
+//  465       }
+//  466    ADC1_ClearITPendingBit(ADC1_IT_EOC);
+//  467      */
+//  468     //ADC1_Cmd (ENABLE);
+//  469     //ADC1_Cmd (ENABLE);  //Second Start conversion
+//  470  }
+ADC1_IRQHandler:
+_interrupt_24:
         IRET
         CFI EndBlock cfiBlock19
-//  469 #endif /*STM8S208 or STM8S207 or STM8AF52Ax or STM8AF62Ax */
-//  470 
-//  471 #ifdef STM8S903
-//  472 /**
-//  473   * @brief Timer6 Update/Overflow/Trigger Interrupt routine.
-//  474   * @param  None
-//  475   * @retval None
-//  476   */
-//  477 INTERRUPT_HANDLER(TIM6_UPD_OVF_TRG_IRQHandler, 23)
-//  478  {
-//  479   /* In order to detect unexpected events during development,
-//  480      it is recommended to set a breakpoint on the following instruction.
-//  481   */
-//  482  }
-//  483 #else /*STM8S208, STM8S207, STM8S105 or STM8S103 or STM8AF52Ax or STM8AF62Ax or STM8AF626x */
-//  484 /**
-//  485   * @brief Timer4 Update/Overflow Interrupt routine.
-//  486   * @param  None
-//  487   * @retval None
-//  488   */
+//  471 #endif /*STM8S208 or STM8S207 or STM8AF52Ax or STM8AF62Ax */
+//  472 
+//  473 #ifdef STM8S903
+//  474 /**
+//  475   * @brief Timer6 Update/Overflow/Trigger Interrupt routine.
+//  476   * @param  None
+//  477   * @retval None
+//  478   */
+//  479 INTERRUPT_HANDLER(TIM6_UPD_OVF_TRG_IRQHandler, 23)
+//  480  {
+//  481   /* In order to detect unexpected events during development,
+//  482      it is recommended to set a breakpoint on the following instruction.
+//  483   */
+//  484  }
+//  485 #else /*STM8S208, STM8S207, STM8S105 or STM8S103 or STM8AF52Ax or STM8AF62Ax or STM8AF626x */
+//  486 /**
+//  487   * @brief Timer4 Update/Overflow Interrupt routine.
+//  488   * @param  None
+//  489   * @retval None
+//  490   */
 
         SECTION `.far_func.text`:CODE:REORDER:NOROOT(0)
         CFI Block cfiBlock20 Using cfiCommon0
         CFI Function TIM4_UPD_OVF_IRQHandler
         CODE
-//  489  INTERRUPT_HANDLER(TIM4_UPD_OVF_IRQHandler, 23)
-//  490  {
-//  491   /* In order to detect unexpected events during development,
-//  492      it is recommended to set a breakpoint on the following instruction.
-//  493   */
-//  494  }
+//  491  INTERRUPT_HANDLER(TIM4_UPD_OVF_IRQHandler, 23)
+//  492  {
+//  493   /* In order to detect unexpected events during development,
+//  494      it is recommended to set a breakpoint on the following instruction.
+//  495   */
+//  496  }
 TIM4_UPD_OVF_IRQHandler:
 _interrupt_25:
         IRET
         CFI EndBlock cfiBlock20
-//  495 #endif /*STM8S903*/
-//  496 
-//  497 /**
-//  498   * @brief Eeprom EEC Interrupt routine.
-//  499   * @param  None
-//  500   * @retval None
-//  501   */
+//  497 #endif /*STM8S903*/
+//  498 
+//  499 /**
+//  500   * @brief Eeprom EEC Interrupt routine.
+//  501   * @param  None
+//  502   * @retval None
+//  503   */
 
         SECTION `.far_func.text`:CODE:REORDER:NOROOT(0)
         CFI Block cfiBlock21 Using cfiCommon0
         CFI Function EEPROM_EEC_IRQHandler
         CODE
-//  502 INTERRUPT_HANDLER(EEPROM_EEC_IRQHandler, 24)
-//  503 {
-//  504   /* In order to detect unexpected events during development,
-//  505      it is recommended to set a breakpoint on the following instruction.
-//  506   */
-//  507 }
+//  504 INTERRUPT_HANDLER(EEPROM_EEC_IRQHandler, 24)
+//  505 {
+//  506   /* In order to detect unexpected events during development,
+//  507      it is recommended to set a breakpoint on the following instruction.
+//  508   */
+//  509 }
 EEPROM_EEC_IRQHandler:
 _interrupt_26:
         IRET
@@ -1003,18 +938,18 @@ _interrupt_26:
         SECTION VREGS:DATA:REORDER:NOROOT(0)
 
         END
-//  508 
-//  509 /**
-//  510   * @}
-//  511   */
-//  512 
-//  513 /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+//  510 
+//  511 /**
+//  512   * @}
+//  513   */
+//  514 
+//  515 /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
 // 
-// 202 bytes in section .far_func.text
+// 116 bytes in section .far_func.text
 //   1 byte  in section .near.bss
 // 
-// 202 bytes of CODE memory
+// 116 bytes of CODE memory
 //   1 byte  of DATA memory
 //
 //Errors: none
-//Warnings: 1
+//Warnings: none
