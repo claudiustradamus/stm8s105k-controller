@@ -56,7 +56,7 @@
   //DS18B20  Temp Sensor
 #define ds18_data GPIO_PIN_2 //2
 #define DS18(x)   x ? GPIO_WriteHigh(GPIOD,ds18_data):GPIO_WriteLow(GPIOD,ds18_data);
-  //Power 
+  //Power
 #define power_pin GPIO_PIN_3
 
 
@@ -126,7 +126,9 @@ u8 l=0;
 u16 status_check;
 u8 test1;
 u8 test2;
-char line1[];
+char line1[]={'\0'};
+char string1[10];
+
 //u8 index=0;
 float  result;
 int volatile k=0;
@@ -138,7 +140,7 @@ int volatile k=0;
    unsigned timer_on:1;
    unsigned daily:1;
  }  volatile   status  ;
-   
+
 
 
 
@@ -196,6 +198,7 @@ void Power_Off();
 void Save_Status();
 void Rotate_Line( char * line);
 void Display_Line(char * line);
+void Clear_Line1(void);
 
 u16  Average();
 
@@ -210,6 +213,7 @@ void main(void)
     InitClk();
     InitDelayTimer();
     GpioConfiguration();
+    GPIO_WriteLow(GPIOD, power_pin );
     //InitUart();
     enableInterrupts();
     GPIO_WriteLow(GPIOD,GPIO_PIN_7); //R/W Line Read Mode
@@ -273,9 +277,9 @@ void main(void)
 
      // Working fuction
     //Set_DS1307(13,7,13,34,0);//u8 year ,u8 mounts,u8 hours,u8 minutes,u8 seconds)
-     
-     
-     
+
+
+
     // strcpy(line1,"Hello I am here! ");
     //  while(1)
     //  {
@@ -283,19 +287,19 @@ void main(void)
     //     Delay2(20000);
     //  }
     //  while (!key_ok_on());
-
+       //sprintf(line1,"TIMER ON ");
     while(1)
     {
       ADC1_Cmd (ENABLE);
 
        GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
-         Delay2(23437);
-        // ttimer++;
+         Delay2(10000);
+         ttimer++;
        GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
-         Delay2(23437);
-         
+         Delay2(10000);
+
            //status_check = *(u16*)(&status);
-           
+
       line_lcd=0;
      if (!ReadDS1307())
      {
@@ -308,7 +312,7 @@ void main(void)
      }
        else
          //printf("\n      ");
-    
+
      //line_lcd=2;
      //printf("\n Just Test:%X", timer2);
          //if (rx_data==SpecialSymbol) SendData();
@@ -321,6 +325,7 @@ void main(void)
         status.daily=1; //On Daily timer
         Save_Status();
         Delay2(50000);
+        Clear_Line1();
         //Delay2(10000);
         //Delay2(10000);
       }
@@ -348,7 +353,7 @@ void main(void)
           } while(!(time==time_off));
          };
 
-         
+
             //Read Temperature
         // if( ttimer > 5 )
          //{
@@ -356,7 +361,7 @@ void main(void)
             result2=0;
             if(result1%2!=0) result2=5;
             result1/=2;
-            char result3;
+           // char result3;
            // ttimer=0;
        //  }
 
@@ -364,9 +369,14 @@ void main(void)
 
            //Display
            // line_lcd=0;
-            if (status.daily==1)  result3 ='d';
-             else result3=' ';
-            sprintf(line1,"%d.%d %c",result1,result2,result3);
+           if (status.daily==1)  sprintf(string1,"TIMER ON");
+            else sprintf(string1,"TIMER OFF");
+
+             if ( ttimer==10)
+             {
+            sprintf(line1,"%d.%d°C %s ",result1,result2,string1);
+            ttimer=0;
+             }
             Display_Line(line1);
           line_lcd=1;
           printf("\n%02d:%02d:%02d",hours,minutes,seconds);
@@ -374,7 +384,7 @@ void main(void)
 
            if(status.on) GPIO_WriteHigh(GPIOD, power_pin );
              else   GPIO_WriteLow(GPIOD, power_pin );
-         
+
 
 
     }
@@ -385,15 +395,15 @@ void main(void)
 
 void Power_On()
 {
-  status.on=1; 
-  status.daily=0; //Off Daily timer 
+  status.on=1;
+  status.daily=0; //Off Daily timer
   Save_Status();
 }
 
 void Power_Off()
-{ 
+{
   status.on=0;
-  status.daily=0; //Off Daily timer 
+  status.daily=0; //Off Daily timer
   Save_Status();
 }
 
@@ -513,7 +523,7 @@ bool  ReadDS1307(void)
        I2C_AcknowledgeConfig(I2C_ACK_NONE);
          I2C_GenerateSTOP(ENABLE);
           years= bcd2hex(I2C_RD());
-      
+
      //  I2C_AcknowledgeConfig(I2C_ACK_CURR);
      //   u8 data1 = I2C_RD();
       //Last read byte by I2C slave
@@ -525,7 +535,7 @@ bool  ReadDS1307(void)
             seconds &= 0x7f;
             Set_DS1307();
           }
-          
+
        return TRUE;
 }
 
@@ -915,8 +925,8 @@ void GpioConfiguration()
 
   //Init DS18b20 data pin
   GPIO_Init(GPIOD,ds18_data,GPIO_MODE_OUT_OD_HIZ_FAST);
-  
-  // Power Pin 
+
+  // Power Pin
    GPIO_Init(GPIOD,power_pin,GPIO_MODE_OUT_PP_HIGH_FAST);
 
 }
@@ -1326,7 +1336,7 @@ u8 temperature ()
      u8 temp2=DS18_Read();
     DS18_Reset();
       u16 result = temp2*256+temp1;
-      temp1= (u8)(result>>3); 
+      temp1= (u8)(result>>3);
      return temp1;
 }
 
@@ -1365,10 +1375,10 @@ bool Read_DS18()
       line_lcd=0;
       result2=0;
       u16 result = temp2*256+temp1;
-      result1= (u8)(result>>3); 
+      result1= (u8)(result>>3);
       if(result1%2!=0) result2=5;
       result1 /=2;
-      
+
 
       printf("\n%d.%d",result1,result2);
      // printf("\n%02x%02x%02x",temp1,temp2,temp5);
@@ -1497,42 +1507,58 @@ void Display_Line(char* line)
     //Set Cursor to First Line
    LCDInstr(0x80 | 0x00);
    count=0;
-   Delay1(1);           
+   Delay1(1);
   do
   {
-    
+
     if (current_char > 0x1b)   //Display only valid data
      {
        LCDData(current_char);
         Delay1(1);
        count++;
-     } 
+     }
      current_char=*line++;
   }  while ((current_char != 0x00) && (count<7));
-  
+
    Rotate_Line(line1);
-  
+
 }
 
 void Rotate_Line( char * line)
 {
-   
+
    char temp_first = *line;
    char temp_next;
-  
-   do 
+
+   do
    {
       temp_next=*(line+1);
      *line++=temp_next;
       //line++;
       //temp_next=*line;
-     //*line=*line++;    
+     //*line=*line++;
    } while (*line !=0);
    line--;
    *line=temp_first;
-   
+
 }
 
+void Clear_Line1 ()
+{
+     //Set Cursor to First Line
+   LCDInstr(0x80 | 0x00);
+   count=0;
+   Delay1(1);
+    u8 count=0;
+   do
+   {
+     LCDData(' ');
+        Delay1(1);
+        count++;
+   }while (count<8);
+
+
+}
 
 
 

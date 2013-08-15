@@ -1599,11 +1599,11 @@
         <option>
           <name>GenLibOutFormatter</name>
           <version>0</version>
-          <state>2</state>
+          <state>1</state>
         </option>
         <option>
           <name>GenLibOutFormatterDescription</name>
-          <state>No specifier a or A, no specifier n, no float.</state>
+          <state>No specifier a or A.</state>
         </option>
         <option>
           <name>GenStackSize</name>
