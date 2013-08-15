@@ -122,12 +122,14 @@ u16 time_off;
 u8 ttimer;
 u8 result1;
 u8 result2;
+u8 result_old;
 u8 l=0;
 u16 status_check;
 u8 test1;
 u8 test2;
-char line1[]={'\0'};
+char line1[40];
 char string1[10];
+bool change;
 
 //u8 index=0;
 float  result;
@@ -293,10 +295,10 @@ void main(void)
       ADC1_Cmd (ENABLE);
 
        GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
-         Delay2(10000);
-         ttimer++;
+         Delay2(5000);
+         //ttimer++;
        GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
-         Delay2(10000);
+         Delay2(5000);
 
            //status_check = *(u16*)(&status);
 
@@ -326,6 +328,7 @@ void main(void)
         Save_Status();
         Delay2(50000);
         Clear_Line1();
+        change=TRUE;
         //Delay2(10000);
         //Delay2(10000);
       }
@@ -357,10 +360,17 @@ void main(void)
             //Read Temperature
         // if( ttimer > 5 )
          //{
+
+
             result1=temperature();
+            if (result_old != result1) change=TRUE;
+             //else  change=FALSE;
+            result_old=result1;
             result2=0;
             if(result1%2!=0) result2=5;
             result1/=2;
+
+
            // char result3;
            // ttimer=0;
        //  }
@@ -372,10 +382,12 @@ void main(void)
            if (status.daily==1)  sprintf(string1,"TIMER ON");
             else sprintf(string1,"TIMER OFF");
 
-             if ( ttimer==10)
+
+
+             if (change)
              {
-            sprintf(line1,"%d.%d°C %s ",result1,result2,string1);
-            ttimer=0;
+            sprintf(line1,"%d.%dC %s ",result1,result2,string1);
+               change=FALSE;
              }
             Display_Line(line1);
           line_lcd=1;
@@ -398,6 +410,7 @@ void Power_On()
   status.on=1;
   status.daily=0; //Off Daily timer
   Save_Status();
+  change=TRUE;
 }
 
 void Power_Off()
@@ -405,6 +418,7 @@ void Power_Off()
   status.on=0;
   status.daily=0; //Off Daily timer
   Save_Status();
+  change=TRUE;
 }
 
 void InitI2C(void)
