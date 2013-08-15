@@ -1,37 +1,41 @@
 ###############################################################################
 #                                                                             #
-# IAR C/C++ Compiler V1.30.1.50036 for STM8             14/Aug/2013  17:29:23 #
+# IAR C/C++ Compiler V1.30.1.50036 for STM8             15/Aug/2013  16:42:09 #
 # Copyright 2010-2011 IAR Systems AB.                                         #
 #                                                                             #
-#    Source file  =  C:\Users\Administrator\Desktop\stm8s105k-controller\Libr #
-#                    aries\STM8S_StdPeriph_Driver\src\stm8s_tim2.c            #
-#    Command line =  C:\Users\Administrator\Desktop\stm8s105k-controller\Libr #
-#                    aries\STM8S_StdPeriph_Driver\src\stm8s_tim2.c -e -Ohz    #
-#                    --debug --code_model medium --data_model medium -o       #
-#                    C:\Users\Administrator\Desktop\stm8s105k-controller\Proj #
-#                    ect\STM8S_StdPeriph_Template\EWSTM8\STM8S105\Obj\        #
-#                    --dlib_config "C:\Program Files (x86)\IAR                #
-#                    Systems\Embedded Workbench 6.0\stm8\LIB\dlstm8mmf.h" -D  #
-#                    STM8S105 -lC C:\Users\Administrator\Desktop\stm8s105k-co #
-#                    ntroller\Project\STM8S_StdPeriph_Template\EWSTM8\STM8S10 #
-#                    5\List\ -lA C:\Users\Administrator\Desktop\stm8s105k-con #
-#                    troller\Project\STM8S_StdPeriph_Template\EWSTM8\STM8S105 #
-#                    \List\ -I C:\Users\Administrator\Desktop\stm8s105k-contr #
-#                    oller\Project\STM8S_StdPeriph_Template\EWSTM8\..\ -I     #
-#                    C:\Users\Administrator\Desktop\stm8s105k-controller\Proj #
-#                    ect\STM8S_StdPeriph_Template\EWSTM8\..\..\..\Libraries\S #
-#                    TM8S_StdPeriph_Driver\inc\ --vregs 16                    #
-#    List file    =  C:\Users\Administrator\Desktop\stm8s105k-controller\Proj #
-#                    ect\STM8S_StdPeriph_Template\EWSTM8\STM8S105\List\stm8s_ #
-#                    tim2.lst                                                 #
-#    Object file  =  C:\Users\Administrator\Desktop\stm8s105k-controller\Proj #
-#                    ect\STM8S_StdPeriph_Template\EWSTM8\STM8S105\Obj\stm8s_t #
-#                    im2.o                                                    #
+#    Source file  =  C:\Documents and Settings\Administrator\Desktop\stm8s105 #
+#                    k-controller\Libraries\STM8S_StdPeriph_Driver\src\stm8s_ #
+#                    tim2.c                                                   #
+#    Command line =  "C:\Documents and Settings\Administrator\Desktop\stm8s10 #
+#                    5k-controller\Libraries\STM8S_StdPeriph_Driver\src\stm8s #
+#                    _tim2.c" -e -Ohz --debug --code_model medium             #
+#                    --data_model medium -o "C:\Documents and                 #
+#                    Settings\Administrator\Desktop\stm8s105k-controller\Proj #
+#                    ect\STM8S_StdPeriph_Template\EWSTM8\STM8S105\Obj\"       #
+#                    --dlib_config "C:\Program Files\IAR Systems\Embedded     #
+#                    Workbench 6.0\stm8\LIB\dlstm8mmf.h" -D STM8S105 -lC      #
+#                    "C:\Documents and Settings\Administrator\Desktop\stm8s10 #
+#                    5k-controller\Project\STM8S_StdPeriph_Template\EWSTM8\ST #
+#                    M8S105\List\" -lA "C:\Documents and                      #
+#                    Settings\Administrator\Desktop\stm8s105k-controller\Proj #
+#                    ect\STM8S_StdPeriph_Template\EWSTM8\STM8S105\List\" -I   #
+#                    "C:\Documents and Settings\Administrator\Desktop\stm8s10 #
+#                    5k-controller\Project\STM8S_StdPeriph_Template\EWSTM8\.. #
+#                    \" -I "C:\Documents and Settings\Administrator\Desktop\s #
+#                    tm8s105k-controller\Project\STM8S_StdPeriph_Template\EWS #
+#                    TM8\..\..\..\Libraries\STM8S_StdPeriph_Driver\inc\"      #
+#                    --vregs 16                                               #
+#    List file    =  C:\Documents and Settings\Administrator\Desktop\stm8s105 #
+#                    k-controller\Project\STM8S_StdPeriph_Template\EWSTM8\STM #
+#                    8S105\List\stm8s_tim2.lst                                #
+#    Object file  =  C:\Documents and Settings\Administrator\Desktop\stm8s105 #
+#                    k-controller\Project\STM8S_StdPeriph_Template\EWSTM8\STM #
+#                    8S105\Obj\stm8s_tim2.o                                   #
 #                                                                             #
 #                                                                             #
 ###############################################################################
 
-C:\Users\Administrator\Desktop\stm8s105k-controller\Libraries\STM8S_StdPeriph_Driver\src\stm8s_tim2.c
+C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Libraries\STM8S_StdPeriph_Driver\src\stm8s_tim2.c
       1          /**
       2            ******************************************************************************
       3            * @file    stm8s_tim2.c
@@ -185,7 +189,7 @@ C:\Users\Administrator\Desktop\stm8s105k-controller\Libraries\STM8S_StdPeriph_Dr
    \   000000 BF00                  LDW       S:?w1, X
    \   000002 5F                    CLRW      X
    \   000003 BF00                  LDW       S:?w0, X
-   \   000005 AE0000                LDW       X, #`?<Constant "C:\\\\Users\\\\Administrato...">`
+   \   000005 AE0000                LDW       X, #`?<Constant "C:\\\\Documents and Sett...">`
    \   000008 AC000000              JPF       assert_failed
 
    \                                 In section .far_func.text, align 1
@@ -2601,20 +2605,22 @@ C:\Users\Administrator\Desktop\stm8s105k-controller\Libraries\STM8S_StdPeriph_Dr
    \   000022 87                    RETF
 
    \                                 In section .near.rodata, align 1
-   \                     `?<Constant "C:\\\\Users\\\\Administrato...">`:
-   \   000000 433A5C557365          DC8 43H, 3AH, 5CH, 55H, 73H, 65H, 72H, 73H
-   \   000008 5C41646D696E          DC8 5CH, 41H, 64H, 6DH, 69H, 6EH, 69H, 73H
-   \   000010 747261746F72          DC8 74H, 72H, 61H, 74H, 6FH, 72H, 5CH, 44H
-   \   000018 65736B746F70          DC8 65H, 73H, 6BH, 74H, 6FH, 70H, 5CH, 73H
-   \   000020 746D38733130          DC8 74H, 6DH, 38H, 73H, 31H, 30H, 35H, 6BH
-   \   000028 2D636F6E7472          DC8 2DH, 63H, 6FH, 6EH, 74H, 72H, 6FH, 6CH
-   \   000030 6C65725C4C69          DC8 6CH, 65H, 72H, 5CH, 4CH, 69H, 62H, 72H
-   \   000038 61726965735C          DC8 61H, 72H, 69H, 65H, 73H, 5CH, 53H, 54H
-   \   000040 4D38535F5374          DC8 4DH, 38H, 53H, 5FH, 53H, 74H, 64H, 50H
-   \   000048 65726970685F          DC8 65H, 72H, 69H, 70H, 68H, 5FH, 44H, 72H
-   \   000050 697665725C73          DC8 69H, 76H, 65H, 72H, 5CH, 73H, 72H, 63H
-   \   000058 5C73746D3873          DC8 5CH, 73H, 74H, 6DH, 38H, 73H, 5FH, 74H
-   \   000060 696D322E6300          DC8 69H, 6DH, 32H, 2EH, 63H, 0
+   \                     `?<Constant "C:\\\\Documents and Sett...">`:
+   \   000000 433A5C446F63          DC8 43H, 3AH, 5CH, 44H, 6FH, 63H, 75H, 6DH
+   \   000008 656E74732061          DC8 65H, 6EH, 74H, 73H, 20H, 61H, 6EH, 64H
+   \   000010 205365747469          DC8 20H, 53H, 65H, 74H, 74H, 69H, 6EH, 67H
+   \   000018 735C41646D69          DC8 73H, 5CH, 41H, 64H, 6DH, 69H, 6EH, 69H
+   \   000020 73747261746F          DC8 73H, 74H, 72H, 61H, 74H, 6FH, 72H, 5CH
+   \   000028 4465736B746F          DC8 44H, 65H, 73H, 6BH, 74H, 6FH, 70H, 5CH
+   \   000030 73746D387331          DC8 73H, 74H, 6DH, 38H, 73H, 31H, 30H, 35H
+   \   000038 6B2D636F6E74          DC8 6BH, 2DH, 63H, 6FH, 6EH, 74H, 72H, 6FH
+   \   000040 6C6C65725C4C          DC8 6CH, 6CH, 65H, 72H, 5CH, 4CH, 69H, 62H
+   \   000048 726172696573          DC8 72H, 61H, 72H, 69H, 65H, 73H, 5CH, 53H
+   \   000050 544D38535F53          DC8 54H, 4DH, 38H, 53H, 5FH, 53H, 74H, 64H
+   \   000058 506572697068          DC8 50H, 65H, 72H, 69H, 70H, 68H, 5FH, 44H
+   \   000060 72697665725C          DC8 72H, 69H, 76H, 65H, 72H, 5CH, 73H, 72H
+   \   000068 635C73746D38          DC8 63H, 5CH, 73H, 74H, 6DH, 38H, 73H, 5FH
+   \   000070 74696D322E63          DC8 74H, 69H, 6DH, 32H, 2EH, 63H, 0
    1319          /**
    1320            * @}
    1321            */
@@ -2626,76 +2632,76 @@ C:\Users\Administrator\Desktop\stm8s105k-controller\Libraries\STM8S_StdPeriph_Dr
 
    Section sizes:
 
-     Function/Label                           Bytes
-     --------------                           -----
-     TIM2_DeInit                                89
-     TIM2_TimeBaseInit                          10
-     ?Subroutine9                               12
-     ?Subroutine5                               12
-     ?Subroutine6                               13
-     TIM2_OC1Init                              128
-     ?Subroutine10                              11
-     ?Subroutine4                               11
-     TIM2_OC2Init                              134
-     ?Subroutine3                               11
-     TIM2_OC3Init                              128
-     ?Subroutine2                               11
-     TIM2_ICInit                               157
-     ?Subroutine11                              15
-     ?Subroutine8                                7
-     ?Subroutine12                              10
-     ?Subroutine7                                7
-     ?Subroutine13                              10
-     TIM2_PWMIConfig                           172
-     TIM2_Cmd                                   24
-     TIM2_ITConfig                              60
-     TIM2_UpdateDisableConfig                   24
-     TIM2_UpdateRequestConfig                   24
-     TIM2_SelectOnePulseMode                    24
-     TIM2_PrescalerConfig                      113
-     TIM2_ForcedOC1Config                       28
-     TIM2_ForcedOC2Config                       28
-     TIM2_ForcedOC3Config                       28
-     TIM2_ARRPreloadConfig                      24
-     TIM2_OC1PreloadConfig                      24
-     TIM2_OC2PreloadConfig                      24
-     TIM2_OC3PreloadConfig                      24
-     TIM2_GenerateEvent                         23
-     TIM2_OC1PolarityConfig                     24
-     TIM2_OC2PolarityConfig                     24
-     TIM2_OC3PolarityConfig                     24
-     TIM2_CCxCmd                               113
-     TIM2_SelectOCxM                           131
-     TIM2_SetCounter                            14
-     TIM2_SetAutoreload                          7
-     TIM2_SetCompare1                           14
-     TIM2_SetCompare2                           14
-     TIM2_SetCompare3                           14
-     TIM2_SetIC1Prescaler                       40
-     TIM2_SetIC2Prescaler                       40
-     TIM2_SetIC3Prescaler                       40
-     ?Subroutine0                               22
-     TIM2_GetCapture1                           13
-     TIM2_GetCapture2                           13
-     TIM2_GetCapture3                           13
-     TIM2_GetCounter                            22
-     TIM2_GetPrescaler                           4
-     TIM2_GetFlagStatus                         84
-     TIM2_ClearFlag                             41
-     TIM2_GetITStatus                           59
-     TIM2_ClearITPendingBit                     29
-     ?Subroutine1                               14
-     TI1_Config                                 35
-     TI2_Config                                 35
-     TI3_Config                                 35
-     ?<Constant "C:\\Users\\Administrato...">  102
+     Function/Label                          Bytes
+     --------------                          -----
+     TIM2_DeInit                               89
+     TIM2_TimeBaseInit                         10
+     ?Subroutine9                              12
+     ?Subroutine5                              12
+     ?Subroutine6                              13
+     TIM2_OC1Init                             128
+     ?Subroutine10                             11
+     ?Subroutine4                              11
+     TIM2_OC2Init                             134
+     ?Subroutine3                              11
+     TIM2_OC3Init                             128
+     ?Subroutine2                              11
+     TIM2_ICInit                              157
+     ?Subroutine11                             15
+     ?Subroutine8                               7
+     ?Subroutine12                             10
+     ?Subroutine7                               7
+     ?Subroutine13                             10
+     TIM2_PWMIConfig                          172
+     TIM2_Cmd                                  24
+     TIM2_ITConfig                             60
+     TIM2_UpdateDisableConfig                  24
+     TIM2_UpdateRequestConfig                  24
+     TIM2_SelectOnePulseMode                   24
+     TIM2_PrescalerConfig                     113
+     TIM2_ForcedOC1Config                      28
+     TIM2_ForcedOC2Config                      28
+     TIM2_ForcedOC3Config                      28
+     TIM2_ARRPreloadConfig                     24
+     TIM2_OC1PreloadConfig                     24
+     TIM2_OC2PreloadConfig                     24
+     TIM2_OC3PreloadConfig                     24
+     TIM2_GenerateEvent                        23
+     TIM2_OC1PolarityConfig                    24
+     TIM2_OC2PolarityConfig                    24
+     TIM2_OC3PolarityConfig                    24
+     TIM2_CCxCmd                              113
+     TIM2_SelectOCxM                          131
+     TIM2_SetCounter                           14
+     TIM2_SetAutoreload                         7
+     TIM2_SetCompare1                          14
+     TIM2_SetCompare2                          14
+     TIM2_SetCompare3                          14
+     TIM2_SetIC1Prescaler                      40
+     TIM2_SetIC2Prescaler                      40
+     TIM2_SetIC3Prescaler                      40
+     ?Subroutine0                              22
+     TIM2_GetCapture1                          13
+     TIM2_GetCapture2                          13
+     TIM2_GetCapture3                          13
+     TIM2_GetCounter                           22
+     TIM2_GetPrescaler                          4
+     TIM2_GetFlagStatus                        84
+     TIM2_ClearFlag                            41
+     TIM2_GetITStatus                          59
+     TIM2_ClearITPendingBit                    29
+     ?Subroutine1                              14
+     TI1_Config                                35
+     TI2_Config                                35
+     TI3_Config                                35
+     ?<Constant "C:\\Documents and Sett...">  119
 
  
  2 338 bytes in section .far_func.text
-   102 bytes in section .near.rodata
+   119 bytes in section .near.rodata
  
  2 338 bytes of CODE  memory
-   102 bytes of CONST memory
+   119 bytes of CONST memory
 
 Errors: none
 Warnings: none
