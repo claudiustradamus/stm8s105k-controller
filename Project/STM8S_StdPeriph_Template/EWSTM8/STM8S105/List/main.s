@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                            /
-// IAR C/C++ Compiler V1.30.1.50036 for STM8            15/Aug/2013  17:17:06 /
+// IAR C/C++ Compiler V1.30.1.50036 for STM8            15/Aug/2013  23:20:18 /
 // Copyright 2010-2011 IAR Systems AB.                                        /
 //                                                                            /
 //    Source file  =  C:\Documents and Settings\Administrator\Desktop\stm8s10 /
@@ -146,6 +146,7 @@
         PUBLIC adj
         PUBLIC assert_failed
         PUBLIC bcd2hex
+        PUBLIC change
         PUBLIC convert_tobcd
         PUBLIC count
         PUBLIC daily_hour_off
@@ -172,6 +173,7 @@
         PUBLIC result
         PUBLIC result1
         PUBLIC result2
+        PUBLIC result_old
         PUBLIC rx_data
         PUBLIC seconds
         PUBLIC status
@@ -501,56 +503,66 @@ result2:
         DS8 1
 
         SECTION `.near.bss`:DATA:REORDER:NOROOT(0)
-//  125 u8 l=0;
+//  125 u8 result_old;
+result_old:
+        DS8 1
+
+        SECTION `.near.bss`:DATA:REORDER:NOROOT(0)
+//  126 u8 l=0;
 l:
         DS8 1
 
         SECTION `.near.bss`:DATA:REORDER:NOROOT(0)
-//  126 u16 status_check;
+//  127 u16 status_check;
 status_check:
         DS8 2
 
         SECTION `.near.bss`:DATA:REORDER:NOROOT(0)
-//  127 u8 test1;
+//  128 u8 test1;
 test1:
         DS8 1
 
         SECTION `.near.bss`:DATA:REORDER:NOROOT(0)
-//  128 u8 test2;
+//  129 u8 test2;
 test2:
         DS8 1
 
         SECTION `.near.bss`:DATA:REORDER:NOROOT(0)
-//  129 char line1[]={'\0'};
+//  130 char line1[40];
 line1:
-        DS8 1
+        DS8 40
 
         SECTION `.near.bss`:DATA:REORDER:NOROOT(0)
-//  130 char string1[10];
+//  131 char string1[10];
 string1:
         DS8 10
-//  131 
-//  132 //u8 index=0;
 
         SECTION `.near.bss`:DATA:REORDER:NOROOT(0)
-//  133 float  result;
+//  132 bool change;
+change:
+        DS8 1
+//  133 
+//  134 //u8 index=0;
+
+        SECTION `.near.bss`:DATA:REORDER:NOROOT(0)
+//  135 float  result;
 result:
         DS8 4
 
         SECTION `.near.bss`:DATA:REORDER:NOROOT(0)
-//  134 int volatile k=0;
+//  136 int volatile k=0;
 k:
         DS8 2
-//  135 
-//  136 
-//  137  struct   status_reg
-//  138  {
-//  139    unsigned on:1;
-//  140    unsigned timer_on:1;
-//  141    unsigned daily:1;
+//  137 
+//  138 
+//  139  struct   status_reg
+//  140  {
+//  141    unsigned on:1;
+//  142    unsigned timer_on:1;
+//  143    unsigned daily:1;
 
         SECTION `.near.bss`:DATA:REORDER:NOROOT(0)
-//  142  }  volatile   status  ;
+//  144  }  volatile   status  ;
 status:
         DS8 2
 
@@ -583,920 +595,932 @@ PulseEnable:
         INCW      X
         JPF       Delay1
         CFI EndBlock cfiBlock1
-//  143 
-//  144 
 //  145 
 //  146 
 //  147 
 //  148 
 //  149 
-//  150 /* Private function prototypes -----------------------------------------------*/
-//  151 void InitHardware();
-//  152 void GpioConfiguration();
-//  153 void InitClk();
-//  154 void InitAdc();
-//  155 void InitI2C();
-//  156 void EEPROM_INIT();
-//  157 bool ReadDS1307();
-//  158 //void InitUart();
-//  159 void InitLcd();
-//  160 void InitDelayTimer();
-//  161 void Delay1( u16 Delay);
-//  162 void Delay2( u16 Delay);
-//  163 void Delay_us(u16 Delay);
-//  164 void LCDInstrNibble (u8 Instr);
-//  165 void LCDInstr(u8 Instr);
-//  166 void LCDDataOut(u8 data);
-//  167 void LCD_Busy();
-//  168 void PulseEnable();
-//  169 //void SendData();
-//  170 void SendChar(u8 Char);
-//  171 //void Send_Hello();
-//  172 bool Set_Clock();
-//  173 bool key_ok_on();
-//  174 bool key_plus_on();
-//  175 bool key_minus_on();
-//  176 bool key_ok_plus();
-//  177 bool Init_DS1307(void);
-//  178 bool Check_DS1307(void);
-//  179 bool I2C_Start(void);
-//  180 bool I2C_WA(u8 address);
-//  181 bool I2C_WD(u8 data);
-//  182 bool I2C_RA(u8 address);
-//  183 bool Set_DS1307();
-//  184 bool Set_Delay_Allarm();
-//  185 bool Read_Allarm();
-//  186 bool Read_DS18();
-//  187 bool DS18_Write( u8 data);
-//  188 bool DS18_Reset();
-//  189 bool DS18Set();
-//  190 u8 temperature();
-//  191 u8 DS18_Read();
-//  192 u8 convert_tobcd(u8 data);
-//  193 u8 I2C_RD(void);
-//  194 u8 adj(u8 min,u8 max,u8 now);
-//  195 u8 bcd2hex(u8 bcd);
-//  196 void Power_On(void);
-//  197 void Power_Off();
-//  198 void Save_Status();
-//  199 void Rotate_Line( char * line);
-//  200 void Display_Line(char * line);
-//  201 void Clear_Line1(void);
-//  202 
-//  203 u16  Average();
+//  150 
+//  151 
+//  152 /* Private function prototypes -----------------------------------------------*/
+//  153 void InitHardware();
+//  154 void GpioConfiguration();
+//  155 void InitClk();
+//  156 void InitAdc();
+//  157 void InitI2C();
+//  158 void EEPROM_INIT();
+//  159 bool ReadDS1307();
+//  160 //void InitUart();
+//  161 void InitLcd();
+//  162 void InitDelayTimer();
+//  163 void Delay1( u16 Delay);
+//  164 void Delay2( u16 Delay);
+//  165 void Delay_us(u16 Delay);
+//  166 void LCDInstrNibble (u8 Instr);
+//  167 void LCDInstr(u8 Instr);
+//  168 void LCDDataOut(u8 data);
+//  169 void LCD_Busy();
+//  170 void PulseEnable();
+//  171 //void SendData();
+//  172 void SendChar(u8 Char);
+//  173 //void Send_Hello();
+//  174 bool Set_Clock();
+//  175 bool key_ok_on();
+//  176 bool key_plus_on();
+//  177 bool key_minus_on();
+//  178 bool key_ok_plus();
+//  179 bool Init_DS1307(void);
+//  180 bool Check_DS1307(void);
+//  181 bool I2C_Start(void);
+//  182 bool I2C_WA(u8 address);
+//  183 bool I2C_WD(u8 data);
+//  184 bool I2C_RA(u8 address);
+//  185 bool Set_DS1307();
+//  186 bool Set_Delay_Allarm();
+//  187 bool Read_Allarm();
+//  188 bool Read_DS18();
+//  189 bool DS18_Write( u8 data);
+//  190 bool DS18_Reset();
+//  191 bool DS18Set();
+//  192 u8 temperature();
+//  193 u8 DS18_Read();
+//  194 u8 convert_tobcd(u8 data);
+//  195 u8 I2C_RD(void);
+//  196 u8 adj(u8 min,u8 max,u8 now);
+//  197 u8 bcd2hex(u8 bcd);
+//  198 void Power_On(void);
+//  199 void Power_Off();
+//  200 void Save_Status();
+//  201 void Rotate_Line( char * line);
+//  202 void Display_Line(char * line);
+//  203 void Clear_Line1(void);
 //  204 
-//  205 
-//  206 /* Private functions ---------------------------------------------------------*/
+//  205 u16  Average();
+//  206 
 //  207 
-//  208 void main(void)
-//  209 {
-//  210     /*High speed internal clock prescaler: 1*/
-//  211     //CLK_HSIPrescalerConfig(CLK_PRESCALER_HSIDIV1);
-//  212 
-//  213     InitClk();
-//  214     InitDelayTimer();
-//  215     GpioConfiguration();
-//  216     GPIO_WriteLow(GPIOD, power_pin );
-//  217     //InitUart();
-//  218     enableInterrupts();
-//  219     GPIO_WriteLow(GPIOD,GPIO_PIN_7); //R/W Line Read Mode
-//  220     InitLcd();
-//  221     //InitAdc();
-//  222     InitI2C();
-//  223     //Init DS18B20
-//  224     DS18Set();
-//  225     line_lcd=0;
-//  226     if (!Read_DS18())
-//  227     {
-//  228      printf("\nDS_Err_I");
-//  229       while (!key_ok_on());
-//  230     }
-//  231 
-//  232 
+//  208 /* Private functions ---------------------------------------------------------*/
+//  209 
+//  210 void main(void)
+//  211 {
+//  212     /*High speed internal clock prescaler: 1*/
+//  213     //CLK_HSIPrescalerConfig(CLK_PRESCALER_HSIDIV1);
+//  214 
+//  215     InitClk();
+//  216     InitDelayTimer();
+//  217     GpioConfiguration();
+//  218     GPIO_WriteLow(GPIOD, power_pin );
+//  219     //InitUart();
+//  220     enableInterrupts();
+//  221     GPIO_WriteLow(GPIOD,GPIO_PIN_7); //R/W Line Read Mode
+//  222     InitLcd();
+//  223     //InitAdc();
+//  224     InitI2C();
+//  225     //Init DS18B20
+//  226     DS18Set();
+//  227     line_lcd=0;
+//  228     if (!Read_DS18())
+//  229     {
+//  230      printf("\nDS_Err_I");
+//  231       while (!key_ok_on());
+//  232     }
 //  233 
 //  234 
 //  235 
-//  236     //years=bcd2hex(13);
-//  237     Delay1(1000);
-//  238      if (!ReadDS1307())
-//  239      {
-//  240        printf("\n E2:%d",error);
-//  241        // Reset the CPU: Enable the watchdog and wait until it expires
-//  242        IWDG->KR = IWDG_KEY_ENABLE;
-//  243        while ( 1 );    // Wait until reset occurs from IWDG
-//  244      }
-//  245      //Send_Hello();
-//  246     //line_lcd=0;
-//  247     //printf("\nHello");
-//  248 
-//  249 
-//  250     if (!Check_DS1307())
-//  251     {
-//  252        if (error!=0)
-//  253        {
-//  254         printf("\n E:%d",error);
-//  255          while (!key_ok_on());
-//  256 
-//  257        }
-//  258      line_lcd=0;
-//  259      printf("\nSetClock");
-//  260       Set_Clock();
-//  261 
-//  262     }
+//  236 
+//  237 
+//  238     //years=bcd2hex(13);
+//  239     Delay1(1000);
+//  240      if (!ReadDS1307())
+//  241      {
+//  242        printf("\n E2:%d",error);
+//  243        // Reset the CPU: Enable the watchdog and wait until it expires
+//  244        IWDG->KR = IWDG_KEY_ENABLE;
+//  245        while ( 1 );    // Wait until reset occurs from IWDG
+//  246      }
+//  247      //Send_Hello();
+//  248     //line_lcd=0;
+//  249     //printf("\nHello");
+//  250 
+//  251 
+//  252     if (!Check_DS1307())
+//  253     {
+//  254        if (error!=0)
+//  255        {
+//  256         printf("\n E:%d",error);
+//  257          while (!key_ok_on());
+//  258 
+//  259        }
+//  260      line_lcd=0;
+//  261      printf("\nSetClock");
+//  262       Set_Clock();
 //  263 
-//  264        //Read Status register from eepom and update it
-//  265       //size=sizeof(status);
-//  266      //u16 status
-//  267      *(u16*)(&status)=(u16)(FLASH_ReadByte(EEPROM_ADR_STATUSH)*256)+(u16)FLASH_ReadByte(EEPROM_ADR_STATUSL);
-//  268       status_check = *(u16*)(&status);
-//  269     //When Start Check for Allarm and computing Daily_long_on
-//  270      if ( Read_Allarm() == TRUE)
-//  271      {
-//  272        time_on=daily_hour_on*60+daily_minute_on;
-//  273        time_off= daily_hour_off*60+daily_minute_off;
-//  274      }
-//  275 
-//  276      //UART2_Cmd(DISABLE);  // Disable UART for the moment
+//  264     }
+//  265 
+//  266        //Read Status register from eepom and update it
+//  267       //size=sizeof(status);
+//  268      //u16 status
+//  269      *(u16*)(&status)=(u16)(FLASH_ReadByte(EEPROM_ADR_STATUSH)*256)+(u16)FLASH_ReadByte(EEPROM_ADR_STATUSL);
+//  270       status_check = *(u16*)(&status);
+//  271     //When Start Check for Allarm and computing Daily_long_on
+//  272      if ( Read_Allarm() == TRUE)
+//  273      {
+//  274        time_on=daily_hour_on*60+daily_minute_on;
+//  275        time_off= daily_hour_off*60+daily_minute_off;
+//  276      }
 //  277 
-//  278      // Working fuction
-//  279     //Set_DS1307(13,7,13,34,0);//u8 year ,u8 mounts,u8 hours,u8 minutes,u8 seconds)
-//  280 
-//  281 
+//  278      //UART2_Cmd(DISABLE);  // Disable UART for the moment
+//  279 
+//  280      // Working fuction
+//  281     //Set_DS1307(13,7,13,34,0);//u8 year ,u8 mounts,u8 hours,u8 minutes,u8 seconds)
 //  282 
-//  283     // strcpy(line1,"Hello I am here! ");
-//  284     //  while(1)
-//  285     //  {
-//  286     //     Display_Line(line1);
-//  287     //     Delay2(20000);
-//  288     //  }
-//  289     //  while (!key_ok_on());
-//  290        //sprintf(line1,"TIMER ON ");
-//  291     while(1)
-//  292     {
-//  293       ADC1_Cmd (ENABLE);
-//  294 
-//  295        GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
-//  296          Delay2(10000);
-//  297          ttimer++;
-//  298        GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
-//  299          Delay2(10000);
-//  300 
-//  301            //status_check = *(u16*)(&status);
+//  283 
+//  284 
+//  285     // strcpy(line1,"Hello I am here! ");
+//  286     //  while(1)
+//  287     //  {
+//  288     //     Display_Line(line1);
+//  289     //     Delay2(20000);
+//  290     //  }
+//  291     //  while (!key_ok_on());
+//  292        //sprintf(line1,"TIMER ON ");
+//  293     while(1)
+//  294     {
+//  295       ADC1_Cmd (ENABLE);
+//  296 
+//  297        GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
+//  298          Delay2(5000);
+//  299          //ttimer++;
+//  300        GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
+//  301          Delay2(5000);
 //  302 
-//  303       line_lcd=0;
-//  304      if (!ReadDS1307())
-//  305      {
-//  306        printf("\n E2:%d",error);
-//  307         //restart i2c
-//  308       // Reset the CPU: Enable the watchdog and wait until it expires
-//  309        IWDG->KR = IWDG_KEY_ENABLE;
-//  310        while ( 1 );    // Wait until reset occurs from IWDG
-//  311 
-//  312      }
-//  313        else
-//  314          //printf("\n      ");
-//  315 
-//  316      //line_lcd=2;
-//  317      //printf("\n Just Test:%X", timer2);
-//  318          //if (rx_data==SpecialSymbol) SendData();
-//  319       //SendData();
-//  320 
-//  321       if (key_ok_on())
-//  322       {
-//  323         line_lcd=0;
-//  324         printf("\n%02d:%02d:%02d",years,mounts,date);
-//  325         status.daily=1; //On Daily timer
-//  326         Save_Status();
-//  327         Delay2(50000);
-//  328         Clear_Line1();
-//  329         //Delay2(10000);
-//  330         //Delay2(10000);
-//  331       }
-//  332 
-//  333       if(key_ok_plus()) Set_Delay_Allarm();  //Set Daily Allarm
-//  334       if(key_plus_on()) Power_On();
-//  335       if(key_minus_on())Power_Off();
-//  336 
-//  337 
-//  338       //Check for Allarm
-//  339           if (status.daily==1)
-//  340         {
-//  341       u16 time_now=hours*60+minutes;
-//  342       status.on=0;
-//  343            u16 time=time_on;
-//  344            do
-//  345           {
-//  346              if(time==time_now)
-//  347              {
-//  348                status.on=1;
-//  349                 break ;
-//  350              }
-//  351               time++;
-//  352                if( time==1441) time=0;
-//  353           } while(!(time==time_off));
-//  354          };
-//  355 
-//  356 
-//  357             //Read Temperature
-//  358         // if( ttimer > 5 )
-//  359          //{
-//  360             result1=temperature();
-//  361             result2=0;
-//  362             if(result1%2!=0) result2=5;
-//  363             result1/=2;
-//  364            // char result3;
-//  365            // ttimer=0;
-//  366        //  }
-//  367 
-//  368          //printf("\n%d.%d",result1,result2);
-//  369 
-//  370            //Display
-//  371            // line_lcd=0;
-//  372            if (status.daily==1)  sprintf(string1,"TIMER ON");
-//  373             else sprintf(string1,"TIMER OFF");
-//  374 
-//  375              if ( ttimer==10)
-//  376              {
-//  377             sprintf(line1,"%d.%d°C %s ",result1,result2,string1);
-//  378             ttimer=0;
-//  379              }
-//  380             Display_Line(line1);
-//  381           line_lcd=1;
-//  382           printf("\n%02d:%02d:%02d",hours,minutes,seconds);
-//  383 
+//  303            //status_check = *(u16*)(&status);
+//  304 
+//  305       line_lcd=0;
+//  306      if (!ReadDS1307())
+//  307      {
+//  308        printf("\n E2:%d",error);
+//  309         //restart i2c
+//  310       // Reset the CPU: Enable the watchdog and wait until it expires
+//  311        IWDG->KR = IWDG_KEY_ENABLE;
+//  312        while ( 1 );    // Wait until reset occurs from IWDG
+//  313 
+//  314      }
+//  315        else
+//  316          //printf("\n      ");
+//  317 
+//  318      //line_lcd=2;
+//  319      //printf("\n Just Test:%X", timer2);
+//  320          //if (rx_data==SpecialSymbol) SendData();
+//  321       //SendData();
+//  322 
+//  323       if (key_ok_on())
+//  324       {
+//  325         line_lcd=0;
+//  326         printf("\n%02d:%02d:%02d",years,mounts,date);
+//  327         status.daily=1; //On Daily timer
+//  328         Save_Status();
+//  329         Delay2(50000);
+//  330         Clear_Line1();
+//  331         change=TRUE;
+//  332         //Delay2(10000);
+//  333         //Delay2(10000);
+//  334       }
+//  335 
+//  336       if(key_ok_plus()) Set_Delay_Allarm();  //Set Daily Allarm
+//  337       if(key_plus_on()) Power_On();
+//  338       if(key_minus_on())Power_Off();
+//  339 
+//  340 
+//  341       //Check for Allarm
+//  342           if (status.daily==1)
+//  343         {
+//  344       u16 time_now=hours*60+minutes;
+//  345       status.on=0;
+//  346            u16 time=time_on;
+//  347            do
+//  348           {
+//  349              if(time==time_now)
+//  350              {
+//  351                status.on=1;
+//  352                 break ;
+//  353              }
+//  354               time++;
+//  355                if( time==1441) time=0;
+//  356           } while(!(time==time_off));
+//  357          };
+//  358 
+//  359 
+//  360             //Read Temperature
+//  361         // if( ttimer > 5 )
+//  362          //{
+//  363 
+//  364 
+//  365             result1=temperature();
+//  366             if (result_old != result1) change=TRUE;
+//  367              //else  change=FALSE;
+//  368             result_old=result1;
+//  369             result2=0;
+//  370             if(result1%2!=0) result2=5;
+//  371             result1/=2;
+//  372 
+//  373 
+//  374            // char result3;
+//  375            // ttimer=0;
+//  376        //  }
+//  377 
+//  378          //printf("\n%d.%d",result1,result2);
+//  379 
+//  380            //Display
+//  381            // line_lcd=0;
+//  382            if (status.daily==1)  sprintf(string1,"TIMER ON");
+//  383             else sprintf(string1,"TIMER OFF");
 //  384 
-//  385            if(status.on) GPIO_WriteHigh(GPIOD, power_pin );
-//  386              else   GPIO_WriteLow(GPIOD, power_pin );
-//  387 
-//  388 
-//  389 
-//  390     }
-//  391 
-//  392 
-//  393 
-//  394 }
+//  385 
+//  386 
+//  387              if (change)
+//  388              {
+//  389             sprintf(line1,"%d.%dC %s ",result1,result2,string1);
+//  390                change=FALSE;
+//  391              }
+//  392             Display_Line(line1);
+//  393           line_lcd=1;
+//  394           printf("\n%02d:%02d:%02d",hours,minutes,seconds);
 //  395 
-//  396 void Power_On()
-//  397 {
-//  398   status.on=1;
-//  399   status.daily=0; //Off Daily timer
-//  400   Save_Status();
-//  401 }
-//  402 
-//  403 void Power_Off()
-//  404 {
-//  405   status.on=0;
-//  406   status.daily=0; //Off Daily timer
-//  407   Save_Status();
-//  408 }
-//  409 
-//  410 void InitI2C(void)
-//  411 {
-//  412    I2C_DeInit();
-//  413    I2C_Init(10000, 0xA2, I2C_DUTYCYCLE_2, I2C_ACK_CURR, I2C_ADDMODE_7BIT, 2);
-//  414    I2C_Cmd(ENABLE);
-//  415 }
-//  416 
-//  417 bool I2C_Start(void)
-//  418 {
-//  419    I2C_GenerateSTART(ENABLE);
-//  420        timeout=100;
-//  421     	while(!(I2C_CheckEvent(I2C_EVENT_MASTER_MODE_SELECT))&&timeout);
-//  422         if (!timeout)
-//  423         {
-//  424             error=1;
-//  425            return FALSE;
-//  426         }
-//  427           else return TRUE;
-//  428 }
-//  429 
-//  430 bool I2C_WA(u8 address)
-//  431 {
-//  432   I2C_Send7bitAddress(address, I2C_DIRECTION_TX);
-//  433        timeout=255;
-//  434         while(!(I2C_CheckEvent(I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))&&timeout);
-//  435          if (!timeout)
-//  436          {
-//  437           error=2;
-//  438            return FALSE ;
-//  439          }
-//  440           else return TRUE;
-//  441 }
-//  442 
-//  443 bool I2C_RA(u8 address)
-//  444 {
-//  445   I2C_Send7bitAddress(address, I2C_DIRECTION_RX);
-//  446        timeout=255;
-//  447         while(!(I2C_CheckEvent(I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED))&&timeout);
-//  448          if (!timeout)
-//  449          {
-//  450            error=3;
-//  451            return FALSE ;
-//  452          }
-//  453           else return TRUE;
-//  454 }
-//  455 
+//  396 
+//  397            if(status.on) GPIO_WriteHigh(GPIOD, power_pin );
+//  398              else   GPIO_WriteLow(GPIOD, power_pin );
+//  399 
+//  400 
+//  401 
+//  402     }
+//  403 
+//  404 
+//  405 
+//  406 }
+//  407 
+//  408 void Power_On()
+//  409 {
+//  410   status.on=1;
+//  411   status.daily=0; //Off Daily timer
+//  412   Save_Status();
+//  413   change=TRUE;
+//  414 }
+//  415 
+//  416 void Power_Off()
+//  417 {
+//  418   status.on=0;
+//  419   status.daily=0; //Off Daily timer
+//  420   Save_Status();
+//  421   change=TRUE;
+//  422 }
+//  423 
+//  424 void InitI2C(void)
+//  425 {
+//  426    I2C_DeInit();
+//  427    I2C_Init(10000, 0xA2, I2C_DUTYCYCLE_2, I2C_ACK_CURR, I2C_ADDMODE_7BIT, 2);
+//  428    I2C_Cmd(ENABLE);
+//  429 }
+//  430 
+//  431 bool I2C_Start(void)
+//  432 {
+//  433    I2C_GenerateSTART(ENABLE);
+//  434        timeout=100;
+//  435     	while(!(I2C_CheckEvent(I2C_EVENT_MASTER_MODE_SELECT))&&timeout);
+//  436         if (!timeout)
+//  437         {
+//  438             error=1;
+//  439            return FALSE;
+//  440         }
+//  441           else return TRUE;
+//  442 }
+//  443 
+//  444 bool I2C_WA(u8 address)
+//  445 {
+//  446   I2C_Send7bitAddress(address, I2C_DIRECTION_TX);
+//  447        timeout=255;
+//  448         while(!(I2C_CheckEvent(I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED))&&timeout);
+//  449          if (!timeout)
+//  450          {
+//  451           error=2;
+//  452            return FALSE ;
+//  453          }
+//  454           else return TRUE;
+//  455 }
 //  456 
-//  457 bool I2C_WD(u8 data)
+//  457 bool I2C_RA(u8 address)
 //  458 {
-//  459  I2C_SendData(data);   // set register pointer 00h
-//  460    timeout=255;
-//  461    while(!(I2C_CheckEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED))&&timeout);
-//  462     if (!timeout)
-//  463     {
-//  464       error=4;
-//  465        return FALSE ;
-//  466     }
-//  467      else return TRUE;
+//  459   I2C_Send7bitAddress(address, I2C_DIRECTION_RX);
+//  460        timeout=255;
+//  461         while(!(I2C_CheckEvent(I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED))&&timeout);
+//  462          if (!timeout)
+//  463          {
+//  464            error=3;
+//  465            return FALSE ;
+//  466          }
+//  467           else return TRUE;
 //  468 }
 //  469 
-//  470 u8 I2C_RD(void)
-//  471 {
-//  472  timeout=255;
-//  473   while( !I2C_GetFlagStatus(I2C_FLAG_TRANSFERFINISHED)&& timeout);
-//  474  //while((!(I2C->SR1 & 0x40))&&timeout);
-//  475  if (!timeout)
-//  476  {
-//  477    error=5;
-//  478    return FALSE;
-//  479  }
-//  480  u8 data=I2C_ReceiveData();
-//  481  return data;
+//  470 
+//  471 bool I2C_WD(u8 data)
+//  472 {
+//  473  I2C_SendData(data);   // set register pointer 00h
+//  474    timeout=255;
+//  475    while(!(I2C_CheckEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED))&&timeout);
+//  476     if (!timeout)
+//  477     {
+//  478       error=4;
+//  479        return FALSE ;
+//  480     }
+//  481      else return TRUE;
 //  482 }
 //  483 
-//  484   /*
-//  485 bool Init_DS1307(void)
-//  486 {
-//  487    // Test DS1307
-//  488     error=0;
-//  489     if (!I2C_Start()) return FALSE;
-//  490     if(!I2C_WA(0xD0)) return FALSE;
-//  491     if(!I2C_WD(0x00)) return FALSE;
-//  492     if(!I2C_WD(0x00)) return FALSE;
-//  493     I2C_GenerateSTOP(ENABLE);
-//  494 
-//  495     // timeout=100;  error=4;
-//  496     ///   while(!(I2C_CheckEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED))&&timeout);
-//  497     //    if (!timeout)return FALSE ;
-//  498      return TRUE;
-//  499 }
-//  500    */
-//  501 
-//  502 bool  ReadDS1307(void)
-//  503 {
-//  504        error=0;
-//  505        if (!I2C_Start()) return FALSE;
-//  506        if(!I2C_WA(0xD0))return FALSE;
-//  507        if(!I2C_WD(0x00)) return FALSE;
-//  508        I2C_GenerateSTOP(ENABLE);
-//  509        if (!I2C_Start()) return FALSE;
-//  510        if(!I2C_RA(0xD0))return FALSE;
-//  511        I2C_AcknowledgeConfig(I2C_ACK_CURR);
-//  512        seconds = bcd2hex(I2C_RD());
-//  513        I2C_AcknowledgeConfig(I2C_ACK_CURR);
-//  514        minutes = bcd2hex(I2C_RD());
-//  515        I2C_AcknowledgeConfig(I2C_ACK_CURR);
-//  516        hours = bcd2hex(I2C_RD());
-//  517        I2C_AcknowledgeConfig(I2C_ACK_CURR);
-//  518        days = bcd2hex(I2C_RD());
-//  519        I2C_AcknowledgeConfig(I2C_ACK_CURR);
-//  520        date = bcd2hex(I2C_RD());
-//  521        I2C_AcknowledgeConfig(I2C_ACK_CURR);
-//  522        mounts = bcd2hex(I2C_RD());
-//  523        I2C_AcknowledgeConfig(I2C_ACK_NONE);
-//  524          I2C_GenerateSTOP(ENABLE);
-//  525           years= bcd2hex(I2C_RD());
-//  526 
-//  527      //  I2C_AcknowledgeConfig(I2C_ACK_CURR);
-//  528      //   u8 data1 = I2C_RD();
-//  529       //Last read byte by I2C slave
-//  530      //  I2C_AcknowledgeConfig(I2C_ACK_NONE);
-//  531      //  I2C_GenerateSTOP(ENABLE);
-//  532      //  temp2= I2C_RD();
-//  533        if( seconds & 0x80 )    //if not enable the oscillator ?
-//  534           {
-//  535             seconds &= 0x7f;
-//  536             Set_DS1307();
-//  537           }
-//  538 
-//  539        return TRUE;
-//  540 }
-//  541 
-//  542 bool Check_DS1307(void)
-//  543 {
-//  544    // Read  address 0x08 from DS1307 if not 0XAA clock is not set
-//  545        error=0;
-//  546        if (!I2C_Start()) return FALSE;
-//  547        if(!I2C_WA(0xD0)) return FALSE;
-//  548        if(!I2C_WD(0x08)) return FALSE;
-//  549        I2C_GenerateSTOP(ENABLE);
-//  550         //Last read byte by I2C slave
-//  551        if (!I2C_Start()) return FALSE;
-//  552        if(!I2C_RA(0xD0))return FALSE;
-//  553        I2C_AcknowledgeConfig(I2C_ACK_CURR);
-//  554        u8 data = I2C_RD();
-//  555        I2C_AcknowledgeConfig(I2C_ACK_NONE);
-//  556        I2C_GenerateSTOP(ENABLE);
-//  557        if (data != 0xAA) return FALSE;
-//  558        else return TRUE;
-//  559 }
-//  560 
-//  561 bool Set_DS1307()
-//  562 {
-//  563        // convert hex or decimal to bcd format
-//  564 
-//  565 
-//  566        error=0;
-//  567        if (!I2C_Start()) return FALSE;
-//  568        if(!I2C_WA(0xD0)) return FALSE;
-//  569        if(!I2C_WD(0x00)) return FALSE;
-//  570        if(!I2C_WD(convert_tobcd(seconds))) return FALSE;
-//  571        if(!I2C_WD(convert_tobcd(minutes))) return FALSE;
-//  572        if(!I2C_WD(convert_tobcd(hours))) return FALSE;
-//  573        if(!I2C_WD(convert_tobcd(days))) return FALSE;
-//  574        if(!I2C_WD(convert_tobcd(date))) return FALSE;
-//  575        if(!I2C_WD(convert_tobcd(mounts))) return FALSE;
-//  576        if(!I2C_WD(convert_tobcd(years)))return FALSE;
-//  577        if(!I2C_WD(DS_Control))return FALSE;
-//  578        if(!I2C_WD(0XAA)) return FALSE;  // Byte --> time is set by program
-//  579        I2C_GenerateSTOP(ENABLE);
-//  580 
-//  581 
-//  582    return TRUE;
-//  583 }
-//  584 
-//  585 
-//  586 u8 convert_tobcd(u8 data)
-//  587 {
-//  588    u8 data_second_decimal=data/10;
-//  589    u8 data_first_decimal=data - 10*data_second_decimal;
-//  590    data=16*data_second_decimal + data_first_decimal;
-//  591   return data;
-//  592 }
-//  593 
-//  594 u8 bcd2hex(u8 bcd)
-//  595 {
-//  596   u8 hex=0;
-//  597   hex=(bcd>>4)*10 +(bcd&0x0f);
-//  598   bcd=0;
-//  599   return hex ;
-//  600 }
-//  601 
-//  602 
-//  603 bool Set_Clock()
-//  604 {
-//  605     //Clear Display
-//  606    LCDInstr(0x01);
-//  607    Delay1(1000);
-//  608    line_lcd=0;
-//  609     printf("\nYears:");
-//  610       do
-//  611     {
-//  612      line_lcd=1;
-//  613      printf("\n%02d:%02d:%02d",years,mounts,date);
-//  614        years=adj(0,99,years);
-//  615     } while (!key_ok_on());
+//  484 u8 I2C_RD(void)
+//  485 {
+//  486  timeout=255;
+//  487   while( !I2C_GetFlagStatus(I2C_FLAG_TRANSFERFINISHED)&& timeout);
+//  488  //while((!(I2C->SR1 & 0x40))&&timeout);
+//  489  if (!timeout)
+//  490  {
+//  491    error=5;
+//  492    return FALSE;
+//  493  }
+//  494  u8 data=I2C_ReceiveData();
+//  495  return data;
+//  496 }
+//  497 
+//  498   /*
+//  499 bool Init_DS1307(void)
+//  500 {
+//  501    // Test DS1307
+//  502     error=0;
+//  503     if (!I2C_Start()) return FALSE;
+//  504     if(!I2C_WA(0xD0)) return FALSE;
+//  505     if(!I2C_WD(0x00)) return FALSE;
+//  506     if(!I2C_WD(0x00)) return FALSE;
+//  507     I2C_GenerateSTOP(ENABLE);
+//  508 
+//  509     // timeout=100;  error=4;
+//  510     ///   while(!(I2C_CheckEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED))&&timeout);
+//  511     //    if (!timeout)return FALSE ;
+//  512      return TRUE;
+//  513 }
+//  514    */
+//  515 
+//  516 bool  ReadDS1307(void)
+//  517 {
+//  518        error=0;
+//  519        if (!I2C_Start()) return FALSE;
+//  520        if(!I2C_WA(0xD0))return FALSE;
+//  521        if(!I2C_WD(0x00)) return FALSE;
+//  522        I2C_GenerateSTOP(ENABLE);
+//  523        if (!I2C_Start()) return FALSE;
+//  524        if(!I2C_RA(0xD0))return FALSE;
+//  525        I2C_AcknowledgeConfig(I2C_ACK_CURR);
+//  526        seconds = bcd2hex(I2C_RD());
+//  527        I2C_AcknowledgeConfig(I2C_ACK_CURR);
+//  528        minutes = bcd2hex(I2C_RD());
+//  529        I2C_AcknowledgeConfig(I2C_ACK_CURR);
+//  530        hours = bcd2hex(I2C_RD());
+//  531        I2C_AcknowledgeConfig(I2C_ACK_CURR);
+//  532        days = bcd2hex(I2C_RD());
+//  533        I2C_AcknowledgeConfig(I2C_ACK_CURR);
+//  534        date = bcd2hex(I2C_RD());
+//  535        I2C_AcknowledgeConfig(I2C_ACK_CURR);
+//  536        mounts = bcd2hex(I2C_RD());
+//  537        I2C_AcknowledgeConfig(I2C_ACK_NONE);
+//  538          I2C_GenerateSTOP(ENABLE);
+//  539           years= bcd2hex(I2C_RD());
+//  540 
+//  541      //  I2C_AcknowledgeConfig(I2C_ACK_CURR);
+//  542      //   u8 data1 = I2C_RD();
+//  543       //Last read byte by I2C slave
+//  544      //  I2C_AcknowledgeConfig(I2C_ACK_NONE);
+//  545      //  I2C_GenerateSTOP(ENABLE);
+//  546      //  temp2= I2C_RD();
+//  547        if( seconds & 0x80 )    //if not enable the oscillator ?
+//  548           {
+//  549             seconds &= 0x7f;
+//  550             Set_DS1307();
+//  551           }
+//  552 
+//  553        return TRUE;
+//  554 }
+//  555 
+//  556 bool Check_DS1307(void)
+//  557 {
+//  558    // Read  address 0x08 from DS1307 if not 0XAA clock is not set
+//  559        error=0;
+//  560        if (!I2C_Start()) return FALSE;
+//  561        if(!I2C_WA(0xD0)) return FALSE;
+//  562        if(!I2C_WD(0x08)) return FALSE;
+//  563        I2C_GenerateSTOP(ENABLE);
+//  564         //Last read byte by I2C slave
+//  565        if (!I2C_Start()) return FALSE;
+//  566        if(!I2C_RA(0xD0))return FALSE;
+//  567        I2C_AcknowledgeConfig(I2C_ACK_CURR);
+//  568        u8 data = I2C_RD();
+//  569        I2C_AcknowledgeConfig(I2C_ACK_NONE);
+//  570        I2C_GenerateSTOP(ENABLE);
+//  571        if (data != 0xAA) return FALSE;
+//  572        else return TRUE;
+//  573 }
+//  574 
+//  575 bool Set_DS1307()
+//  576 {
+//  577        // convert hex or decimal to bcd format
+//  578 
+//  579 
+//  580        error=0;
+//  581        if (!I2C_Start()) return FALSE;
+//  582        if(!I2C_WA(0xD0)) return FALSE;
+//  583        if(!I2C_WD(0x00)) return FALSE;
+//  584        if(!I2C_WD(convert_tobcd(seconds))) return FALSE;
+//  585        if(!I2C_WD(convert_tobcd(minutes))) return FALSE;
+//  586        if(!I2C_WD(convert_tobcd(hours))) return FALSE;
+//  587        if(!I2C_WD(convert_tobcd(days))) return FALSE;
+//  588        if(!I2C_WD(convert_tobcd(date))) return FALSE;
+//  589        if(!I2C_WD(convert_tobcd(mounts))) return FALSE;
+//  590        if(!I2C_WD(convert_tobcd(years)))return FALSE;
+//  591        if(!I2C_WD(DS_Control))return FALSE;
+//  592        if(!I2C_WD(0XAA)) return FALSE;  // Byte --> time is set by program
+//  593        I2C_GenerateSTOP(ENABLE);
+//  594 
+//  595 
+//  596    return TRUE;
+//  597 }
+//  598 
+//  599 
+//  600 u8 convert_tobcd(u8 data)
+//  601 {
+//  602    u8 data_second_decimal=data/10;
+//  603    u8 data_first_decimal=data - 10*data_second_decimal;
+//  604    data=16*data_second_decimal + data_first_decimal;
+//  605   return data;
+//  606 }
+//  607 
+//  608 u8 bcd2hex(u8 bcd)
+//  609 {
+//  610   u8 hex=0;
+//  611   hex=(bcd>>4)*10 +(bcd&0x0f);
+//  612   bcd=0;
+//  613   return hex ;
+//  614 }
+//  615 
 //  616 
-//  617      line_lcd=0;
-//  618     printf("\nMounts:");
-//  619       do
-//  620     {
-//  621      line_lcd=1;
-//  622      printf("\n%02d:%02d:%02d",years,mounts,date);
-//  623        mounts=adj(1,12,mounts);
-//  624     } while (!key_ok_on());
-//  625 
-//  626     LCDInstr(0x01);
-//  627      Delay1(1000);
-//  628       line_lcd=0;
-//  629     printf("\nDate:");
-//  630       do
-//  631     {
-//  632      line_lcd=1;
-//  633      printf("\n%02d:%02d:%02d",years,mounts,date);
-//  634        date=adj(1,31,date);
-//  635     } while (!key_ok_on());
-//  636 
-//  637 
-//  638     //Clear Display
-//  639    LCDInstr(0x01);
-//  640    Delay1(1000);
-//  641    line_lcd=0;
-//  642     printf("\nDays:");
-//  643       do
-//  644     {
-//  645       line_lcd=1;
-//  646      printf("\n%02d",days);
-//  647        days=adj(1,7,days);
-//  648     } while (!key_ok_on());
-//  649 
+//  617 bool Set_Clock()
+//  618 {
+//  619     //Clear Display
+//  620    LCDInstr(0x01);
+//  621    Delay1(1000);
+//  622    line_lcd=0;
+//  623     printf("\nYears:");
+//  624       do
+//  625     {
+//  626      line_lcd=1;
+//  627      printf("\n%02d:%02d:%02d",years,mounts,date);
+//  628        years=adj(0,99,years);
+//  629     } while (!key_ok_on());
+//  630 
+//  631      line_lcd=0;
+//  632     printf("\nMounts:");
+//  633       do
+//  634     {
+//  635      line_lcd=1;
+//  636      printf("\n%02d:%02d:%02d",years,mounts,date);
+//  637        mounts=adj(1,12,mounts);
+//  638     } while (!key_ok_on());
+//  639 
+//  640     LCDInstr(0x01);
+//  641      Delay1(1000);
+//  642       line_lcd=0;
+//  643     printf("\nDate:");
+//  644       do
+//  645     {
+//  646      line_lcd=1;
+//  647      printf("\n%02d:%02d:%02d",years,mounts,date);
+//  648        date=adj(1,31,date);
+//  649     } while (!key_ok_on());
 //  650 
 //  651 
-//  652    //Clear Display
+//  652     //Clear Display
 //  653    LCDInstr(0x01);
 //  654    Delay1(1000);
 //  655    line_lcd=0;
-//  656     printf("\nHours:");
+//  656     printf("\nDays:");
 //  657       do
 //  658     {
 //  659       line_lcd=1;
-//  660      printf("\n%02d:%02d:%02d",hours,minutes,seconds);
-//  661        hours=adj(0,23,hours);
+//  660      printf("\n%02d",days);
+//  661        days=adj(1,7,days);
 //  662     } while (!key_ok_on());
 //  663 
-//  664      line_lcd=0;
-//  665      printf("\nMinutes:");
-//  666       do
-//  667     {
-//  668       line_lcd=1;
-//  669      printf("\n%02d:%02d:%02d",hours,minutes,seconds);
-//  670        minutes=adj(0,59,minutes);
-//  671     } while (!key_ok_on());
-//  672 
-//  673     line_lcd=0;
-//  674     printf("\nSeconds:");
-//  675     do
-//  676     {
-//  677       line_lcd=1;
-//  678      printf("\n%02d:%02d:%02d",hours,minutes,seconds);
-//  679        seconds=adj(0,59,seconds);
-//  680     } while (!key_ok_on());
-//  681 
-//  682       // Set parameter to DS1307 + time byte
-//  683       Set_DS1307();
-//  684 
-//  685       //bool k=Check_DS1307();
+//  664 
+//  665 
+//  666    //Clear Display
+//  667    LCDInstr(0x01);
+//  668    Delay1(1000);
+//  669    line_lcd=0;
+//  670     printf("\nHours:");
+//  671       do
+//  672     {
+//  673       line_lcd=1;
+//  674      printf("\n%02d:%02d:%02d",hours,minutes,seconds);
+//  675        hours=adj(0,23,hours);
+//  676     } while (!key_ok_on());
+//  677 
+//  678      line_lcd=0;
+//  679      printf("\nMinutes:");
+//  680       do
+//  681     {
+//  682       line_lcd=1;
+//  683      printf("\n%02d:%02d:%02d",hours,minutes,seconds);
+//  684        minutes=adj(0,59,minutes);
+//  685     } while (!key_ok_on());
 //  686 
-//  687   return TRUE;
-//  688 }
-//  689 
-//  690 
-//  691 u8 adj(u8 min,u8 max,u8 now)
-//  692 {
-//  693    u8 adj=now;
-//  694    if (key_plus_on()) adj ++;
-//  695    if (adj >max) adj = min;
-//  696    if (key_minus_on()) adj --;
-//  697    if ( adj == 255) adj=max;
-//  698    if (adj < min) adj=max;
-//  699    return adj ;
-//  700 }
-//  701 
-//  702 
-//  703 bool key_ok_on()
-//  704 {
-//  705   //Read Key OK
-//  706   if (!(GPIO_ReadInputData(GPIOF)& key_ok))
-//  707    {
-//  708      timer2=0;  // Key must be push for timer2 time
-//  709       while((timer2 < key_time_ok) && !(GPIO_ReadInputData(GPIOF)& key_ok) );;
-//  710         if (timer2>=key_time_ok) return TRUE;
-//  711    }
-//  712 
-//  713   return FALSE;
+//  687     line_lcd=0;
+//  688     printf("\nSeconds:");
+//  689     do
+//  690     {
+//  691       line_lcd=1;
+//  692      printf("\n%02d:%02d:%02d",hours,minutes,seconds);
+//  693        seconds=adj(0,59,seconds);
+//  694     } while (!key_ok_on());
+//  695 
+//  696       // Set parameter to DS1307 + time byte
+//  697       Set_DS1307();
+//  698 
+//  699       //bool k=Check_DS1307();
+//  700 
+//  701   return TRUE;
+//  702 }
+//  703 
+//  704 
+//  705 u8 adj(u8 min,u8 max,u8 now)
+//  706 {
+//  707    u8 adj=now;
+//  708    if (key_plus_on()) adj ++;
+//  709    if (adj >max) adj = min;
+//  710    if (key_minus_on()) adj --;
+//  711    if ( adj == 255) adj=max;
+//  712    if (adj < min) adj=max;
+//  713    return adj ;
 //  714 }
 //  715 
-//  716  bool key_plus_on()
-//  717 {
-//  718   //Read Key OK
-//  719     if (!(GPIO_ReadInputData(GPIOA)& key_plus))
-//  720      {
-//  721      timer2=0;  // Key must be push for timer2 time
-//  722       while((timer2 < key_time) && !(GPIO_ReadInputData(GPIOA)& key_plus) );;
-//  723         if (timer2>=key_time) return TRUE;
-//  724      }
-//  725 
-//  726   return FALSE;
-//  727 }
-//  728 
-//  729   bool key_minus_on()
-//  730 {
-//  731   //Read Key OK
-//  732    if (!(GPIO_ReadInputData(GPIOA)& key_minus))
-//  733      {
-//  734      timer2=0;  // Key must be push for timer2 time
-//  735       while((timer2 < key_time) && !(GPIO_ReadInputData(GPIOA)& key_minus) );;
-//  736         if (timer2>=key_time) return TRUE;
-//  737      }
-//  738 
-//  739   return FALSE;
-//  740 }
-//  741 
+//  716 
+//  717 bool key_ok_on()
+//  718 {
+//  719   //Read Key OK
+//  720   if (!(GPIO_ReadInputData(GPIOF)& key_ok))
+//  721    {
+//  722      timer2=0;  // Key must be push for timer2 time
+//  723       while((timer2 < key_time_ok) && !(GPIO_ReadInputData(GPIOF)& key_ok) );;
+//  724         if (timer2>=key_time_ok) return TRUE;
+//  725    }
+//  726 
+//  727   return FALSE;
+//  728 }
+//  729 
+//  730  bool key_plus_on()
+//  731 {
+//  732   //Read Key OK
+//  733     if (!(GPIO_ReadInputData(GPIOA)& key_plus))
+//  734      {
+//  735      timer2=0;  // Key must be push for timer2 time
+//  736       while((timer2 < key_time) && !(GPIO_ReadInputData(GPIOA)& key_plus) );;
+//  737         if (timer2>=key_time) return TRUE;
+//  738      }
+//  739 
+//  740   return FALSE;
+//  741 }
 //  742 
-//  743 bool  key_ok_plus()
+//  743   bool key_minus_on()
 //  744 {
-//  745   if (!((GPIO_ReadInputData(GPIOF)& key_ok)|(GPIO_ReadInputData(GPIOA)& key_plus)))
-//  746   {
-//  747       timer2=0;  // Key must be push for timer2 time
-//  748       while((timer2 < key_time) && !((GPIO_ReadInputData(GPIOF)& key_ok)|(GPIO_ReadInputData(GPIOA)& key_plus)));;
-//  749        if (timer2>=key_time) return TRUE;
-//  750   }
-//  751 
-//  752  return FALSE;
-//  753 }
-//  754 
+//  745   //Read Key OK
+//  746    if (!(GPIO_ReadInputData(GPIOA)& key_minus))
+//  747      {
+//  748      timer2=0;  // Key must be push for timer2 time
+//  749       while((timer2 < key_time) && !(GPIO_ReadInputData(GPIOA)& key_minus) );;
+//  750         if (timer2>=key_time) return TRUE;
+//  751      }
+//  752 
+//  753   return FALSE;
+//  754 }
 //  755 
-//  756 bool Set_Delay_Allarm()
-//  757 {
-//  758 
-//  759    //clr
-//  760    LCDInstr(0x01);
-//  761    Delay1(1000);
-//  762    line_lcd=0;
-//  763    printf("\nH On:");
-//  764   do
-//  765     {
-//  766      line_lcd=1;
-//  767      printf("\n%02d:%02d",daily_hour_on,daily_minute_on);
-//  768        daily_hour_on=adj(0,23,daily_hour_on);
-//  769     } while (!key_ok_on());
-//  770 
-//  771    LCDInstr(0x01);
-//  772    Delay1(1000);
-//  773    line_lcd=0;
-//  774    printf("\nMin On:");
-//  775   do
-//  776     {
-//  777      line_lcd=1;
-//  778      printf("\n%02d:%02d",daily_hour_on,daily_minute_on);
-//  779        daily_minute_on=adj(0,59,daily_minute_on);
-//  780     } while (!key_ok_on());
-//  781 
-//  782     LCDInstr(0x01);
-//  783     Delay1(1000);
-//  784     line_lcd=0;
-//  785     printf("\nH Off:");
-//  786   do
-//  787     {
-//  788      line_lcd=1;
-//  789      printf("\n%02d:%02d",daily_hour_off,daily_minute_off);
-//  790        daily_hour_off=adj(0,23,daily_hour_off);
-//  791     } while (!key_ok_on());
-//  792 
-//  793   LCDInstr(0x01);
-//  794    Delay1(1000);
-//  795    line_lcd=0;
-//  796    printf("\nMin Off:");
-//  797   do
-//  798     {
-//  799      line_lcd=1;
-//  800      printf("\n%02d:%02d",daily_hour_off,daily_minute_off);
-//  801        daily_minute_off=adj(0,59,daily_minute_off);
-//  802     } while (!key_ok_on());
-//  803 
-//  804      //Computing time_long_on
-//  805 
-//  806      u8 hour=daily_hour_on;
-//  807      u8 minute=daily_minute_on;
-//  808      daily_long_on=0;
-//  809      do
-//  810      {
-//  811           daily_long_on++;
-//  812           minute++;
-//  813           if (minute==60)
-//  814           {
-//  815             minute=0;
-//  816             hour++;
-//  817           }
-//  818           if(hour==24) hour=0;
+//  756 
+//  757 bool  key_ok_plus()
+//  758 {
+//  759   if (!((GPIO_ReadInputData(GPIOF)& key_ok)|(GPIO_ReadInputData(GPIOA)& key_plus)))
+//  760   {
+//  761       timer2=0;  // Key must be push for timer2 time
+//  762       while((timer2 < key_time) && !((GPIO_ReadInputData(GPIOF)& key_ok)|(GPIO_ReadInputData(GPIOA)& key_plus)));;
+//  763        if (timer2>=key_time) return TRUE;
+//  764   }
+//  765 
+//  766  return FALSE;
+//  767 }
+//  768 
+//  769 
+//  770 bool Set_Delay_Allarm()
+//  771 {
+//  772 
+//  773    //clr
+//  774    LCDInstr(0x01);
+//  775    Delay1(1000);
+//  776    line_lcd=0;
+//  777    printf("\nH On:");
+//  778   do
+//  779     {
+//  780      line_lcd=1;
+//  781      printf("\n%02d:%02d",daily_hour_on,daily_minute_on);
+//  782        daily_hour_on=adj(0,23,daily_hour_on);
+//  783     } while (!key_ok_on());
+//  784 
+//  785    LCDInstr(0x01);
+//  786    Delay1(1000);
+//  787    line_lcd=0;
+//  788    printf("\nMin On:");
+//  789   do
+//  790     {
+//  791      line_lcd=1;
+//  792      printf("\n%02d:%02d",daily_hour_on,daily_minute_on);
+//  793        daily_minute_on=adj(0,59,daily_minute_on);
+//  794     } while (!key_ok_on());
+//  795 
+//  796     LCDInstr(0x01);
+//  797     Delay1(1000);
+//  798     line_lcd=0;
+//  799     printf("\nH Off:");
+//  800   do
+//  801     {
+//  802      line_lcd=1;
+//  803      printf("\n%02d:%02d",daily_hour_off,daily_minute_off);
+//  804        daily_hour_off=adj(0,23,daily_hour_off);
+//  805     } while (!key_ok_on());
+//  806 
+//  807   LCDInstr(0x01);
+//  808    Delay1(1000);
+//  809    line_lcd=0;
+//  810    printf("\nMin Off:");
+//  811   do
+//  812     {
+//  813      line_lcd=1;
+//  814      printf("\n%02d:%02d",daily_hour_off,daily_minute_off);
+//  815        daily_minute_off=adj(0,59,daily_minute_off);
+//  816     } while (!key_ok_on());
+//  817 
+//  818      //Computing time_long_on
 //  819 
-//  820      } while ( !((hour==daily_hour_off) & (minute==daily_minute_off)));
-//  821 
-//  822       //Display daily_long_on
-//  823     LCDInstr(0x01);
-//  824     Delay1(1000);
-//  825     line_lcd=0;
-//  826     printf("\nLong :");
-//  827 
-//  828       do
-//  829     {
-//  830      line_lcd=1;
-//  831      printf("\n%d",daily_long_on);
-//  832        //daily_long_on=adj(0,1440,daily_long_on);
-//  833     } while (!key_ok_on());
-//  834 
-//  835     time_on=daily_hour_on*60+daily_minute_on;
-//  836     time_off= daily_hour_off*60+daily_minute_off;
-//  837     //Save data to eeprom
-//  838       status.daily=1;
-//  839      EEPROM_INIT();
-//  840     //u8 temp =*(u8*)(&status);
-//  841     // FLASH_ProgramByte(EEPROM_ADR_STATUS,*(u8*)(&status)); //save Status to eeprom
-//  842      FLASH_ProgramByte(EEPROM_ADR_STATUSH,(u8)(*(u16*)(&status)>>8));
-//  843      FLASH_ProgramByte(EEPROM_ADR_STATUSL,(u8)(*(u16*)(&status)));
-//  844      FLASH_ProgramByte(EEPROM_ADR_TIME_ON_HOURS,daily_hour_on);
-//  845      FLASH_ProgramByte(EEPROM_ADR_TIME_ON_MINUTES,daily_minute_on);
-//  846      FLASH_ProgramByte(EEPROM_ADR_TIME_OFF_HOURS,daily_hour_off);
-//  847      FLASH_ProgramByte(EEPROM_ADR_TIME_OFF_MINUTES,daily_minute_off);
-//  848      FLASH_Lock(FLASH_MEMTYPE_DATA); //Locking  Flash Data
-//  849 
-//  850    return TRUE;
-//  851 
-//  852 }
-//  853 
-//  854 void Save_Status()
-//  855 {
-//  856   EEPROM_INIT();
-//  857   FLASH_ProgramByte(EEPROM_ADR_STATUSH,(u8)(*(u16*)(&status)>>8));
-//  858   FLASH_ProgramByte(EEPROM_ADR_STATUSL,(u8)(*(u16*)(&status)));
-//  859   FLASH_Lock(FLASH_MEMTYPE_DATA); //Locking  Flash Data
-//  860 }
-//  861 
-//  862 bool Read_Allarm()
-//  863 {
-//  864    daily_hour_on=FLASH_ReadByte(EEPROM_ADR_TIME_ON_HOURS);
-//  865     if(daily_hour_on > 24) return FALSE;
-//  866    daily_minute_on=FLASH_ReadByte(EEPROM_ADR_TIME_ON_MINUTES);
-//  867     if(daily_minute_on > 59) return FALSE;
-//  868    daily_hour_off=FLASH_ReadByte(EEPROM_ADR_TIME_OFF_HOURS);
-//  869     if(daily_hour_off > 24) return FALSE;
-//  870    daily_minute_off=FLASH_ReadByte(EEPROM_ADR_TIME_OFF_MINUTES);
-//  871     if(daily_hour_off > 59) return FALSE;
-//  872      // Computting daily_long_on
-//  873       u8 hour=daily_hour_on;
-//  874      u8 minute=daily_minute_on;
-//  875      daily_long_on=0;
-//  876      do
-//  877      {
-//  878           daily_long_on++;
-//  879           minute++;
-//  880           if (minute==60)
-//  881           {
-//  882             minute=0;
-//  883             hour++;
-//  884           }
-//  885           if(hour==24) hour=0;
-//  886 
-//  887      } while ( !((hour==daily_hour_off) & (minute==daily_minute_off)));
-//  888 
-//  889   return TRUE;
-//  890 }
-//  891 
-//  892 void EEPROM_INIT()
-//  893 {
-//  894   FLASH_DeInit();
-//  895   FLASH_Unlock(FLASH_MEMTYPE_DATA);
-//  896   FLASH_SetProgrammingTime(FLASH_PROGRAMTIME_STANDARD);
-//  897 
-//  898 
-//  899 
-//  900 }
-//  901 
+//  820      u8 hour=daily_hour_on;
+//  821      u8 minute=daily_minute_on;
+//  822      daily_long_on=0;
+//  823      do
+//  824      {
+//  825           daily_long_on++;
+//  826           minute++;
+//  827           if (minute==60)
+//  828           {
+//  829             minute=0;
+//  830             hour++;
+//  831           }
+//  832           if(hour==24) hour=0;
+//  833 
+//  834      } while ( !((hour==daily_hour_off) & (minute==daily_minute_off)));
+//  835 
+//  836       //Display daily_long_on
+//  837     LCDInstr(0x01);
+//  838     Delay1(1000);
+//  839     line_lcd=0;
+//  840     printf("\nLong :");
+//  841 
+//  842       do
+//  843     {
+//  844      line_lcd=1;
+//  845      printf("\n%d",daily_long_on);
+//  846        //daily_long_on=adj(0,1440,daily_long_on);
+//  847     } while (!key_ok_on());
+//  848 
+//  849     time_on=daily_hour_on*60+daily_minute_on;
+//  850     time_off= daily_hour_off*60+daily_minute_off;
+//  851     //Save data to eeprom
+//  852       status.daily=1;
+//  853      EEPROM_INIT();
+//  854     //u8 temp =*(u8*)(&status);
+//  855     // FLASH_ProgramByte(EEPROM_ADR_STATUS,*(u8*)(&status)); //save Status to eeprom
+//  856      FLASH_ProgramByte(EEPROM_ADR_STATUSH,(u8)(*(u16*)(&status)>>8));
+//  857      FLASH_ProgramByte(EEPROM_ADR_STATUSL,(u8)(*(u16*)(&status)));
+//  858      FLASH_ProgramByte(EEPROM_ADR_TIME_ON_HOURS,daily_hour_on);
+//  859      FLASH_ProgramByte(EEPROM_ADR_TIME_ON_MINUTES,daily_minute_on);
+//  860      FLASH_ProgramByte(EEPROM_ADR_TIME_OFF_HOURS,daily_hour_off);
+//  861      FLASH_ProgramByte(EEPROM_ADR_TIME_OFF_MINUTES,daily_minute_off);
+//  862      FLASH_Lock(FLASH_MEMTYPE_DATA); //Locking  Flash Data
+//  863 
+//  864    return TRUE;
+//  865 
+//  866 }
+//  867 
+//  868 void Save_Status()
+//  869 {
+//  870   EEPROM_INIT();
+//  871   FLASH_ProgramByte(EEPROM_ADR_STATUSH,(u8)(*(u16*)(&status)>>8));
+//  872   FLASH_ProgramByte(EEPROM_ADR_STATUSL,(u8)(*(u16*)(&status)));
+//  873   FLASH_Lock(FLASH_MEMTYPE_DATA); //Locking  Flash Data
+//  874 }
+//  875 
+//  876 bool Read_Allarm()
+//  877 {
+//  878    daily_hour_on=FLASH_ReadByte(EEPROM_ADR_TIME_ON_HOURS);
+//  879     if(daily_hour_on > 24) return FALSE;
+//  880    daily_minute_on=FLASH_ReadByte(EEPROM_ADR_TIME_ON_MINUTES);
+//  881     if(daily_minute_on > 59) return FALSE;
+//  882    daily_hour_off=FLASH_ReadByte(EEPROM_ADR_TIME_OFF_HOURS);
+//  883     if(daily_hour_off > 24) return FALSE;
+//  884    daily_minute_off=FLASH_ReadByte(EEPROM_ADR_TIME_OFF_MINUTES);
+//  885     if(daily_hour_off > 59) return FALSE;
+//  886      // Computting daily_long_on
+//  887       u8 hour=daily_hour_on;
+//  888      u8 minute=daily_minute_on;
+//  889      daily_long_on=0;
+//  890      do
+//  891      {
+//  892           daily_long_on++;
+//  893           minute++;
+//  894           if (minute==60)
+//  895           {
+//  896             minute=0;
+//  897             hour++;
+//  898           }
+//  899           if(hour==24) hour=0;
+//  900 
+//  901      } while ( !((hour==daily_hour_off) & (minute==daily_minute_off)));
 //  902 
-//  903 void GpioConfiguration()
-//  904 {
+//  903   return TRUE;
+//  904 }
 //  905 
-//  906   GPIO_Init(LCD_PORT,(GPIO_Pin_TypeDef)LCD_GPIO_PIN,GPIO_MODE_OUT_PP_HIGH_FAST);
-//  907 
-//  908   // ADC PE6 NEW PB0
-//  909   GPIO_Init(GPIOB,GPIO_PIN_0,GPIO_MODE_IN_FL_NO_IT);
-//  910 
-//  911   // PD6/UART2_RX   PD5/UART2_TX  No need to init  PD7 485 R/W;
-//  912   GPIO_Init(GPIOD,GPIO_PIN_7,GPIO_MODE_OUT_PP_HIGH_FAST);
+//  906 void EEPROM_INIT()
+//  907 {
+//  908   FLASH_DeInit();
+//  909   FLASH_Unlock(FLASH_MEMTYPE_DATA);
+//  910   FLASH_SetProgrammingTime(FLASH_PROGRAMTIME_STANDARD);
+//  911 
+//  912 
 //  913 
-//  914   //PD0 Led
-//  915   GPIO_Init(GPIOD,GPIO_PIN_0,GPIO_MODE_OUT_PP_HIGH_FAST);
-//  916   //I2C
-//  917   GPIO_Init(GPIOB,GPIO_PIN_4 ,GPIO_MODE_OUT_OD_HIZ_FAST);
-//  918   GPIO_Init(GPIOB,GPIO_PIN_5 ,GPIO_MODE_OUT_OD_HIZ_FAST);
-//  919   // Remap Pins pb4,pb5  sda,scl ;
-//  920 
-//  921    //Init KEY OK,PLUS,MINUS
-//  922   GPIO_Init(GPIOF,key_ok,GPIO_MODE_IN_PU_NO_IT);
-//  923   GPIO_Init(GPIOA,key_plus,GPIO_MODE_IN_PU_NO_IT);
-//  924   GPIO_Init(GPIOA,key_minus,GPIO_MODE_IN_PU_NO_IT);
-//  925 
-//  926   //Init DS18b20 data pin
-//  927   GPIO_Init(GPIOD,ds18_data,GPIO_MODE_OUT_OD_HIZ_FAST);
-//  928 
-//  929   // Power Pin
-//  930    GPIO_Init(GPIOD,power_pin,GPIO_MODE_OUT_PP_HIGH_FAST);
-//  931 
-//  932 }
-//  933 
-//  934 void InitClk()
-//  935 {
-//  936   CLK_DeInit();
-//  937   CLK_SYSCLKConfig(CLK_PRESCALER_CPUDIV1);    // CPU Prescalar = 1.
-//  938   CLK_SYSCLKConfig(CLK_PRESCALER_HSIDIV1);    // Prescalar = 1, 16 MHz.
-//  939   CLK_ClockSwitchConfig(CLK_SWITCHMODE_AUTO,  // Automatically switch
-//  940   CLK_SOURCE_HSI,       // Switch to internal timer.
-//  941   DISABLE,              // Disable the clock switch interrupt.
-//  942   CLK_CURRENTCLOCKSTATE_DISABLE);   // Disable the previous clock.
-//  943 
-//  944   CLK_PeripheralClockConfig(CLK_PERIPHERAL_TIMER2 , ENABLE);
-//  945   CLK_PeripheralClockConfig(CLK_PERIPHERAL_UART2,ENABLE);
-//  946   CLK_PeripheralClockConfig(CLK_PERIPHERAL_ADC,ENABLE);
-//  947   CLK_PeripheralClockConfig(CLK_PERIPHERAL_I2C,ENABLE);
-//  948 
-//  949 
-//  950 }
-//  951 
-//  952 
-//  953 void InitAdc()
-//  954 {
-//  955      ADC1_DeInit();
-//  956      ADC1_StartConversion();
-//  957      /*
-//  958      ADC1_Init(ADC1_CONVERSIONMODE_SINGLE,
-//  959                 ADC1_CHANNEL_0,
-//  960                 ADC1_PRESSEL_FCPU_D4,
-//  961                  ADC1_EXTTRIG_TIM,
+//  914 }
+//  915 
+//  916 
+//  917 void GpioConfiguration()
+//  918 {
+//  919 
+//  920   GPIO_Init(LCD_PORT,(GPIO_Pin_TypeDef)LCD_GPIO_PIN,GPIO_MODE_OUT_PP_HIGH_FAST);
+//  921 
+//  922   // ADC PE6 NEW PB0
+//  923   GPIO_Init(GPIOB,GPIO_PIN_0,GPIO_MODE_IN_FL_NO_IT);
+//  924 
+//  925   // PD6/UART2_RX   PD5/UART2_TX  No need to init  PD7 485 R/W;
+//  926   GPIO_Init(GPIOD,GPIO_PIN_7,GPIO_MODE_OUT_PP_HIGH_FAST);
+//  927 
+//  928   //PD0 Led
+//  929   GPIO_Init(GPIOD,GPIO_PIN_0,GPIO_MODE_OUT_PP_HIGH_FAST);
+//  930   //I2C
+//  931   GPIO_Init(GPIOB,GPIO_PIN_4 ,GPIO_MODE_OUT_OD_HIZ_FAST);
+//  932   GPIO_Init(GPIOB,GPIO_PIN_5 ,GPIO_MODE_OUT_OD_HIZ_FAST);
+//  933   // Remap Pins pb4,pb5  sda,scl ;
+//  934 
+//  935    //Init KEY OK,PLUS,MINUS
+//  936   GPIO_Init(GPIOF,key_ok,GPIO_MODE_IN_PU_NO_IT);
+//  937   GPIO_Init(GPIOA,key_plus,GPIO_MODE_IN_PU_NO_IT);
+//  938   GPIO_Init(GPIOA,key_minus,GPIO_MODE_IN_PU_NO_IT);
+//  939 
+//  940   //Init DS18b20 data pin
+//  941   GPIO_Init(GPIOD,ds18_data,GPIO_MODE_OUT_OD_HIZ_FAST);
+//  942 
+//  943   // Power Pin
+//  944    GPIO_Init(GPIOD,power_pin,GPIO_MODE_OUT_PP_HIGH_FAST);
+//  945 
+//  946 }
+//  947 
+//  948 void InitClk()
+//  949 {
+//  950   CLK_DeInit();
+//  951   CLK_SYSCLKConfig(CLK_PRESCALER_CPUDIV1);    // CPU Prescalar = 1.
+//  952   CLK_SYSCLKConfig(CLK_PRESCALER_HSIDIV1);    // Prescalar = 1, 16 MHz.
+//  953   CLK_ClockSwitchConfig(CLK_SWITCHMODE_AUTO,  // Automatically switch
+//  954   CLK_SOURCE_HSI,       // Switch to internal timer.
+//  955   DISABLE,              // Disable the clock switch interrupt.
+//  956   CLK_CURRENTCLOCKSTATE_DISABLE);   // Disable the previous clock.
+//  957 
+//  958   CLK_PeripheralClockConfig(CLK_PERIPHERAL_TIMER2 , ENABLE);
+//  959   CLK_PeripheralClockConfig(CLK_PERIPHERAL_UART2,ENABLE);
+//  960   CLK_PeripheralClockConfig(CLK_PERIPHERAL_ADC,ENABLE);
+//  961   CLK_PeripheralClockConfig(CLK_PERIPHERAL_I2C,ENABLE);
 //  962 
-//  963        */
-//  964      ADC1_PrescalerConfig(ADC1_PRESSEL_FCPU_D3);
-//  965      ADC1_ConversionConfig( ADC1_CONVERSIONMODE_SINGLE,
-//  966                             ADC1_CHANNEL_0,
-//  967                             ADC1_ALIGN_RIGHT
-//  968                            );
-//  969 
-//  970 
-//  971      ADC1_SchmittTriggerConfig(ADC1_SCHMITTTRIG_CHANNEL0,DISABLE);
-//  972 
-//  973 
-//  974      //ADC1_Cmd (ENABLE);
-//  975      //ADC1->CR1 |= ADC1_CR1_ADON ;
-//  976      ADC1_StartConversion();
-//  977      ADC1_ITConfig (ADC1_IT_EOCIE,ENABLE);
-//  978 
-//  979 }
-//  980 
-//  981 /*
-//  982 void InitUart()
-//  983 {
-//  984    UART2_DeInit();
-//  985    UART2_Init((u32)9600,
-//  986               UART2_WORDLENGTH_8D,
-//  987               UART2_STOPBITS_1,
-//  988               UART2_PARITY_NO,
-//  989               UART2_SYNCMODE_CLOCK_DISABLE,
-//  990               UART2_MODE_TXRX_ENABLE
-//  991                 );
+//  963 
+//  964 }
+//  965 
+//  966 
+//  967 void InitAdc()
+//  968 {
+//  969      ADC1_DeInit();
+//  970      ADC1_StartConversion();
+//  971      /*
+//  972      ADC1_Init(ADC1_CONVERSIONMODE_SINGLE,
+//  973                 ADC1_CHANNEL_0,
+//  974                 ADC1_PRESSEL_FCPU_D4,
+//  975                  ADC1_EXTTRIG_TIM,
+//  976 
+//  977        */
+//  978      ADC1_PrescalerConfig(ADC1_PRESSEL_FCPU_D3);
+//  979      ADC1_ConversionConfig( ADC1_CONVERSIONMODE_SINGLE,
+//  980                             ADC1_CHANNEL_0,
+//  981                             ADC1_ALIGN_RIGHT
+//  982                            );
+//  983 
+//  984 
+//  985      ADC1_SchmittTriggerConfig(ADC1_SCHMITTTRIG_CHANNEL0,DISABLE);
+//  986 
+//  987 
+//  988      //ADC1_Cmd (ENABLE);
+//  989      //ADC1->CR1 |= ADC1_CR1_ADON ;
+//  990      ADC1_StartConversion();
+//  991      ADC1_ITConfig (ADC1_IT_EOCIE,ENABLE);
 //  992 
-//  993    UART2_ITConfig( UART2_IT_RXNE,ENABLE);
-//  994    UART2_Cmd(ENABLE);
-//  995 
-//  996   // UART2_ITConfig(UART2_IT_RXNE,ENABLE);
-//  997 }
-//  998   */
-//  999 
-// 1000 void SendChar( u8 Char)
-// 1001 {
-// 1002    UART2->DR = Char;
-// 1003   while (UART2_GetFlagStatus(UART2_FLAG_TXE) == RESET);;
-// 1004 }
-// 1005   /*
-// 1006 void Send_Hello()
-// 1007 {
-// 1008   GPIO_WriteHigh(GPIOD,GPIO_PIN_7); //R_W Line
-// 1009    Delay1(10);
-// 1010    sprintf(data,"Hello");
-// 1011     u8 i=0;
-// 1012   do
-// 1013  {
-// 1014   SendChar(data[i++]);
-// 1015  } while (data[i]!=0);
-// 1016   while (UART2_GetFlagStatus(UART2_FLAG_TC) == RESET);;  //Wait to send last byte
-// 1017   GPIO_WriteLow(GPIOD,GPIO_PIN_7); //R_W Line
-// 1018 
-// 1019 
-// 1020 
-// 1021 }
-// 1022     */
-// 1023 
-// 1024 
-// 1025     /*
-// 1026 
-// 1027 void SendData()
-// 1028 {
-// 1029  GPIO_WriteHigh(GPIOD,GPIO_PIN_7); //R_W Line
-// 1030   Delay1(10);
-// 1031   u8 i=0;
-// 1032   sprintf(data,"%d %c",adcdata,0x0d);
-// 1033  do
-// 1034  {
-// 1035    SendChar(data[i++]);
-// 1036 
-// 1037  } while (data[i]!=0);
-// 1038    while (UART2_GetFlagStatus(UART2_FLAG_TC) == RESET);;  //Wait to send last byte
-// 1039   GPIO_WriteLow(GPIOD,GPIO_PIN_7); //R_W Line
-// 1040   rx_data=0;
-// 1041 }
-// 1042 */
-// 1043 
+//  993 }
+//  994 
+//  995 /*
+//  996 void InitUart()
+//  997 {
+//  998    UART2_DeInit();
+//  999    UART2_Init((u32)9600,
+// 1000               UART2_WORDLENGTH_8D,
+// 1001               UART2_STOPBITS_1,
+// 1002               UART2_PARITY_NO,
+// 1003               UART2_SYNCMODE_CLOCK_DISABLE,
+// 1004               UART2_MODE_TXRX_ENABLE
+// 1005                 );
+// 1006 
+// 1007    UART2_ITConfig( UART2_IT_RXNE,ENABLE);
+// 1008    UART2_Cmd(ENABLE);
+// 1009 
+// 1010   // UART2_ITConfig(UART2_IT_RXNE,ENABLE);
+// 1011 }
+// 1012   */
+// 1013 
+// 1014 void SendChar( u8 Char)
+// 1015 {
+// 1016    UART2->DR = Char;
+// 1017   while (UART2_GetFlagStatus(UART2_FLAG_TXE) == RESET);;
+// 1018 }
+// 1019   /*
+// 1020 void Send_Hello()
+// 1021 {
+// 1022   GPIO_WriteHigh(GPIOD,GPIO_PIN_7); //R_W Line
+// 1023    Delay1(10);
+// 1024    sprintf(data,"Hello");
+// 1025     u8 i=0;
+// 1026   do
+// 1027  {
+// 1028   SendChar(data[i++]);
+// 1029  } while (data[i]!=0);
+// 1030   while (UART2_GetFlagStatus(UART2_FLAG_TC) == RESET);;  //Wait to send last byte
+// 1031   GPIO_WriteLow(GPIOD,GPIO_PIN_7); //R_W Line
+// 1032 
+// 1033 
+// 1034 
+// 1035 }
+// 1036     */
+// 1037 
+// 1038 
+// 1039     /*
+// 1040 
+// 1041 void SendData()
+// 1042 {
+// 1043  GPIO_WriteHigh(GPIOD,GPIO_PIN_7); //R_W Line
+// 1044   Delay1(10);
+// 1045   u8 i=0;
+// 1046   sprintf(data,"%d %c",adcdata,0x0d);
+// 1047  do
+// 1048  {
+// 1049    SendChar(data[i++]);
+// 1050 
+// 1051  } while (data[i]!=0);
+// 1052    while (UART2_GetFlagStatus(UART2_FLAG_TC) == RESET);;  //Wait to send last byte
+// 1053   GPIO_WriteLow(GPIOD,GPIO_PIN_7); //R_W Line
+// 1054   rx_data=0;
+// 1055 }
+// 1056 */
+// 1057 
 
         SECTION `.far_func.text`:CODE:NOROOT(0)
         CFI Block cfiBlock2 Using cfiCommon0
         CFI Function LCDDataOut
         CODE
-// 1044 void LCDDataOut(u8 data)
-// 1045 {
+// 1058 void LCDDataOut(u8 data)
+// 1059 {
 LCDDataOut:
         PUSH      S:?b8
         CFI ?b8 Frame(CFA, -3)
         CFI CFA SP+4
         LD        S:?b8, A
-// 1046   (data&0x1)? GPIO_WriteHigh(LCD_PORT,DATA4):GPIO_WriteLow(LCD_PORT,DATA4);
+// 1060   (data&0x1)? GPIO_WriteHigh(LCD_PORT,DATA4):GPIO_WriteLow(LCD_PORT,DATA4);
         BCP       A, #0x1
         JREQ      L:??LCDDataOut_0
         LD        A, #0x10
@@ -1506,7 +1530,7 @@ LCDDataOut:
 ??LCDDataOut_0:
         LD        A, #0x10
         CALLF     ??Subroutine61_0
-// 1047   (data&0x2)? GPIO_WriteHigh(LCD_PORT,DATA5):GPIO_WriteLow(LCD_PORT,DATA5);
+// 1061   (data&0x2)? GPIO_WriteHigh(LCD_PORT,DATA5):GPIO_WriteLow(LCD_PORT,DATA5);
 ??CrossCallReturnLabel_177:
         LD        A, S:?b8
         BCP       A, #0x2
@@ -1518,7 +1542,7 @@ LCDDataOut:
 ??LCDDataOut_1:
         LD        A, #0x20
         CALLF     ??Subroutine61_0
-// 1048   (data&0x4)? GPIO_WriteHigh(LCD_PORT,DATA6):GPIO_WriteLow(LCD_PORT,DATA6);
+// 1062   (data&0x4)? GPIO_WriteHigh(LCD_PORT,DATA6):GPIO_WriteLow(LCD_PORT,DATA6);
 ??CrossCallReturnLabel_178:
         LD        A, S:?b8
         BCP       A, #0x4
@@ -1530,7 +1554,7 @@ LCDDataOut:
 ??LCDDataOut_2:
         LD        A, #0x40
         CALLF     ??Subroutine61_0
-// 1049   (data&0x8)? GPIO_WriteHigh(LCD_PORT,DATA7):GPIO_WriteLow(LCD_PORT,DATA7);
+// 1063   (data&0x8)? GPIO_WriteHigh(LCD_PORT,DATA7):GPIO_WriteLow(LCD_PORT,DATA7);
 ??CrossCallReturnLabel_179:
         LD        A, S:?b8
         BCP       A, #0x8
@@ -1542,7 +1566,7 @@ LCDDataOut:
 ??LCDDataOut_3:
         LD        A, #0x80
         CALLF     ??Subroutine61_0
-// 1050 }
+// 1064 }
 ??CrossCallReturnLabel_180:
         POP       S:?b8
         CFI ?b8 SameValue
@@ -1565,39 +1589,39 @@ LCDData:
 ??CrossCallReturnLabel_19:
         REQUIRE ?Subroutine0
         ;               // Fall through to label ?Subroutine0
-// 1051 
-// 1052 void InitLcd()
-// 1053 {
-// 1054  LCD_EN(0);
-// 1055   LCD_RW(0);
-// 1056   LCD_RS(0);
-// 1057   Delay1(4000); // 40ms
-// 1058 
-// 1059   LCDInstrNibble(0x03);
-// 1060    Delay1(10);
-// 1061   LCDInstrNibble(0x03);
-// 1062    Delay1(10);
-// 1063   LCDInstrNibble(0x03);
-// 1064    Delay1(10);
 // 1065 
-// 1066    //Line 4
-// 1067   LCDInstrNibble(0x02);
-// 1068   LCDInstrNibble(0x02);
-// 1069   LCDInstrNibble(0x08);
-// 1070   Delay1(100);
-// 1071 
-// 1072   LCDInstr(0x0C);
-// 1073   Delay1(10);
-// 1074 
-// 1075   LCDInstr(0x01) ;
-// 1076   Delay1(250);
-// 1077 
-// 1078   LCDInstr(0x06);
-// 1079   Delay1(10);
-// 1080 
-// 1081 
-// 1082 }
-// 1083 
+// 1066 void InitLcd()
+// 1067 {
+// 1068  LCD_EN(0);
+// 1069   LCD_RW(0);
+// 1070   LCD_RS(0);
+// 1071   Delay1(4000); // 40ms
+// 1072 
+// 1073   LCDInstrNibble(0x03);
+// 1074    Delay1(10);
+// 1075   LCDInstrNibble(0x03);
+// 1076    Delay1(10);
+// 1077   LCDInstrNibble(0x03);
+// 1078    Delay1(10);
+// 1079 
+// 1080    //Line 4
+// 1081   LCDInstrNibble(0x02);
+// 1082   LCDInstrNibble(0x02);
+// 1083   LCDInstrNibble(0x08);
+// 1084   Delay1(100);
+// 1085 
+// 1086   LCDInstr(0x0C);
+// 1087   Delay1(10);
+// 1088 
+// 1089   LCDInstr(0x01) ;
+// 1090   Delay1(250);
+// 1091 
+// 1092   LCDInstr(0x06);
+// 1093   Delay1(10);
+// 1094 
+// 1095 
+// 1096 }
+// 1097 
 
         SECTION `.far_func.text`:CODE:NOROOT(0)
 ?Subroutine0:
@@ -1719,24 +1743,24 @@ LCDData:
         CFI Block cfiBlock19 Using cfiCommon0
         CFI Function LCDInstr
         CODE
-// 1084 void LCDInstr(u8 Instr)
-// 1085 {
+// 1098 void LCDInstr(u8 Instr)
+// 1099 {
 LCDInstr:
         PUSH      S:?b8
         CFI ?b8 Frame(CFA, -3)
         CFI CFA SP+4
         LD        S:?b8, A
-// 1086   LCD_RS(0);
+// 1100   LCD_RS(0);
         CALLF     ?Subroutine10
-// 1087   LCD_RW(0);
+// 1101   LCD_RW(0);
 ??CrossCallReturnLabel_173:
         JRA       ?Subroutine0
         CFI EndBlock cfiBlock19
-// 1088   LCDDataOut(Instr>>4);
-// 1089   PulseEnable();
-// 1090   LCDDataOut(Instr & 0x0F);
-// 1091   PulseEnable();
-// 1092 }
+// 1102   LCDDataOut(Instr>>4);
+// 1103   PulseEnable();
+// 1104   LCDDataOut(Instr & 0x0F);
+// 1105   PulseEnable();
+// 1106 }
 
         SECTION `.far_func.text`:CODE:NOROOT(0)
         CFI Block cfiBlock20 Using cfiCommon0
@@ -1764,61 +1788,61 @@ Clear_Line1:
         CFI CFA SP+3
         RETF
         CFI EndBlock cfiBlock20
-// 1093 
-// 1094 void LCDData(u8 Data)
-// 1095 {
-// 1096   LCD_RS(1);
-// 1097   LCD_RW(0);
-// 1098   LCDDataOut(Data>>4);
-// 1099   PulseEnable() ;
-// 1100   LCDDataOut(Data & 0x0F) ;
-// 1101   PulseEnable();
-// 1102 }
-// 1103 
-// 1104 void LCDInstrNibble(u8 Instr)
-// 1105 {
-// 1106   LCD_RS(0);
-// 1107   LCD_RW(0);
-// 1108   LCDDataOut(Instr & 0x0F);
-// 1109   PulseEnable();
-// 1110 }
-// 1111 
-// 1112 void PulseEnable(void)
-// 1113 {
-// 1114   LCD_EN(0);
-// 1115    Delay1(1);
-// 1116   LCD_EN(1);
-// 1117    Delay1(1);
-// 1118   LCD_EN(0);
-// 1119    Delay1(1);
-// 1120 }
-// 1121 
-// 1122 void LCD_Busy(void)
-// 1123 {
-// 1124    //set Port D7 as Input
-// 1125    GPIO_Init(LCD_PORT,DATA7,GPIO_MODE_IN_PU_NO_IT);
-// 1126    //Set Read
-// 1127    LCD_RW(1);
-// 1128    LCD_RS(0);
-// 1129    // Read Busy Flag
-// 1130       timer2=0;
-// 1131    do
-// 1132    {
-// 1133    // Enable set
-// 1134      LCD_EN(0);
-// 1135       Delay1(1);
-// 1136      LCD_EN(1);
-// 1137       Delay1(1);
-// 1138    } while (GPIO_ReadInputPin(LCD_PORT, DATA7));
-// 1139       k=timer2;
-// 1140       //Clear read
-// 1141     LCD_RW(0);
-// 1142    //set Port D7 as Output
-// 1143    GPIO_Init(LCD_PORT,DATA7,GPIO_MODE_OUT_PP_HIGH_FAST);
-// 1144 
-// 1145 }
-// 1146 
-// 1147 
+// 1107 
+// 1108 void LCDData(u8 Data)
+// 1109 {
+// 1110   LCD_RS(1);
+// 1111   LCD_RW(0);
+// 1112   LCDDataOut(Data>>4);
+// 1113   PulseEnable() ;
+// 1114   LCDDataOut(Data & 0x0F) ;
+// 1115   PulseEnable();
+// 1116 }
+// 1117 
+// 1118 void LCDInstrNibble(u8 Instr)
+// 1119 {
+// 1120   LCD_RS(0);
+// 1121   LCD_RW(0);
+// 1122   LCDDataOut(Instr & 0x0F);
+// 1123   PulseEnable();
+// 1124 }
+// 1125 
+// 1126 void PulseEnable(void)
+// 1127 {
+// 1128   LCD_EN(0);
+// 1129    Delay1(1);
+// 1130   LCD_EN(1);
+// 1131    Delay1(1);
+// 1132   LCD_EN(0);
+// 1133    Delay1(1);
+// 1134 }
+// 1135 
+// 1136 void LCD_Busy(void)
+// 1137 {
+// 1138    //set Port D7 as Input
+// 1139    GPIO_Init(LCD_PORT,DATA7,GPIO_MODE_IN_PU_NO_IT);
+// 1140    //Set Read
+// 1141    LCD_RW(1);
+// 1142    LCD_RS(0);
+// 1143    // Read Busy Flag
+// 1144       timer2=0;
+// 1145    do
+// 1146    {
+// 1147    // Enable set
+// 1148      LCD_EN(0);
+// 1149       Delay1(1);
+// 1150      LCD_EN(1);
+// 1151       Delay1(1);
+// 1152    } while (GPIO_ReadInputPin(LCD_PORT, DATA7));
+// 1153       k=timer2;
+// 1154       //Clear read
+// 1155     LCD_RW(0);
+// 1156    //set Port D7 as Output
+// 1157    GPIO_Init(LCD_PORT,DATA7,GPIO_MODE_OUT_PP_HIGH_FAST);
+// 1158 
+// 1159 }
+// 1160 
+// 1161 
 
         SECTION `.far_func.text`:CODE:NOROOT(0)
 ?Subroutine18:
@@ -1835,18 +1859,18 @@ Clear_Line1:
         CFI Block cfiPicker23 Using cfiCommon1
         CFI (cfiPicker23) NoFunction
         CFI (cfiPicker23) Picker
-// 1148 void LCD(u8 data)
-// 1149  {
-// 1150    //  static u8 linet=0;
-// 1151 
-// 1152 
-// 1153      if (data =='\n')     //r
-// 1154      {
-// 1155 
-// 1156          switch(line_lcd)
-// 1157          {
-// 1158          case 0:
-// 1159            LCDInstr(0x80 | 0x00);
+// 1162 void LCD(u8 data)
+// 1163  {
+// 1164    //  static u8 linet=0;
+// 1165 
+// 1166 
+// 1167      if (data =='\n')     //r
+// 1168      {
+// 1169 
+// 1170          switch(line_lcd)
+// 1171          {
+// 1172          case 0:
+// 1173            LCDInstr(0x80 | 0x00);
         LD        A, #0x80
         CFI EndBlock cfiCond21
         CFI EndBlock cfiCond22
@@ -1874,52 +1898,52 @@ Clear_Line1:
         CFI Block cfiPicker27 Using cfiCommon1
         CFI (cfiPicker27) NoFunction
         CFI (cfiPicker27) Picker
-// 1160            count=0;
-// 1161            break;
-// 1162          case 1:
-// 1163            LCDInstr(0x80 | 0x40);
-// 1164            count=20;
-// 1165            break;
-// 1166          case 2:
-// 1167            LCDInstr(0x80 | 0x14);
-// 1168            count=40;
-// 1169            break;
-// 1170          case 3:
-// 1171            LCDInstr(0x80 | 0x54);
-// 1172            count=60;
-// 1173            break;
-// 1174          //default:
-// 1175           //  LCDInstr(0x80 |0x40);    //Line 1
-// 1176           }
-// 1177          line_lcd++;
-// 1178          if (line_lcd>=5)
-// 1179          {
-// 1180           line_lcd=1;   //line >=5
-// 1181           LCDInstr(0x01); //Clear LCD
-// 1182           Delay1(2500);
-// 1183          }
-// 1184 
-// 1185          Delay1(1);
-// 1186 
-// 1187 
-// 1188      }
-// 1189 
-// 1190 
-// 1191      if (count==20)
-// 1192       {
-// 1193         LCDInstr(0x80 | 0x40);
-// 1194         Delay1(1);
-// 1195       }
-// 1196          else if(count==40)
-// 1197         {
-// 1198           LCDInstr(0x80 | 0x14);
-// 1199           Delay1(1);
-// 1200         }
-// 1201           else if(count==60)
-// 1202           {
-// 1203             LCDInstr(0x80 | 0x54);
+// 1174            count=0;
+// 1175            break;
+// 1176          case 1:
+// 1177            LCDInstr(0x80 | 0x40);
+// 1178            count=20;
+// 1179            break;
+// 1180          case 2:
+// 1181            LCDInstr(0x80 | 0x14);
+// 1182            count=40;
+// 1183            break;
+// 1184          case 3:
+// 1185            LCDInstr(0x80 | 0x54);
+// 1186            count=60;
+// 1187            break;
+// 1188          //default:
+// 1189           //  LCDInstr(0x80 |0x40);    //Line 1
+// 1190           }
+// 1191          line_lcd++;
+// 1192          if (line_lcd>=5)
+// 1193          {
+// 1194           line_lcd=1;   //line >=5
+// 1195           LCDInstr(0x01); //Clear LCD
+// 1196           Delay1(2500);
+// 1197          }
+// 1198 
+// 1199          Delay1(1);
+// 1200 
+// 1201 
+// 1202      }
+// 1203 
+// 1204 
+// 1205      if (count==20)
+// 1206       {
+// 1207         LCDInstr(0x80 | 0x40);
+// 1208         Delay1(1);
+// 1209       }
+// 1210          else if(count==40)
+// 1211         {
+// 1212           LCDInstr(0x80 | 0x14);
+// 1213           Delay1(1);
+// 1214         }
+// 1215           else if(count==60)
+// 1216           {
+// 1217             LCDInstr(0x80 | 0x54);
         CALLF     LCDInstr
-// 1204             count=0;
+// 1218             count=0;
         CLR       L:count
         RETF
         CFI EndBlock cfiCond24
@@ -2016,44 +2040,44 @@ Display_Line:
         CFI Block cfiPicker33 Using cfiCommon1
         CFI (cfiPicker33) NoFunction
         CFI (cfiPicker33) Picker
-// 1205             Delay1(1);
-// 1206           }
-// 1207             else if(count >80)
-// 1208               {
-// 1209                 count=0;
-// 1210                 LCDInstr(0x01); //Clear LCD
-// 1211                 Delay1(250);
-// 1212               }
-// 1213 
-// 1214 
-// 1215     /*
-// 1216          line++;
-// 1217          if (line>3)
-// 1218          {
-// 1219            line=1;  //Line 0 for Time
-// 1220          }
-// 1221        switch(line)
-// 1222          {
-// 1223          case 1 :LCDInstr(0x80 | 0x40);break;  //Line 1
-// 1224          case 2 :LCDInstr(0x80 | 0x14);break;  //Line 2
-// 1225          case 3 :LCDInstr(0x80 | 0x54);break;  //Line 3
-// 1226          default : LCDInstr(0x80 | 0x40); // Line 1
-// 1227          }
-// 1228          Delay(1);
-// 1229          count=0;
-// 1230       }
-// 1231 
-// 1232      */
-// 1233 
-// 1234      if (data > 0x1b)   //Display only valid data
-// 1235      {
-// 1236        LCDData(data);
+// 1219             Delay1(1);
+// 1220           }
+// 1221             else if(count >80)
+// 1222               {
+// 1223                 count=0;
+// 1224                 LCDInstr(0x01); //Clear LCD
+// 1225                 Delay1(250);
+// 1226               }
+// 1227 
+// 1228 
+// 1229     /*
+// 1230          line++;
+// 1231          if (line>3)
+// 1232          {
+// 1233            line=1;  //Line 0 for Time
+// 1234          }
+// 1235        switch(line)
+// 1236          {
+// 1237          case 1 :LCDInstr(0x80 | 0x40);break;  //Line 1
+// 1238          case 2 :LCDInstr(0x80 | 0x14);break;  //Line 2
+// 1239          case 3 :LCDInstr(0x80 | 0x54);break;  //Line 3
+// 1240          default : LCDInstr(0x80 | 0x40); // Line 1
+// 1241          }
+// 1242          Delay(1);
+// 1243          count=0;
+// 1244       }
+// 1245 
+// 1246      */
+// 1247 
+// 1248      if (data > 0x1b)   //Display only valid data
+// 1249      {
+// 1250        LCDData(data);
         CALLF     LCDData
         CFI EndBlock cfiCond30
         CFI EndBlock cfiCond31
         CFI EndBlock cfiCond32
         CFI EndBlock cfiPicker33
-// 1237         Delay1(1);
+// 1251         Delay1(1);
         REQUIRE ??Subroutine59_0
         ;               // Fall through to label ??Subroutine59_0
 
@@ -2234,13 +2258,13 @@ LCD:
         CP        A, #0x1c
         JRC       L:??LCD_13
         CALLF     ?Subroutine6
-// 1238        count++;
+// 1252        count++;
 ??CrossCallReturnLabel_165:
         LD        A, L:count
         INC       A
         LD        L:count, A
-// 1239      }
-// 1240  }
+// 1253      }
+// 1254  }
 ??LCD_13:
         POP       S:?b8
         CFI ?b8 SameValue
@@ -2263,43 +2287,43 @@ fputc:
         LDW       X, S:?w4
         JPF       L:?epilogue_w4
         CFI EndBlock cfiBlock45
-// 1241 
-// 1242 void InitDelayTimer()
-// 1243 {
-// 1244    //Timer 2 use for Delay  long Delay is 40ms for lcd
-// 1245    //Tclock 16/8=2Mhz  /20 10us
-// 1246        TIM2_DeInit();
-// 1247        TIM2_TimeBaseInit(TIM2_PRESCALER_2,0X0050);
-// 1248        //TIM2_PrescalerConfig(TIM2_PRESCALER_1, TIM2_PSCRELOADMODE_IMMEDIATE);
-// 1249        TIM2_ITConfig(TIM2_IT_UPDATE, ENABLE);
-// 1250   //Enable TIM2
-// 1251        TIM2_Cmd(ENABLE);
-// 1252 
-// 1253 }
-// 1254 
+// 1255 
+// 1256 void InitDelayTimer()
+// 1257 {
+// 1258    //Timer 2 use for Delay  long Delay is 40ms for lcd
+// 1259    //Tclock 16/8=2Mhz  /20 10us
+// 1260        TIM2_DeInit();
+// 1261        TIM2_TimeBaseInit(TIM2_PRESCALER_2,0X0050);
+// 1262        //TIM2_PrescalerConfig(TIM2_PRESCALER_1, TIM2_PSCRELOADMODE_IMMEDIATE);
+// 1263        TIM2_ITConfig(TIM2_IT_UPDATE, ENABLE);
+// 1264   //Enable TIM2
+// 1265        TIM2_Cmd(ENABLE);
+// 1266 
+// 1267 }
+// 1268 
 
         SECTION `.far_func.text`:CODE:NOROOT(0)
         CFI Block cfiBlock46 Using cfiCommon0
         CFI Function DS18_Write
         CODE
-// 1255 bool DS18_Write(u8 data)
-// 1256 {
+// 1269 bool DS18_Write(u8 data)
+// 1270 {
 DS18_Write:
         CALLF     L:?push_w4
         CFI ?b9 Frame(CFA, -3)
         CFI ?b8 Frame(CFA, -4)
         CFI CFA SP+5
         LD        S:?b9, A
-// 1257   disableInterrupts();
+// 1271   disableInterrupts();
         SIM
-// 1258   for ( u8 i=0;i<8;i++)
+// 1272   for ( u8 i=0;i<8;i++)
         CLR       S:?b8
-// 1259   {
-// 1260    DS18(0);
+// 1273   {
+// 1274    DS18(0);
 ??DS18_Write_0:
         CALLF     ?Subroutine11
-// 1261    Delay_us(1); //Delay1(0); //Start time slot 4,5 us
-// 1262    if( data & (1<<i)) DS18(1)
+// 1275    Delay_us(1); //Delay1(0); //Start time slot 4,5 us
+// 1276    if( data & (1<<i)) DS18(1)
 ??CrossCallReturnLabel_27:
         CLRW      X
         INCW      X
@@ -2309,79 +2333,79 @@ DS18_Write:
         BCP       A, S:?b9
         JREQ      L:??CrossCallReturnLabel_172
         CALLF     ?Subroutine17
-// 1263      //else DS18(0);
-// 1264    Delay_us(160);  // 60us end time slot
+// 1277      //else DS18(0);
+// 1278    Delay_us(160);  // 60us end time slot
 ??CrossCallReturnLabel_172:
         LDW       X, #0xa0
         CALLF     Delay_us
-// 1265    DS18(1);
+// 1279    DS18(1);
         CALLF     ?Subroutine17
-// 1266    //Delay1(0);
-// 1267   }
+// 1280    //Delay1(0);
+// 1281   }
 ??CrossCallReturnLabel_171:
         LD        A, S:?b8
         INC       A
         LD        S:?b8, A
         CP        A, #0x8
         JRC       L:??DS18_Write_0
-// 1268   enableInterrupts();
+// 1282   enableInterrupts();
         RIM
-// 1269   return TRUE;
+// 1283   return TRUE;
         LD        A, #0x1
         JPF       L:?epilogue_w4
         CFI EndBlock cfiBlock46
-// 1270 
-// 1271 }
-// 1272 
-// 1273 
-// 1274 u8  DS18_Read()
-// 1275 {
-// 1276     //Init DS18b20 data pin as Input
-// 1277 
-// 1278   u8 data=0;
-// 1279     disableInterrupts();
-// 1280   for (u8 i=0;i<8;i++)
-// 1281   {
-// 1282     DS18(0);
-// 1283     Delay_us(1); //Start time slot 4,5 us
-// 1284     DS18(1);
-// 1285     Delay_us(35); // Wait for ds18b20 set bit 15us
-// 1286     //Delay1(0);
-// 1287    data +=((1<<i)*(GPIO_ReadInputPin(GPIOD,ds18_data)&&ds18_data));
-// 1288     Delay_us(120); // Wait 60 us until end of read slot  45us
-// 1289     //  DS18(1);  // Next bit
-// 1290    // Delay1(0);
+// 1284 
+// 1285 }
+// 1286 
+// 1287 
+// 1288 u8  DS18_Read()
+// 1289 {
+// 1290     //Init DS18b20 data pin as Input
 // 1291 
-// 1292   }
-// 1293     enableInterrupts();
-// 1294     //Init DS18b20 data pin
-// 1295    // GPIO_Init(GPIOD,ds18_data,GPIO_MODE_OUT_OD_HIZ_FAST);
-// 1296    return data;
-// 1297 }
-// 1298 
+// 1292   u8 data=0;
+// 1293     disableInterrupts();
+// 1294   for (u8 i=0;i<8;i++)
+// 1295   {
+// 1296     DS18(0);
+// 1297     Delay_us(1); //Start time slot 4,5 us
+// 1298     DS18(1);
+// 1299     Delay_us(35); // Wait for ds18b20 set bit 15us
+// 1300     //Delay1(0);
+// 1301    data +=((1<<i)*(GPIO_ReadInputPin(GPIOD,ds18_data)&&ds18_data));
+// 1302     Delay_us(120); // Wait 60 us until end of read slot  45us
+// 1303     //  DS18(1);  // Next bit
+// 1304    // Delay1(0);
+// 1305 
+// 1306   }
+// 1307     enableInterrupts();
+// 1308     //Init DS18b20 data pin
+// 1309    // GPIO_Init(GPIOD,ds18_data,GPIO_MODE_OUT_OD_HIZ_FAST);
+// 1310    return data;
+// 1311 }
+// 1312 
 
         SECTION `.far_func.text`:CODE:NOROOT(0)
         CFI Block cfiBlock47 Using cfiCommon0
         CFI Function DS18_Reset
         CODE
-// 1299 bool DS18_Reset()
-// 1300 {
-// 1301    //Init Reset Pulse
-// 1302     DS18(0);
+// 1313 bool DS18_Reset()
+// 1314 {
+// 1315    //Init Reset Pulse
+// 1316     DS18(0);
 DS18_Reset:
         CALLF     ?Subroutine51
-// 1303     Delay1(25);    //25=524us
+// 1317     Delay1(25);    //25=524us
 ??CrossCallReturnLabel_143:
         LDW       X, #0x19
         CALLF     Delay1
-// 1304     DS18(1);
+// 1318     DS18(1);
         CALLF     ?Subroutine17
-// 1305     //Delay1(1);
-// 1306     timer2=0;
+// 1319     //Delay1(1);
+// 1320     timer2=0;
 ??CrossCallReturnLabel_170:
         CLRW      X
         LDW       L:timer2, X
-// 1307     while ((timer2 < 10000) && (GPIO_ReadInputPin(GPIOD, ds18_data)));;   //Wait for ack from DS18B20
+// 1321     while ((timer2 < 10000) && (GPIO_ReadInputPin(GPIOD, ds18_data)));;   //Wait for ack from DS18B20
 ??DS18_Reset_0:
         CALLF     ?Subroutine25
 ??CrossCallReturnLabel_62:
@@ -2389,24 +2413,24 @@ DS18_Reset:
         CALLF     ?Subroutine19
 ??CrossCallReturnLabel_45:
         JRNE      L:??DS18_Reset_0
-// 1308     if (timer2>=10000) return FALSE;
+// 1322     if (timer2>=10000) return FALSE;
 ??DS18_Reset_1:
         CALLF     ?Subroutine25
 ??CrossCallReturnLabel_63:
         JRC       L:??DS18_Reset_2
         CLR       A
         RETF
-// 1309     // Delay1(10);
-// 1310     Delay1(20);    //25=524us
+// 1323     // Delay1(10);
+// 1324     Delay1(20);    //25=524us
 ??DS18_Reset_2:
         LDW       X, #0x14
         CALLF     Delay1
-// 1311 
-// 1312     return TRUE;
+// 1325 
+// 1326     return TRUE;
         LD        A, #0x1
         RETF
         CFI EndBlock cfiBlock47
-// 1313 }
+// 1327 }
 
         SECTION `.far_func.text`:CODE:NOROOT(0)
 ?Subroutine17:
@@ -2727,7 +2751,7 @@ Read_DS18:
         CFI EndBlock cfiCond72
         CFI EndBlock cfiCond73
         CFI EndBlock cfiPicker74
-// 1314 
+// 1328 
 
         SECTION `.far_func.text`:CODE:NOROOT(0)
 ?Subroutine34:
@@ -5482,7 +5506,7 @@ Power_Off:
         AND       A, #0xfe
         CALLF     ?Subroutine35
 ??CrossCallReturnLabel_89:
-        JPF       Save_Status
+        RETF
         CFI EndBlock cfiBlock334
 
         SECTION `.far_func.text`:CODE:NOROOT(0)
@@ -5495,7 +5519,7 @@ Power_On:
         OR        A, #0x1
         CALLF     ?Subroutine35
 ??CrossCallReturnLabel_90:
-        JPF       Save_Status
+        RETF
         CFI EndBlock cfiBlock335
 
         SECTION `.far_func.text`:CODE:NOROOT(0)
@@ -5518,6 +5542,8 @@ Power_On:
         AND       A, #0xfb
         RLWA      X, A
         LDW       L:status, X
+        CALLF     Save_Status
+        MOV       L:change, #0x1
         RETF
         CFI EndBlock cfiCond336
         CFI EndBlock cfiCond337
@@ -5629,9 +5655,6 @@ main:
         CALLF     ADC1_Cmd
         CALLF     ?Subroutine27
 ??CrossCallReturnLabel_73:
-        LD        A, L:ttimer
-        INC       A
-        LD        L:ttimer, A
         CALLF     ?Subroutine27
 ??CrossCallReturnLabel_72:
         CLR       L:line_lcd
@@ -5678,6 +5701,7 @@ main:
         LDW       X, #0xc350
         CALLF     Delay2
         CALLF     Clear_Line1
+        MOV       L:change, #0x1
 ??main_10:
         CALLF     key_ok_plus
         CP        A, #0x0
@@ -5731,26 +5755,30 @@ main:
 ??main_14:
         CALLF     temperature
         LD        L:result1, A
-        CLR       L:result2
-        BTJF      L:result1, #0x0, L:??main_18
-        MOV       L:result2, #0x5
+        CP        A, L:result_old
+        JREQ      L:??main_18
+        MOV       L:change, #0x1
 ??main_18:
+        LD        L:result_old, A
+        CLR       L:result2
+        BTJF      L:result1, #0x0, L:??main_19
+        MOV       L:result2, #0x5
+??main_19:
         SRL       A
         LD        L:result1, A
         LDW       X, L:status
         LD        A, XL
         BCP       A, #0x4
-        JREQ      L:??main_19
+        JREQ      L:??main_20
         LDW       Y, #`?<Constant "TIMER ON">`
-        JRA       ??main_20
-??main_19:
-        LDW       Y, #`?<Constant "TIMER OFF">`
+        JRA       ??main_21
 ??main_20:
+        LDW       Y, #`?<Constant "TIMER OFF">`
+??main_21:
         LDW       X, #string1
         CALLF     sprintf
-        LD        A, L:ttimer
-        CP        A, #0xa
-        JRNE      L:??main_21
+        LD        A, L:change
+        JREQ      L:??main_22
         PUSH      #BYTE1(string1)
         CFI CFA SP+5
         PUSH      #BYTE2(string1)
@@ -5764,13 +5792,13 @@ main:
         LD        XL, A
         PUSHW     X
         CFI CFA SP+10
-        LDW       Y, #`?<Constant "%d.%d\\260C %s ">`
+        LDW       Y, #`?<Constant "%d.%dC %s ">`
         LDW       X, #line1
         CALLF     sprintf
         ADD       SP, #0x6
         CFI CFA SP+4
-        CLR       L:ttimer
-??main_21:
+        CLR       L:change
+??main_22:
         LDW       X, #line1
         CALLF     Display_Line
         CALLF     ?Subroutine22
@@ -5883,70 +5911,70 @@ main:
         CFI Block cfiPicker354 Using cfiCommon1
         CFI (cfiPicker354) NoFunction
         CFI (cfiPicker354) Picker
-// 1315 u8 temperature ()
-// 1316 {
-// 1317 
-// 1318    //Init Reset Pulse
-// 1319      if(!DS18_Reset()) return FALSE;
-// 1320    //Skip ROM Command 0xCC
-// 1321     DS18_Write(0xCC);
-// 1322    //Function command  CONVERT T [44h]
-// 1323     DS18_Write(0x44);
-// 1324     //Wait util end convert
-// 1325     timer2=0;
-// 1326      while ((timer2 < 10000) && !(DS18_Read()));;
-// 1327       if (timer2>10000) return FALSE;
-// 1328      //u8 temp8=timer2;
-// 1329     //Init Reset Pulse
-// 1330     if(!DS18_Reset()) return FALSE;
-// 1331     // Skip ROM Command 0xCC
-// 1332     DS18_Write(0xCC);
-// 1333     //Function command READ SCRATCHPAD [BEh]
-// 1334     DS18_Write(0xBE);
-// 1335      u8 temp1=DS18_Read();
-// 1336      u8 temp2=DS18_Read();
-// 1337     DS18_Reset();
-// 1338       u16 result = temp2*256+temp1;
-// 1339       temp1= (u8)(result>>3);
-// 1340      return temp1;
-// 1341 }
-// 1342 
-// 1343 bool Read_DS18()
-// 1344 {
-// 1345 
-// 1346    //Init Reset Pulse
-// 1347      if(!DS18_Reset()) return FALSE;
-// 1348    //Skip ROM Command 0xCC
-// 1349     DS18_Write(0xCC);
-// 1350    //Function command  CONVERT T [44h]
-// 1351     DS18_Write(0x44);
-// 1352     //Wait util end convert
-// 1353     timer2=0;
-// 1354      while ((timer2 < 10000) && !(DS18_Read()));;
-// 1355       if (timer2>10000) return FALSE;
-// 1356      //u8 temp8=timer2;
-// 1357     //Init Reset Pulse
-// 1358     if(!DS18_Reset()) return FALSE;
-// 1359     // Skip ROM Command 0xCC
-// 1360     DS18_Write(0xCC);
-// 1361     //Function command READ SCRATCHPAD [BEh]
-// 1362     DS18_Write(0xBE);
-// 1363      u8 temp1=DS18_Read();
-// 1364      u8 temp2=DS18_Read();
-// 1365      u8 temp3=DS18_Read();
-// 1366      u8 temp4=DS18_Read();
-// 1367      u8 temp5=DS18_Read();
-// 1368      u8 temp6=DS18_Read();
-// 1369      u8 temp7=DS18_Read();
-// 1370      u8 temp8=DS18_Read();
-// 1371      u8 temp9=DS18_Read();
-// 1372 
-// 1373      DS18_Reset();
-// 1374 
-// 1375       line_lcd=0;
-// 1376       result2=0;
-// 1377       u16 result = temp2*256+temp1;
-// 1378       result1= (u8)(result>>3);
+// 1329 u8 temperature ()
+// 1330 {
+// 1331 
+// 1332    //Init Reset Pulse
+// 1333      if(!DS18_Reset()) return FALSE;
+// 1334    //Skip ROM Command 0xCC
+// 1335     DS18_Write(0xCC);
+// 1336    //Function command  CONVERT T [44h]
+// 1337     DS18_Write(0x44);
+// 1338     //Wait util end convert
+// 1339     timer2=0;
+// 1340      while ((timer2 < 10000) && !(DS18_Read()));;
+// 1341       if (timer2>10000) return FALSE;
+// 1342      //u8 temp8=timer2;
+// 1343     //Init Reset Pulse
+// 1344     if(!DS18_Reset()) return FALSE;
+// 1345     // Skip ROM Command 0xCC
+// 1346     DS18_Write(0xCC);
+// 1347     //Function command READ SCRATCHPAD [BEh]
+// 1348     DS18_Write(0xBE);
+// 1349      u8 temp1=DS18_Read();
+// 1350      u8 temp2=DS18_Read();
+// 1351     DS18_Reset();
+// 1352       u16 result = temp2*256+temp1;
+// 1353       temp1= (u8)(result>>3);
+// 1354      return temp1;
+// 1355 }
+// 1356 
+// 1357 bool Read_DS18()
+// 1358 {
+// 1359 
+// 1360    //Init Reset Pulse
+// 1361      if(!DS18_Reset()) return FALSE;
+// 1362    //Skip ROM Command 0xCC
+// 1363     DS18_Write(0xCC);
+// 1364    //Function command  CONVERT T [44h]
+// 1365     DS18_Write(0x44);
+// 1366     //Wait util end convert
+// 1367     timer2=0;
+// 1368      while ((timer2 < 10000) && !(DS18_Read()));;
+// 1369       if (timer2>10000) return FALSE;
+// 1370      //u8 temp8=timer2;
+// 1371     //Init Reset Pulse
+// 1372     if(!DS18_Reset()) return FALSE;
+// 1373     // Skip ROM Command 0xCC
+// 1374     DS18_Write(0xCC);
+// 1375     //Function command READ SCRATCHPAD [BEh]
+// 1376     DS18_Write(0xBE);
+// 1377      u8 temp1=DS18_Read();
+// 1378      u8 temp2=DS18_Read();
+// 1379      u8 temp3=DS18_Read();
+// 1380      u8 temp4=DS18_Read();
+// 1381      u8 temp5=DS18_Read();
+// 1382      u8 temp6=DS18_Read();
+// 1383      u8 temp7=DS18_Read();
+// 1384      u8 temp8=DS18_Read();
+// 1385      u8 temp9=DS18_Read();
+// 1386 
+// 1387      DS18_Reset();
+// 1388 
+// 1389       line_lcd=0;
+// 1390       result2=0;
+// 1391       u16 result = temp2*256+temp1;
+// 1392       result1= (u8)(result>>3);
         LDW       S:?w0, Y
         ADDW      X, S:?w0
         RETF
@@ -6069,7 +6097,7 @@ main:
         LD        A, #0x1
         LDW       X, #0x500f
         CALLF     GPIO_WriteReverse
-        LDW       X, #0x2710
+        LDW       X, #0x1388
         JPF       Delay2
         CFI EndBlock cfiCond368
         CFI EndBlock cfiCond369
@@ -6284,8 +6312,8 @@ main:
         DC8 "TIMER OFF"
 
         SECTION `.near.rodata`:CONST:REORDER:NOROOT(0)
-`?<Constant "%d.%d\\260C %s ">`:
-        DC8 "%d.%d\260C %s "
+`?<Constant "%d.%dC %s ">`:
+        DC8 "%d.%dC %s "
 
         SECTION `.near.rodata`:CONST:REORDER:NOROOT(0)
 `?<Constant "\\nYears:">`:
@@ -6352,204 +6380,204 @@ main:
         DC8 "\012%d.%d"
 
         END
-// 1379       if(result1%2!=0) result2=5;
-// 1380       result1 /=2;
-// 1381 
-// 1382 
-// 1383       printf("\n%d.%d",result1,result2);
-// 1384      // printf("\n%02x%02x%02x",temp1,temp2,temp5);
-// 1385      //line_lcd=1;
-// 1386      // printf("\n%02x%02x%02x",temp7,temp8,temp9);
-// 1387      // while (!key_ok_on());
-// 1388 
-// 1389      //u8 temp3=DS18_Read();
-// 1390 
-// 1391     return TRUE;
-// 1392 }
-// 1393 
-// 1394 bool DS18Set ()
-// 1395 {
-// 1396      //Init Reset Pulse
-// 1397     if(!DS18_Reset()) return FALSE;
-// 1398    //Skip ROM Command 0xCC
-// 1399     DS18_Write(0xCC);
-// 1400    //Function command  WRITE SCRATCHPAD 0x4E
-// 1401     DS18_Write(0x4E);
-// 1402    //Write 3 bytes last is config reg
-// 1403     DS18_Write(125);
-// 1404     DS18_Write(0xDC); //-55
-// 1405     DS18_Write(0x1F);
-// 1406 
+// 1393       if(result1%2!=0) result2=5;
+// 1394       result1 /=2;
+// 1395 
+// 1396 
+// 1397       printf("\n%d.%d",result1,result2);
+// 1398      // printf("\n%02x%02x%02x",temp1,temp2,temp5);
+// 1399      //line_lcd=1;
+// 1400      // printf("\n%02x%02x%02x",temp7,temp8,temp9);
+// 1401      // while (!key_ok_on());
+// 1402 
+// 1403      //u8 temp3=DS18_Read();
+// 1404 
+// 1405     return TRUE;
+// 1406 }
 // 1407 
-// 1408 
-// 1409 
-// 1410   return TRUE;
-// 1411 }
-// 1412 
-// 1413 
-// 1414 
-// 1415 
-// 1416  /*
-// 1417 u16 Average()
-// 1418 {
-// 1419  //Find average in measure
-// 1420   u8 i=0;
-// 1421   u16 Summa=0;
-// 1422   do
-// 1423   {
-// 1424    Summa+=measure[i++];
-// 1425   } while ( measure[i]!=0);
-// 1426    if(i!=0) Summa=Summa/i;
-// 1427    return Summa;
-// 1428 }
-// 1429    */
-// 1430 
-// 1431 PUTCHAR_PROTOTYPE
+// 1408 bool DS18Set ()
+// 1409 {
+// 1410      //Init Reset Pulse
+// 1411     if(!DS18_Reset()) return FALSE;
+// 1412    //Skip ROM Command 0xCC
+// 1413     DS18_Write(0xCC);
+// 1414    //Function command  WRITE SCRATCHPAD 0x4E
+// 1415     DS18_Write(0x4E);
+// 1416    //Write 3 bytes last is config reg
+// 1417     DS18_Write(125);
+// 1418     DS18_Write(0xDC); //-55
+// 1419     DS18_Write(0x1F);
+// 1420 
+// 1421 
+// 1422 
+// 1423 
+// 1424   return TRUE;
+// 1425 }
+// 1426 
+// 1427 
+// 1428 
+// 1429 
+// 1430  /*
+// 1431 u16 Average()
 // 1432 {
-// 1433   /* Place your implementation of fputc here */
-// 1434   /* e.g. write a character to the USART */
-// 1435       //USART_SendData(USART3, (u8) ch);
-// 1436      LCD(ch);
-// 1437    /* Loop until the end of transmission */
-// 1438     //while(USART_GetFlagStatus(USART3, USART_FLAG_TC) == RESET);;
-// 1439   return ch;
-// 1440 }
-// 1441 
-// 1442 
-// 1443 void Delay1(u16 Delay)
-// 1444 {
-// 1445     //1 = 40us,2=60us,3=80us,10=200us, 15=320us,
-// 1446   timer1=0;
-// 1447   while ( timer1 < Delay); ;
-// 1448 }
-// 1449 
-// 1450  void Delay2(u16 Delay)
-// 1451 {
-// 1452   timer2=0;
-// 1453   while ( timer2 < Delay); ;
+// 1433  //Find average in measure
+// 1434   u8 i=0;
+// 1435   u16 Summa=0;
+// 1436   do
+// 1437   {
+// 1438    Summa+=measure[i++];
+// 1439   } while ( measure[i]!=0);
+// 1440    if(i!=0) Summa=Summa/i;
+// 1441    return Summa;
+// 1442 }
+// 1443    */
+// 1444 
+// 1445 PUTCHAR_PROTOTYPE
+// 1446 {
+// 1447   /* Place your implementation of fputc here */
+// 1448   /* e.g. write a character to the USART */
+// 1449       //USART_SendData(USART3, (u8) ch);
+// 1450      LCD(ch);
+// 1451    /* Loop until the end of transmission */
+// 1452     //while(USART_GetFlagStatus(USART3, USART_FLAG_TC) == RESET);;
+// 1453   return ch;
 // 1454 }
 // 1455 
 // 1456 
-// 1457 void Delay_us (u16 time) //1:3.2us,100:39us,200:77us,35:15.2us,120:45us,160:60us
+// 1457 void Delay1(u16 Delay)
 // 1458 {
-// 1459   //disableInterrupts();
-// 1460   do
-// 1461     {
-// 1462       time--;
-// 1463       nop();
-// 1464     }
-// 1465     while (time);
-// 1466   //enableInterrupts();
-// 1467 }
-// 1468 
+// 1459     //1 = 40us,2=60us,3=80us,10=200us, 15=320us,
+// 1460   timer1=0;
+// 1461   while ( timer1 < Delay); ;
+// 1462 }
+// 1463 
+// 1464  void Delay2(u16 Delay)
+// 1465 {
+// 1466   timer2=0;
+// 1467   while ( timer2 < Delay); ;
+// 1468 }
 // 1469 
 // 1470 
-// 1471 /*
-// 1472 void Delay12 (u16 Delay)
-// 1473 {
-// 1474   timer2=0;
-// 1475   while ( timer2 < Delay); ;
-// 1476 }
-// 1477 */
-// 1478 
-// 1479 
-// 1480 #ifdef USE_FULL_ASSERT
-// 1481 
-// 1482 /**
-// 1483   * @brief  Reports the name of the source file and the source line number
-// 1484   *   where the assert_param error has occurred.
-// 1485   * @param file: pointer to the source file name
-// 1486   * @param line: assert_param error line source number
-// 1487   * @retval : None
-// 1488   */
-// 1489 void assert_failed(u8* file, u32 line)
-// 1490 {
-// 1491   /* User can add his own implementation to report the file name and line number,
-// 1492      ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+// 1471 void Delay_us (u16 time) //1:3.2us,100:39us,200:77us,35:15.2us,120:45us,160:60us
+// 1472 {
+// 1473   //disableInterrupts();
+// 1474   do
+// 1475     {
+// 1476       time--;
+// 1477       nop();
+// 1478     }
+// 1479     while (time);
+// 1480   //enableInterrupts();
+// 1481 }
+// 1482 
+// 1483 
+// 1484 
+// 1485 /*
+// 1486 void Delay12 (u16 Delay)
+// 1487 {
+// 1488   timer2=0;
+// 1489   while ( timer2 < Delay); ;
+// 1490 }
+// 1491 */
+// 1492 
 // 1493 
-// 1494   /* Infinite loop */
-// 1495   while (1)
-// 1496   {
-// 1497 
-// 1498   }
-// 1499 }
-// 1500 #endif
-// 1501 
-// 1502 
-// 1503 void Display_Line(char* line)
+// 1494 #ifdef USE_FULL_ASSERT
+// 1495 
+// 1496 /**
+// 1497   * @brief  Reports the name of the source file and the source line number
+// 1498   *   where the assert_param error has occurred.
+// 1499   * @param file: pointer to the source file name
+// 1500   * @param line: assert_param error line source number
+// 1501   * @retval : None
+// 1502   */
+// 1503 void assert_failed(u8* file, u32 line)
 // 1504 {
-// 1505   char current_char= *line++;
-// 1506   u8 count;
-// 1507     //Set Cursor to First Line
-// 1508    LCDInstr(0x80 | 0x00);
-// 1509    count=0;
-// 1510    Delay1(1);
-// 1511   do
-// 1512   {
-// 1513 
-// 1514     if (current_char > 0x1b)   //Display only valid data
-// 1515      {
-// 1516        LCDData(current_char);
-// 1517         Delay1(1);
-// 1518        count++;
-// 1519      }
-// 1520      current_char=*line++;
-// 1521   }  while ((current_char != 0x00) && (count<7));
-// 1522 
-// 1523    Rotate_Line(line1);
-// 1524 
-// 1525 }
-// 1526 
-// 1527 void Rotate_Line( char * line)
-// 1528 {
-// 1529 
-// 1530    char temp_first = *line;
-// 1531    char temp_next;
-// 1532 
-// 1533    do
-// 1534    {
-// 1535       temp_next=*(line+1);
-// 1536      *line++=temp_next;
-// 1537       //line++;
-// 1538       //temp_next=*line;
-// 1539      //*line=*line++;
-// 1540    } while (*line !=0);
-// 1541    line--;
-// 1542    *line=temp_first;
+// 1505   /* User can add his own implementation to report the file name and line number,
+// 1506      ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+// 1507 
+// 1508   /* Infinite loop */
+// 1509   while (1)
+// 1510   {
+// 1511 
+// 1512   }
+// 1513 }
+// 1514 #endif
+// 1515 
+// 1516 
+// 1517 void Display_Line(char* line)
+// 1518 {
+// 1519   char current_char= *line++;
+// 1520   u8 count;
+// 1521     //Set Cursor to First Line
+// 1522    LCDInstr(0x80 | 0x00);
+// 1523    count=0;
+// 1524    Delay1(1);
+// 1525   do
+// 1526   {
+// 1527 
+// 1528     if (current_char > 0x1b)   //Display only valid data
+// 1529      {
+// 1530        LCDData(current_char);
+// 1531         Delay1(1);
+// 1532        count++;
+// 1533      }
+// 1534      current_char=*line++;
+// 1535   }  while ((current_char != 0x00) && (count<7));
+// 1536 
+// 1537    Rotate_Line(line1);
+// 1538 
+// 1539 }
+// 1540 
+// 1541 void Rotate_Line( char * line)
+// 1542 {
 // 1543 
-// 1544 }
-// 1545 
-// 1546 void Clear_Line1 ()
-// 1547 {
-// 1548      //Set Cursor to First Line
-// 1549    LCDInstr(0x80 | 0x00);
-// 1550    count=0;
-// 1551    Delay1(1);
-// 1552     u8 count=0;
-// 1553    do
-// 1554    {
-// 1555      LCDData(' ');
-// 1556         Delay1(1);
-// 1557         count++;
-// 1558    }while (count<8);
+// 1544    char temp_first = *line;
+// 1545    char temp_next;
+// 1546 
+// 1547    do
+// 1548    {
+// 1549       temp_next=*(line+1);
+// 1550      *line++=temp_next;
+// 1551       //line++;
+// 1552       //temp_next=*line;
+// 1553      //*line=*line++;
+// 1554    } while (*line !=0);
+// 1555    line--;
+// 1556    *line=temp_first;
+// 1557 
+// 1558 }
 // 1559 
-// 1560 
-// 1561 }
-// 1562 
-// 1563 
-// 1564 
-// 1565 
-// 1566 
-// 1567 /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+// 1560 void Clear_Line1 ()
+// 1561 {
+// 1562      //Set Cursor to First Line
+// 1563    LCDInstr(0x80 | 0x00);
+// 1564    count=0;
+// 1565    Delay1(1);
+// 1566     u8 count=0;
+// 1567    do
+// 1568    {
+// 1569      LCDData(' ');
+// 1570         Delay1(1);
+// 1571         count++;
+// 1572    }while (count<8);
+// 1573 
+// 1574 
+// 1575 }
+// 1576 
+// 1577 
+// 1578 
+// 1579 
+// 1580 
+// 1581 /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
 // 
-// 4 228 bytes in section .far_func.text
-//    54 bytes in section .near.bss
+// 4 237 bytes in section .far_func.text
+//    95 bytes in section .near.bss
 //     3 bytes in section .near.data
-//   211 bytes in section .near.rodata
+//   210 bytes in section .near.rodata
 // 
-// 4 228 bytes of CODE  memory
-//   211 bytes of CONST memory
-//    57 bytes of DATA  memory
+// 4 237 bytes of CODE  memory
+//   210 bytes of CONST memory
+//    98 bytes of DATA  memory
 //
 //Errors: none
 //Warnings: none
