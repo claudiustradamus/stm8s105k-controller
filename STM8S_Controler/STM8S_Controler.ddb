@@ -4,12 +4,29 @@ Version=1.0.0
 Stm8s105K4S6.Sch=Sch
 Stm8s105K4S6.lib=SchLib
 Stm8s105K4S6.cfg=Text
+PCB1.PCB=PCB
+Stm8s105K4S6.NET=Text
+Stm8s105K4S6.ERC=Text
+Preview PCB1.PPC=PCBPrint
+STM8S_Controler.rep=Text
 [Stm8s105K4S6.Sch]
 Editor Kind=Sch
 Attributes=131072
 [Stm8s105K4S6.lib]
 Editor Kind=SchLib
 [Stm8s105K4S6.cfg]
+Editor Kind=Text
+Attributes=131072
+[PCB1.PCB]
+Editor Kind=PCB
+[Stm8s105K4S6.NET]
+Editor Kind=Text
+[Stm8s105K4S6.ERC]
+Editor Kind=Text
+Attributes=131072
+[Preview PCB1.PPC]
+Editor Kind=PCBPrint
+[STM8S_Controler.rep]
 Editor Kind=Text
 [Stm8s105K4S6.Sch Childlist]
 ChildCount=7
