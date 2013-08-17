@@ -8,16 +8,24 @@ BAT_3003
 ]
 [
 C1
-
+RAD0.2
 470uf
 
 
 
 ]
 [
-C2
+C3
+RAD0.2
+470uf
 
-1nF
+
+
+]
+[
+C4
+0805
+100nf
 
 
 
@@ -39,6 +47,14 @@ C6
 
 ]
 [
+C7
+0805
+100nf
+
+
+
+]
+[
 CURENT
 
 ACS712
@@ -48,7 +64,7 @@ ACS712
 ]
 [
 D1
-
+RAD0.2
 DIODE
 
 
@@ -56,7 +72,7 @@ DIODE
 ]
 [
 D2
-0603 - LED
+RAD0.1
 LED
 
 
@@ -64,7 +80,7 @@ LED
 ]
 [
 D3
-0603 - LED
+RAD0.1
 LED
 
 
@@ -240,7 +256,7 @@ BELL
 ]
 [
 VR05
-
+TO-252
 7805
 
 
@@ -271,10 +287,11 @@ STM8S105K4T6-16
 GND
 BT1-1
 C1-2
-C2-2
+C3-2
+C4-2
 C5-2
 C6-2
-CURENT-5
+C7-2
 J2-2
 LCD-1
 R4_SMD-1
@@ -289,18 +306,9 @@ VR05-2
 ZCOTDO-2
 )
 (
-NetCURENT_3
-CURENT-3
-CURENT-4
-)
-(
-NetCURENT_6
-C2-1
-CURENT-6
-)
-(
 NetD1_2
 C1-1
+C4-1
 D1-2
 VR05-1
 )
@@ -467,6 +475,8 @@ STM8S105K4T6-8
 )
 (
 VCC+5V
+C3-1
+C7-1
 CURENT-8
 J2-4
 LCD-2
@@ -490,10 +500,6 @@ T1-1
 VCC_LOAD_1
 Q1-1
 R2-1
-)
-(
-VCC_LOAD_2
-CURENT-1
 )
 (
 VCC_NEUTRAL
