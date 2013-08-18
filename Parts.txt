@@ -12,3 +12,6 @@
  ST485EBDR          -  0.86
   
    Euro bez DDS
+
+
+R13-502A-BB
