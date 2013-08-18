@@ -1,0 +1,36 @@
+"Part Type","Designator","Footprint","Description"
+"3V","BT1","BAT_3003","Battery"---------------------------  KEYSTONE 103
+"4.7K","R9","RAD0.2",""
+"4.7k","R11","0805",""
+"4.7k","R10","0805",""
+"100nF","C5","0805","Capacitor"---------------------------  C0806 100nF 50V Y5V SAMSUNG
+"100nf","C7","RAD0.2","Capacitor" -------
+"100nf","C4","RAD0.2","Capacitor" ------------------------- CP 100nF 63V MPT111/TS5
+"200","R8","0805",""
+"330/2W","R2","AXIAL-1.0",""  ----------------------------- 330/2W
+"330/2W","R1","AXIAL-1.0",""
+"470nf","C6","1005","Capacitor" --------------------------  C1206 470nF 50V Y5V
+"470uf","C1","RAD0.2","Capacitor" ------------------------  CE 470uF 16V Fujicon   RA1C471M-RBF12
+"470uf","C3","RAD0.2","Capacitor"
+"7805","VR05","TO-252","7805"-----------------------------  7805FP/BA17805FP ROHM SMD
+"BELL","U3","BUZZER","Bell"
+"BT139","Q1","TO-220",""
+"CON2","JCheck","","Connector"
+"CON2","JPower","RAD0.4","Connector"
+"CON2","JLOAD","RAD0.4","Connector"
+"DIODE","D1","RAD0.2","Diode"   --------------------------  1N4007 T/R
+"DS18B20","TempSensor","SIP-3","DS18B20" -----------------  DS18B20
+"DS1307","RTC","SO8_N","DS1307"        -------------------  DS1307ZN SMD
+"LCD-AC082","LCD","IDC-16","LCD-AC082"  ------------------  AC-082AYILY-H
+"LED","D2","RAD0.1",""   ---------------------------------  L-934IDLK
+"LED","D3","RAD0.1",""   ---------------------------------  L-934GDLK
+"MOC3083","ZCOTDO","DIP6","MOC3083" ----------------------  MOC3083
+"PGM","J2","SIP-4","Connector"
+"RES1","R4_SMD","0805",""
+"RES1","R6","0805",""
+"RES1","R5","0805",""
+"RES1","R3_SMD","0805",""
+"STM8S105K4T6","STM8S105K4T6","QFP32_L","STM105K4T6"
+"TRANS1","T1","",""  ------------------------------------   ANG2VA/9V
+"XTAL","Y2","MC306-G-06GQ-32768","Crystal Oscillator" ----  QCT32768 206B SMD
+                                                            TS-06C

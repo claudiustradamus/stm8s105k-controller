@@ -9,6 +9,9 @@ Stm8s105K4S6.NET=Text
 Stm8s105K4S6.ERC=Text
 Preview PCB1.PPC=PCBPrint
 STM8S_Controler.rep=Text
+PCBLIB1.LIB=PCBLib
+Stm8s105K4S6.CSV=Text
+Stm8s105K4S6.XLS=SPREAD
 [Stm8s105K4S6.Sch]
 Editor Kind=Sch
 Attributes=131072
@@ -27,12 +30,17 @@ Editor Kind=Text
 Editor Kind=PCBPrint
 [STM8S_Controler.rep]
 Editor Kind=Text
+[PCBLIB1.LIB]
+Editor Kind=PCBLib
+[Stm8s105K4S6.CSV]
+Editor Kind=Text
+[Stm8s105K4S6.XLS]
+Editor Kind=SPREAD
 [Stm8s105K4S6.Sch Childlist]
-ChildCount=7
+ChildCount=6
 Child1=STM105K4T6
 Child2=LCD
-Child3=ACS712
-Child4=MOC3083
-Child5=7805
-Child6=DS1307
-Child7=DS18B20
+Child3=MOC3083
+Child4=7805
+Child5=DS1307
+Child6=DS18B20

@@ -24,7 +24,7 @@ RAD0.2
 ]
 [
 C4
-0805
+RAD0.2
 100nf
 
 
@@ -48,16 +48,8 @@ C6
 ]
 [
 C7
-0805
+RAD0.2
 100nf
-
-
-
-]
-[
-CURENT
-
-ACS712
 
 
 
@@ -90,6 +82,30 @@ LED
 J2
 SIP-4
 PGM
+
+
+
+]
+[
+JCheck
+
+CON2
+
+
+
+]
+[
+JLOAD
+RAD0.4
+CON2
+
+
+
+]
+[
+JPower
+RAD0.4
+CON2
 
 
 
@@ -168,7 +184,7 @@ R8
 ]
 [
 R9
-0805
+RAD0.2
 4.7K
 
 
@@ -192,7 +208,7 @@ R11
 ]
 [
 RTC
-SO8_L
+SO8_N
 DS1307
 
 
@@ -247,8 +263,8 @@ DS18B20
 
 ]
 [
-U1
-DIP-2
+U3
+BUZZER
 BELL
 
 
@@ -263,9 +279,9 @@ TO-252
 
 ]
 [
-Y1
-
-32768
+Y2
+MC306-G-06GQ-32768
+XTAL
 
 
 
@@ -280,7 +296,6 @@ MOC3083
 ]
 (
 AIN0
-CURENT-7
 STM8S105K4T6-16
 )
 (
@@ -292,16 +307,19 @@ C4-2
 C5-2
 C6-2
 C7-2
+D2-C
 J2-2
 LCD-1
 R4_SMD-1
-R5-2
+RTC-4
+S1_OK-2
+S2_MINUS-2
 S3_PLUS-2
 STM8S105K4T6-4
 STM8S105K4T6-10
 T1-4
 TempSensor-1
-U1-1
+U3-1
 VR05-2
 ZCOTDO-2
 )
@@ -315,12 +333,7 @@ VR05-1
 (
 NetD2_A
 D2-A
-STM8S105K4T6-25
-)
-(
-NetD2_C
-D2-C
-R5-1
+R5-2
 )
 (
 NetD3_A
@@ -357,9 +370,19 @@ R3_SMD-2
 R4_SMD-2
 )
 (
+NetR5_1
+R5-1
+STM8S105K4T6-25
+)
+(
 NetR6_2
 R6-2
 STM8S105K4T6-28
+)
+(
+NetR8_1
+R8-1
+U3-2
 )
 (
 NetR8_2
@@ -369,22 +392,17 @@ STM8S105K4T6-29
 (
 NetRTC_1
 RTC-1
-Y1-2
+Y2-2
 )
 (
 NetRTC_2
 RTC-2
-Y1-1
+Y2-1
 )
 (
 NetRTC_3
 BT1-2
 RTC-3
-)
-(
-NetS1_OK_2
-S1_OK-2
-S2_MINUS-2
 )
 (
 NetSTM8S105K4T6_5
@@ -412,11 +430,6 @@ T1-2
 NetTempSensor_2
 STM8S105K4T6-27
 TempSensor-2
-)
-(
-NetU1_2
-R8-1
-U1-2
 )
 (
 NetZCOTDO_1
@@ -477,11 +490,11 @@ STM8S105K4T6-8
 VCC+5V
 C3-1
 C7-1
-CURENT-8
 J2-4
 LCD-2
 R3_SMD-1
 R9-2
+R10-2
 R11-2
 RTC-8
 STM8S105K4T6-6
@@ -492,16 +505,20 @@ VR05-3
 )
 (
 VCC_IN_HOT
+JPower-2
 Q1-2
 R1-1
 T1-1
 )
 (
 VCC_LOAD_1
+JLOAD-1
 Q1-1
 R2-1
 )
 (
-VCC_NEUTRAL
+VCC_LOAD_2
+JLOAD-2
+JPower-1
 T1-3
 )
