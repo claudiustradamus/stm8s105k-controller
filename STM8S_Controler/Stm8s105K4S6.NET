@@ -40,7 +40,7 @@ C5
 ]
 [
 C6
-1005
+1206
 470nf
 
 
@@ -87,8 +87,24 @@ PGM
 
 ]
 [
-JCheck
+J3
+SIP2
+CON2
 
+
+
+]
+[
+J4
+SIP2
+CON2
+
+
+
+]
+[
+JCheck
+SIP2
 CON2
 
 
@@ -296,6 +312,7 @@ MOC3083
 ]
 (
 AIN0
+JCheck-1
 STM8S105K4T6-16
 )
 (
@@ -309,6 +326,9 @@ C6-2
 C7-2
 D2-C
 J2-2
+J3-2
+J4-2
+JCheck-2
 LCD-1
 R4_SMD-1
 RTC-4
@@ -422,6 +442,16 @@ RTC-6
 STM8S105K4T6-12
 )
 (
+NetSTM8S105K4T6_14
+J4-1
+STM8S105K4T6-14
+)
+(
+NetSTM8S105K4T6_15
+J3-1
+STM8S105K4T6-15
+)
+(
 NetT1_2
 D1-1
 T1-2
@@ -517,7 +547,7 @@ Q1-1
 R2-1
 )
 (
-VCC_LOAD_2
+VCC_NEUTRAL
 JLOAD-2
 JPower-1
 T1-3
