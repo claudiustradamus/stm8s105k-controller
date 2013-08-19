@@ -26,6 +26,7 @@ Editor Kind=PCB
 Editor Kind=Text
 [Stm8s105K4S6.ERC]
 Editor Kind=Text
+Attributes=131072
 [Preview PCB1.PPC]
 Editor Kind=PCBPrint
 [STM8S_Controler.rep]
