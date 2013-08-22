@@ -79,6 +79,14 @@ LED
 
 ]
 [
+F1
+FUSE_PCB
+FUSE1
+
+
+
+]
+[
 J2
 SIP-4
 PGM
@@ -112,7 +120,7 @@ CON2
 ]
 [
 JLOAD
-RAD0.4
+ANG2VA
 CON2
 
 
@@ -120,7 +128,7 @@ CON2
 ]
 [
 JPower
-RAD0.4
+ANG2VA
 CON2
 
 
@@ -373,15 +381,17 @@ J2-3
 STM8S105K4T6-26
 )
 (
+NetQ1_2
+F1-2
+Q1-2
+R1-1
+T1-1
+)
+(
 NetQ1_3
 Q1-3
 R2-2
 ZCOTDO-4
-)
-(
-NetR1_2
-R1-2
-ZCOTDO-6
 )
 (
 NetR3_SMD_2
@@ -467,6 +477,11 @@ D3-C
 ZCOTDO-1
 )
 (
+NetZCOTDO_6
+R1-2
+ZCOTDO-6
+)
+(
 PA1
 S3_PLUS-1
 STM8S105K4T6-2
@@ -535,10 +550,8 @@ VR05-3
 )
 (
 VCC_IN_HOT
+F1-1
 JPower-2
-Q1-2
-R1-1
-T1-1
 )
 (
 VCC_LOAD_1
