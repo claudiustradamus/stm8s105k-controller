@@ -12,6 +12,12 @@ STM8S_Controler.rep=Text
 PCBLIB1.LIB=PCBLib
 Stm8s105K4S6.CSV=Text
 Stm8s105K4S6.XLS=SPREAD
+PCB3.PCB=PCB
+ST-Microelectronics Footprints.lib=PCBLIB
+ST-Miscellaneous.lib=PCBLIB
+Preview PCB3.PPC=PCBPrint
+SECOND=Sch
+SECOND.NET=Text
 [Stm8s105K4S6.Sch]
 Editor Kind=Sch
 Attributes=131072
@@ -44,3 +50,22 @@ Child3=MOC3083
 Child4=7805
 Child5=DS1307
 Child6=DS18B20
+[PCB3.PCB]
+Editor Kind=PCB
+[ST-Microelectronics Footprints.lib]
+Editor Kind=PCBLIB
+[ST-Miscellaneous.lib]
+Editor Kind=PCBLIB
+[Preview PCB3.PPC]
+Editor Kind=PCBPrint
+[SECOND]
+Editor Kind=Sch
+Attributes=131072
+[SECOND.NET]
+Editor Kind=Text
+[SECOND Childlist]
+ChildCount=4
+Child1=STM105K4T6
+Child2=LCD
+Child3=DS1307
+Child4=DS18B20
