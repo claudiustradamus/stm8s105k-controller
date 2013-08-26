@@ -63,6 +63,7 @@ Editor Kind=Sch
 Attributes=131072
 [SECOND.NET]
 Editor Kind=Text
+Attributes=131072
 [SECOND Childlist]
 ChildCount=4
 Child1=STM105K4T6
