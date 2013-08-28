@@ -18,6 +18,14 @@ ST-Miscellaneous.lib=PCBLIB
 Preview PCB3.PPC=PCBPrint
 SECOND=Sch
 SECOND.NET=Text
+Power.Sch=Sch
+Power.NET=Text
+Power.PCB=PCB
+Power.ERC=Text
+Preview Power.PPC=PCBPrint
+Current_Monitor.Sch=Sch
+Current_Monitor.ERC=Text
+Current_Monitor.NET=Text
 [Stm8s105K4S6.Sch]
 Editor Kind=Sch
 Attributes=131072
@@ -42,14 +50,6 @@ Editor Kind=PCBLib
 Editor Kind=Text
 [Stm8s105K4S6.XLS]
 Editor Kind=SPREAD
-[Stm8s105K4S6.Sch Childlist]
-ChildCount=6
-Child1=STM105K4T6
-Child2=LCD
-Child3=MOC3083
-Child4=7805
-Child5=DS1307
-Child6=DS18B20
 [PCB3.PCB]
 Editor Kind=PCB
 [ST-Microelectronics Footprints.lib]
@@ -64,9 +64,44 @@ Attributes=131072
 [SECOND.NET]
 Editor Kind=Text
 Attributes=131072
+[Power.Sch]
+Editor Kind=Sch
+Attributes=131072
+[Power.NET]
+Editor Kind=Text
+[Power.PCB]
+Editor Kind=PCB
+[Power.ERC]
+Editor Kind=Text
+Attributes=131072
+[Stm8s105K4S6.Sch Childlist]
+ChildCount=6
+Child1=STM105K4T6
+Child2=LCD
+Child3=MOC3083
+Child4=7805
+Child5=DS1307
+Child6=DS18B20
+[Power.Sch Childlist]
+ChildCount=2
+Child1=MOC3083
+Child2=7805
+[Preview Power.PPC]
+Editor Kind=PCBPrint
+[Current_Monitor.Sch]
+Editor Kind=Sch
+Attributes=131072
+[Current_Monitor.ERC]
+Editor Kind=Text
 [SECOND Childlist]
 ChildCount=4
 Child1=STM105K4T6
 Child2=LCD
 Child3=DS1307
 Child4=DS18B20
+[Current_Monitor.NET]
+Editor Kind=Text
+[Current_Monitor.Sch Childlist]
+ChildCount=2
+Child1=STM105K4T6
+Child2=7805
