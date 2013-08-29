@@ -23,9 +23,9 @@ Power.NET=Text
 Power.PCB=PCB
 Power.ERC=Text
 Preview Power.PPC=PCBPrint
-Current_Monitor.Sch=Sch
-Current_Monitor.ERC=Text
-Current_Monitor.NET=Text
+Current.ERC=Text
+Current=Sch
+Current.NET=Text
 [Stm8s105K4S6.Sch]
 Editor Kind=Sch
 Attributes=131072
@@ -88,21 +88,20 @@ Child1=MOC3083
 Child2=7805
 [Preview Power.PPC]
 Editor Kind=PCBPrint
-[Current_Monitor.Sch]
-Editor Kind=Sch
-Attributes=131072
-[Current_Monitor.ERC]
-Editor Kind=Text
-[Current_Monitor.NET]
-Editor Kind=Text
-[Current_Monitor.Sch Childlist]
-ChildCount=3
-Child1=STM105K4T6
-Child2=7805
-Child3=LCD
 [SECOND Childlist]
 ChildCount=4
 Child1=STM105K4T6
 Child2=LCD
 Child3=DS1307
 Child4=DS18B20
+[Current.ERC]
+Editor Kind=Text
+[Current]
+Editor Kind=Sch
+Attributes=131072
+[Current.NET]
+Editor Kind=Text
+[Current Childlist]
+ChildCount=2
+Child1=STM105K4T6
+Child2=7805
