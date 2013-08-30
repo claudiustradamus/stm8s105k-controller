@@ -95,10 +95,6 @@ Editor Kind=Sch
 Attributes=131072
 [Current.NET]
 Editor Kind=Text
-[Current Childlist]
-ChildCount=2
-Child1=STM105K4T6
-Child2=7805
 [SECOND.ERC]
 Editor Kind=Text
 Attributes=131072
@@ -108,3 +104,7 @@ Child1=STM105K4T6
 Child2=LCD
 Child3=DS1307
 Child4=DS18B20
+[Current Childlist]
+ChildCount=2
+Child1=STM105K4T6
+Child2=7805
