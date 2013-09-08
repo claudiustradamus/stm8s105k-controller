@@ -88,6 +88,7 @@
 #define key_time 8000
 #define key_time_ok 15000
 #define DS_Control  0x10  // Out 1s
+#define time_menu 50000
 
 
 
@@ -183,7 +184,9 @@ bool I2C_WA(u8 address);
 bool I2C_WD(u8 data);
 bool I2C_RA(u8 address);
 bool Set_DS1307();
-bool Set_Delay_Allarm();
+//bool Set_Delay_Allarm();
+bool Set_Timer_On();
+bool Set_Timer_Off();
 bool Read_Allarm();
 bool Read_DS18();
 bool DS18_Write( u8 data);
@@ -201,6 +204,9 @@ void Save_Status();
 void Rotate_Line( char * line);
 void Display_Line(char * line);
 void Clear_Line1(void);
+void Clear_Line2(void);
+void Menu(void);
+u8 Key_Press(void);
 
 u16  Average();
 
@@ -322,6 +328,9 @@ void main(void)
 
       if (key_ok_on())
       {
+
+        Menu();
+        /*
         line_lcd=0;
         printf("\n%02d:%02d:%02d",years,mounts,date);
         status.daily=1; //On Daily timer
@@ -331,9 +340,10 @@ void main(void)
         change=TRUE;
         //Delay2(10000);
         //Delay2(10000);
+        */
       }
 
-      if(key_ok_plus()) Set_Delay_Allarm();  //Set Daily Allarm
+      //if(key_ok_plus()) Set_Delay_Allarm();  //Set Daily Allarm
       if(key_plus_on()) Power_On();
       if(key_minus_on())Power_Off();
 
@@ -767,7 +777,7 @@ bool  key_ok_plus()
 }
 
 
-bool Set_Delay_Allarm()
+bool Set_Timer_On()
 {
 
    //clr
@@ -793,6 +803,23 @@ bool Set_Delay_Allarm()
        daily_minute_on=adj(0,59,daily_minute_on);
     } while (!key_ok_on());
 
+   //Save data to eeprom
+     status.daily=1;
+     EEPROM_INIT();
+    //u8 temp =*(u8*)(&status);
+    // FLASH_ProgramByte(EEPROM_ADR_STATUS,*(u8*)(&status)); //save Status to eeprom
+     FLASH_ProgramByte(EEPROM_ADR_STATUSH,(u8)(*(u16*)(&status)>>8));
+     FLASH_ProgramByte(EEPROM_ADR_STATUSL,(u8)(*(u16*)(&status)));
+     FLASH_ProgramByte(EEPROM_ADR_TIME_ON_HOURS,daily_hour_on);
+     FLASH_ProgramByte(EEPROM_ADR_TIME_ON_MINUTES,daily_minute_on);
+     FLASH_Lock(FLASH_MEMTYPE_DATA); //Locking  Flash Data
+
+   return TRUE;
+}
+
+bool Set_Timer_Off()
+{
+
     LCDInstr(0x01);
     Delay1(1000);
     line_lcd=0;
@@ -815,6 +842,21 @@ bool Set_Delay_Allarm()
        daily_minute_off=adj(0,59,daily_minute_off);
     } while (!key_ok_on());
 
+  //Save data to eeprom
+     status.daily=1;
+     EEPROM_INIT();
+    //u8 temp =*(u8*)(&status);
+    // FLASH_ProgramByte(EEPROM_ADR_STATUS,*(u8*)(&status)); //save Status to eeprom
+     FLASH_ProgramByte(EEPROM_ADR_STATUSH,(u8)(*(u16*)(&status)>>8));
+     FLASH_ProgramByte(EEPROM_ADR_STATUSL,(u8)(*(u16*)(&status)));
+     FLASH_ProgramByte(EEPROM_ADR_TIME_OFF_HOURS,daily_hour_off);
+     FLASH_ProgramByte(EEPROM_ADR_TIME_OFF_MINUTES,daily_minute_off);
+     FLASH_Lock(FLASH_MEMTYPE_DATA); //Locking  Flash Data
+
+     return TRUE;
+}
+
+/*
      //Computing time_long_on
 
      u8 hour=daily_hour_on;
@@ -864,6 +906,7 @@ bool Set_Delay_Allarm()
    return TRUE;
 
 }
+  */
 
 void Save_Status()
 {
@@ -1574,8 +1617,122 @@ void Clear_Line1 ()
 
 }
 
+void Clear_Line2 ()
+{
+     //Set Cursor to Second  Line
+   LCDInstr(0x80 | 0x40);
+   count=0;
+   Delay1(1);
+    u8 count=0;
+   do
+   {
+     LCDData(' ');
+        Delay1(1);
+        count++;
+   }while (count<8);
 
 
+}
+
+
+
+
+
+void Menu (void)
+{
+ // Clear Display
+    LCDInstr(0x01); //Clear LCD
+    Delay1(250);
+ /* First Line 1. Time On 2. Time off 3.Timer ON/OFF 4.Exit
+    Wait for Plus,Minius or OK
+    If plus next option from Menu on the end EXIT
+    If minus previous option from Menu  on the end EXIT
+    If OK enter to menu option
+    If time out about 20s exit from Menu
+ */
+
+First_Menu:
+    line_lcd=0;
+    printf("\nTime ON");
+    line_lcd=1;
+    printf("\n%02d:%02d",daily_hour_on,daily_minute_on);
+     //Wait for key or timer end
+
+      /*
+    u8 select= Key_Press();
+    if (select==1) Set_Timer_On(); // Set Timer_On
+     else if (select==3) nop();// Menu Exit
+      else if (select==2)  //Dislpay next select
+      {
+         line_lcd=1;
+         printf("/nTimer OFF");
+         line_lcd=2;
+         printf("\n%02d:%02d",daily_hour_off,daily_minute_off);
+      }
+        */
+
+
+        switch (Key_Press())
+        {
+        case 1: Set_Timer_On();
+         break;
+        case 2: goto Second_Menu ;
+         break;
+        case 3: goto Exit_Menu;
+         break;
+        }
+        goto exit;
+
+Second_Menu:
+    line_lcd=0;
+    printf("\nTime Off");
+    line_lcd=1;
+    printf("\n%02d:%02d",daily_hour_off,daily_minute_off);
+      switch (Key_Press())
+        {
+        case 1: Set_Timer_Off();
+         break;
+        case 2: goto Exit_Menu ;
+         break;
+        case 3: goto First_Menu;
+         break;
+        }
+     goto exit;
+
+Exit_Menu:
+    line_lcd=0;
+    printf("\nExit OK ");
+    line_lcd=1;
+    printf("\n+/-     ");
+       switch (Key_Press())
+        {
+        case 1: goto exit ;
+         break;
+        case 2: goto First_Menu ;
+         break;
+        case 3: goto Second_Menu;
+         break;
+        }
+
+exit:
+   Clear_Line1();
+   Clear_Line2();
+
+}
+
+
+u8 Key_Press(void)
+{
+   u8 key_press =0;
+   timer2=0;
+   do {
+      if (key_ok_on()) key_press=1;
+       else if (key_plus_on())key_press=2;
+        else if (key_minus_on())key_press=3;
+   } while ( !key_press);    //timer2<=time_menu) &&
+
+   return key_press;
+}
 
 
 /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
