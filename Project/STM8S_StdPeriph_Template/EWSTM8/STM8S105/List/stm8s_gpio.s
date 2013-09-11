@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                            /
-// IAR C/C++ Compiler V1.30.1.50036 for STM8            15/Aug/2013  16:42:03 /
+// IAR C/C++ Compiler V1.30.1.50036 for STM8            11/Sep/2013  20:03:34 /
 // Copyright 2010-2011 IAR Systems AB.                                        /
 //                                                                            /
 //    Source file  =  C:\Documents and Settings\Administrator\Desktop\stm8s10 /

@@ -87,8 +87,10 @@
 //#define data_size 20
 #define key_time 8000
 #define key_time_ok 15000
+#define key_time_press 400
+#define key_time_release 400
 #define DS_Control  0x10  // Out 1s
-#define time_menu 50000
+#define time_menu 10  // 5s
 
 
 
@@ -96,6 +98,7 @@
 /* Private variables ---------------------------------------------------------*/
 volatile u16 timer1;
 volatile u16 timer2;
+volatile u16 timer3;
 volatile u8 timeout;
 volatile u16 adcdata;
 volatile u8 rx_data;
@@ -131,6 +134,7 @@ u8 test2;
 char line1[40];
 char string1[10];
 bool change;
+bool Time_Display;
 
 //u8 index=0;
 float  result;
@@ -160,7 +164,8 @@ void EEPROM_INIT();
 bool ReadDS1307();
 //void InitUart();
 void InitLcd();
-void InitDelayTimer();
+void InitDelayTimer2();
+void InitDelayTimer3();
 void Delay1( u16 Delay);
 void Delay2( u16 Delay);
 void Delay_us(u16 Delay);
@@ -207,6 +212,7 @@ void Clear_Line1(void);
 void Clear_Line2(void);
 void Menu(void);
 u8 Key_Press(void);
+void Display(void);
 
 u16  Average();
 
@@ -219,7 +225,8 @@ void main(void)
     //CLK_HSIPrescalerConfig(CLK_PRESCALER_HSIDIV1);
 
     InitClk();
-    InitDelayTimer();
+    InitDelayTimer2();
+    InitDelayTimer3();
     GpioConfiguration();
     GPIO_WriteLow(GPIOD, power_pin );
     //InitUart();
@@ -269,6 +276,7 @@ void main(void)
 
     }
 
+
        //Read Status register from eepom and update it
       //size=sizeof(status);
      //u16 status
@@ -300,15 +308,16 @@ void main(void)
     {
       ADC1_Cmd (ENABLE);
 
-       GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
-         Delay2(5000);
+      // GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
+         Delay2(10000);
          //ttimer++;
-       GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
-         Delay2(5000);
+      // GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
+      //   Delay2(5000);
 
            //status_check = *(u16*)(&status);
 
-      line_lcd=0;
+
+      /*
      if (!ReadDS1307())
      {
        printf("\n E2:%d",error);
@@ -318,32 +327,11 @@ void main(void)
        while ( 1 );    // Wait until reset occurs from IWDG
 
      }
-       else
-         //printf("\n      ");
+     */
 
-     //line_lcd=2;
-     //printf("\n Just Test:%X", timer2);
-         //if (rx_data==SpecialSymbol) SendData();
-      //SendData();
 
-      if (key_ok_on())
-      {
-
-        Menu();
-        /*
-        line_lcd=0;
-        printf("\n%02d:%02d:%02d",years,mounts,date);
-        status.daily=1; //On Daily timer
-        Save_Status();
-        Delay2(50000);
-        Clear_Line1();
-        change=TRUE;
-        //Delay2(10000);
-        //Delay2(10000);
-        */
-      }
-
-      //if(key_ok_plus()) Set_Delay_Allarm();  //Set Daily Allarm
+      if (key_ok_on()) Menu();
+       //if(key_ok_plus()) Set_Delay_Allarm();  //Set Daily Allarm
       if(key_plus_on()) Power_On();
       if(key_minus_on())Power_Off();
 
@@ -399,6 +387,7 @@ void main(void)
             sprintf(line1,"%d.%dC %s ",result1,result2,string1);
                change=FALSE;
              }
+           line_lcd=0;
             Display_Line(line1);
           line_lcd=1;
           printf("\n%02d:%02d:%02d",hours,minutes,seconds);
@@ -413,6 +402,17 @@ void main(void)
 
 
 
+}
+
+void Display(void)
+{
+  line_lcd=0;
+
+
+
+
+
+  Time_Display=FALSE;
 }
 
 void Power_On()
@@ -715,11 +715,20 @@ bool Set_Clock()
 u8 adj(u8 min,u8 max,u8 now)
 {
    u8 adj=now;
-   if (key_plus_on()) adj ++;
+   if (key_plus_on())
+   {
+     adj ++;
+     timer3=0;
+   }
    if (adj >max) adj = min;
-   if (key_minus_on()) adj --;
+   if (key_minus_on())
+   {
+     timer3=0;
+     adj --;
+   }
    if ( adj == 255) adj=max;
    if (adj < min) adj=max;
+
    return adj ;
 }
 
@@ -731,7 +740,11 @@ bool key_ok_on()
    {
      timer2=0;  // Key must be push for timer2 time
       while((timer2 < key_time_ok) && !(GPIO_ReadInputData(GPIOF)& key_ok) );;
-        if (timer2>=key_time_ok) return TRUE;
+       if (timer2>=key_time_press) // min delay for one
+       {
+         timer2=0; // and next must be release
+          if (GPIO_ReadInputData(GPIOF)& key_ok)  return TRUE;   //if realease retrun true
+       }
    }
 
   return FALSE;
@@ -744,7 +757,7 @@ bool key_ok_on()
      {
      timer2=0;  // Key must be push for timer2 time
       while((timer2 < key_time) && !(GPIO_ReadInputData(GPIOA)& key_plus) );;
-        if (timer2>=key_time) return TRUE;
+        if (timer2>=key_time_press) return TRUE;
      }
 
   return FALSE;
@@ -757,7 +770,7 @@ bool key_ok_on()
      {
      timer2=0;  // Key must be push for timer2 time
       while((timer2 < key_time) && !(GPIO_ReadInputData(GPIOA)& key_minus) );;
-        if (timer2>=key_time) return TRUE;
+        if (timer2>=key_time_press) return TRUE;
      }
 
   return FALSE;
@@ -785,23 +798,25 @@ bool Set_Timer_On()
    Delay1(1000);
    line_lcd=0;
    printf("\nH On:");
+    timer3=0;
   do
     {
      line_lcd=1;
      printf("\n%02d:%02d",daily_hour_on,daily_minute_on);
        daily_hour_on=adj(0,23,daily_hour_on);
-    } while (!key_ok_on());
+    } while ( timer3<=time_menu && !key_ok_on());
 
    LCDInstr(0x01);
    Delay1(1000);
    line_lcd=0;
    printf("\nMin On:");
+    timer3=0;
   do
     {
      line_lcd=1;
      printf("\n%02d:%02d",daily_hour_on,daily_minute_on);
        daily_minute_on=adj(0,59,daily_minute_on);
-    } while (!key_ok_on());
+    } while ((timer3<=time_menu)&& !key_ok_on());
 
    //Save data to eeprom
      status.daily=1;
@@ -813,6 +828,8 @@ bool Set_Timer_On()
      FLASH_ProgramByte(EEPROM_ADR_TIME_ON_HOURS,daily_hour_on);
      FLASH_ProgramByte(EEPROM_ADR_TIME_ON_MINUTES,daily_minute_on);
      FLASH_Lock(FLASH_MEMTYPE_DATA); //Locking  Flash Data
+      time_on=daily_hour_on*60+daily_minute_on;
+       change=TRUE;
 
    return TRUE;
 }
@@ -824,23 +841,25 @@ bool Set_Timer_Off()
     Delay1(1000);
     line_lcd=0;
     printf("\nH Off:");
+     timer3=0;
   do
     {
      line_lcd=1;
      printf("\n%02d:%02d",daily_hour_off,daily_minute_off);
        daily_hour_off=adj(0,23,daily_hour_off);
-    } while (!key_ok_on());
+    } while (timer3<=time_menu && !key_ok_on());
 
   LCDInstr(0x01);
    Delay1(1000);
    line_lcd=0;
    printf("\nMin Off:");
+   timer3=0;
   do
     {
      line_lcd=1;
      printf("\n%02d:%02d",daily_hour_off,daily_minute_off);
        daily_minute_off=adj(0,59,daily_minute_off);
-    } while (!key_ok_on());
+    } while (timer3<=time_menu && !key_ok_on());
 
   //Save data to eeprom
      status.daily=1;
@@ -852,7 +871,8 @@ bool Set_Timer_Off()
      FLASH_ProgramByte(EEPROM_ADR_TIME_OFF_HOURS,daily_hour_off);
      FLASH_ProgramByte(EEPROM_ADR_TIME_OFF_MINUTES,daily_minute_off);
      FLASH_Lock(FLASH_MEMTYPE_DATA); //Locking  Flash Data
-
+      time_off= daily_hour_off*60+daily_minute_off;
+       change=TRUE;
      return TRUE;
 }
 
@@ -1296,7 +1316,7 @@ void LCD(u8 data)
      }
  }
 
-void InitDelayTimer()
+void InitDelayTimer2()
 {
    //Timer 2 use for Delay  long Delay is 40ms for lcd
    //Tclock 16/8=2Mhz  /20 10us
@@ -1308,6 +1328,22 @@ void InitDelayTimer()
        TIM2_Cmd(ENABLE);
 
 }
+
+void InitDelayTimer3()
+{
+   //Timer 3 use for 1s Delay
+   //Tclock 16000000/1024=15626
+       TIM3_DeInit();
+       TIM3_TimeBaseInit(TIM3_PRESCALER_1024,15625);
+       //TIM2_PrescalerConfig(TIM2_PRESCALER_1, TIM2_PSCRELOADMODE_IMMEDIATE);
+       TIM3_ITConfig(TIM3_IT_UPDATE, ENABLE);
+  //Enable TIM2
+       TIM3_Cmd(ENABLE);
+
+}
+
+
+
 
 bool DS18_Write(u8 data)
 {
@@ -1653,7 +1689,7 @@ void Menu (void)
 
 First_Menu:
     line_lcd=0;
-    printf("\nTime ON");
+    printf("\nTime ON ");
     line_lcd=1;
     printf("\n%02d:%02d",daily_hour_on,daily_minute_on);
      //Wait for key or timer end
@@ -1724,12 +1760,12 @@ exit:
 u8 Key_Press(void)
 {
    u8 key_press =0;
-   timer2=0;
+   timer3=0;
    do {
       if (key_ok_on()) key_press=1;
        else if (key_plus_on())key_press=2;
         else if (key_minus_on())key_press=3;
-   } while ( !key_press);    //timer2<=time_menu) &&
+   } while ( (timer3<=time_menu) && !key_press);    //(timer3<=time_menu) &&
 
    return key_press;
 }
