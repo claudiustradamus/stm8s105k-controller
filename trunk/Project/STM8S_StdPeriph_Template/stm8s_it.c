@@ -35,10 +35,15 @@
 /* Private variables ---------------------------------------------------------*/
 extern  volatile u16 timer1;
 extern  volatile u16 timer2;
+extern  volatile u16 timer3;
 extern  volatile u16 adcdata;
 extern  volatile u8 timeout;
 extern  volatile u8 rx_data;
 extern  volatile u8 index=0;
+extern  volatile u8 seconds;
+extern  volatile u8 minutes;
+extern  volatile u8 hours;
+extern  bool Time_Display;
 //extern   u16  measure[data_size];
 
 /* Private function prototypes -----------------------------------------------*/
@@ -319,6 +324,25 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
   /* In order to detect unexpected events during development,
      it is recommended to set a breakpoint on the following instruction.
   */
+
+
+   GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
+   timer3++;
+   seconds++;
+    if (seconds >=59)
+    {
+      seconds=0;
+      minutes++;
+    }
+    if (minutes >= 59)
+    {
+      minutes=0;
+      hours++;
+      if(hours >=23) hours=0;
+    }
+
+    Time_Display=TRUE;
+   TIM3_ClearITPendingBit(TIM3_IT_UPDATE);
  }
 
 /**
