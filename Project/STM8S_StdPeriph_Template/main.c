@@ -1689,7 +1689,7 @@ void Menu (void)
 
 First_Menu:
     line_lcd=0;
-    printf("\nTime ON ");
+    printf("\nON      ");
     line_lcd=1;
     printf("\n%02d:%02d",daily_hour_on,daily_minute_on);
      //Wait for key or timer end
@@ -1721,7 +1721,7 @@ First_Menu:
 
 Second_Menu:
     line_lcd=0;
-    printf("\nTime Off");
+    printf("\nOFF     ");
     line_lcd=1;
     printf("\n%02d:%02d",daily_hour_off,daily_minute_off);
       switch (Key_Press())
@@ -1734,6 +1734,13 @@ Second_Menu:
          break;
         }
      goto exit;
+
+
+
+
+
+
+
 
 Exit_Menu:
     line_lcd=0;

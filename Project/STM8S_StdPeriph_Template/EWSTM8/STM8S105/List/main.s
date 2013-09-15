@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                            /
-// IAR C/C++ Compiler V1.30.1.50036 for STM8            11/Sep/2013  21:32:58 /
+// IAR C/C++ Compiler V1.30.1.50036 for STM8            13/Sep/2013  22:06:59 /
 // Copyright 2010-2011 IAR Systems AB.                                        /
 //                                                                            /
 //    Source file  =  C:\Documents and Settings\Administrator\Desktop\stm8s10 /
@@ -2632,7 +2632,7 @@ Menu:
         CALLF     ?Subroutine14
 ??CrossCallReturnLabel_40:
         CLR       L:line_lcd
-        LDW       X, #`?<Constant "\\nTime ON ">`
+        LDW       X, #`?<Constant "\\nON      ">`
         CALLF     ?Subroutine34
 ??CrossCallReturnLabel_97:
         LD        A, L:daily_minute_on
@@ -2661,7 +2661,7 @@ Menu:
         JRA       L:??Menu_3
 ??Menu_1:
         CLR       L:line_lcd
-        LDW       X, #`?<Constant "\\nTime Off">`
+        LDW       X, #`?<Constant "\\nOFF     ">`
         CALLF     ?Subroutine34
 ??CrossCallReturnLabel_98:
         LD        A, L:daily_minute_off
@@ -6851,7 +6851,7 @@ SendChar:
 // 1689 
 // 1690 First_Menu:
 // 1691     line_lcd=0;
-// 1692     printf("\nTime ON ");
+// 1692     printf("\nON      ");
 // 1693     line_lcd=1;
 // 1694     printf("\n%02d:%02d",daily_hour_on,daily_minute_on);
 // 1695      //Wait for key or timer end
@@ -6883,7 +6883,7 @@ SendChar:
 // 1721 
 // 1722 Second_Menu:
 // 1723     line_lcd=0;
-// 1724     printf("\nTime Off");
+// 1724     printf("\nOFF     ");
 // 1725     line_lcd=1;
 // 1726     printf("\n%02d:%02d",daily_hour_off,daily_minute_off);
 // 1727       switch (Key_Press())
@@ -6897,74 +6897,81 @@ SendChar:
 // 1735         }
 // 1736      goto exit;
 // 1737 
-// 1738 Exit_Menu:
-// 1739     line_lcd=0;
-// 1740     printf("\nExit OK ");
-// 1741     line_lcd=1;
-// 1742     printf("\n+/-     ");
-// 1743        switch (Key_Press())
-// 1744         {
-// 1745         case 1: goto exit ;
-// 1746          break;
-// 1747         case 2: goto First_Menu ;
-// 1748          break;
-// 1749         case 3: goto Second_Menu;
-// 1750          break;
-// 1751         }
-// 1752 
-// 1753 exit:
-// 1754    Clear_Line1();
-// 1755    Clear_Line2();
-// 1756 
-// 1757 }
-// 1758 
+// 1738 
+// 1739 
+// 1740 
+// 1741 
+// 1742 
+// 1743 
+// 1744 
+// 1745 Exit_Menu:
+// 1746     line_lcd=0;
+// 1747     printf("\nExit OK ");
+// 1748     line_lcd=1;
+// 1749     printf("\n+/-     ");
+// 1750        switch (Key_Press())
+// 1751         {
+// 1752         case 1: goto exit ;
+// 1753          break;
+// 1754         case 2: goto First_Menu ;
+// 1755          break;
+// 1756         case 3: goto Second_Menu;
+// 1757          break;
+// 1758         }
 // 1759 
+// 1760 exit:
+// 1761    Clear_Line1();
+// 1762    Clear_Line2();
+// 1763 
+// 1764 }
+// 1765 
+// 1766 
 
         SECTION `.far_func.text`:CODE:REORDER:NOROOT(0)
         CFI Block cfiBlock427 Using cfiCommon0
         CFI Function Key_Press
         CODE
-// 1760 u8 Key_Press(void)
-// 1761 {
+// 1767 u8 Key_Press(void)
+// 1768 {
 Key_Press:
         PUSH      S:?b8
         CFI ?b8 Frame(CFA, -3)
         CFI CFA SP+4
-// 1762    u8 key_press =0;
+// 1769    u8 key_press =0;
         CLR       S:?b8
-// 1763    timer3=0;
+// 1770    timer3=0;
         CLRW      X
         LDW       L:timer3, X
-// 1764    do {
-// 1765       if (key_ok_on()) key_press=1;
+// 1771    do {
+// 1772       if (key_ok_on()) key_press=1;
 ??Key_Press_0:
         CALLF     ?Subroutine18
 ??CrossCallReturnLabel_51:
         JREQ      L:??Key_Press_1
         MOV       S:?b8, #0x1
         JRA       L:??Key_Press_2
-// 1766        else if (key_plus_on())key_press=2;
+// 1773        else if (key_plus_on())key_press=2;
 ??Key_Press_1:
         CALLF     key_plus_on
         CP        A, #0x0
         JREQ      L:??Key_Press_3
         MOV       S:?b8, #0x2
         JRA       L:??Key_Press_2
-// 1767         else if (key_minus_on())key_press=3;
+// 1774         else if (key_minus_on())key_press=3;
 ??Key_Press_3:
         CALLF     key_minus_on
         CP        A, #0x0
         JREQ      L:??Key_Press_2
         MOV       S:?b8, #0x3
-// 1768    } while ( (timer3<=time_menu) && !key_press);    //(timer3<=time_menu) &&
+// 1775    } while ( (timer3<=time_menu) && !key_press);    //(timer3<=time_menu) &&
 ??Key_Press_2:
         CALLF     ?Subroutine21
 ??CrossCallReturnLabel_68:
         JRNC      L:??Key_Press_4
         TNZ       S:?b8
         JREQ      L:??Key_Press_0
-// 1769 
-// 1770    return key_press;
+// 1776 
+// 1777    return key_press;
 ??Key_Press_4:
         LD        A, S:?b8
         POP       S:?b8
@@ -6972,7 +6979,7 @@ Key_Press:
         CFI CFA SP+3
         RETF
         CFI EndBlock cfiBlock427
-// 1771 }
+// 1778 }
 
         SECTION VREGS:DATA:REORDER:NOROOT(0)
 
@@ -7065,12 +7072,12 @@ Key_Press:
         DC8 "\012%d.%d"
 
         SECTION `.near.rodata`:CONST:REORDER:NOROOT(0)
-`?<Constant "\\nTime ON ">`:
-        DC8 "\012Time ON "
+`?<Constant "\\nON      ">`:
+        DC8 "\012ON      "
 
         SECTION `.near.rodata`:CONST:REORDER:NOROOT(0)
-`?<Constant "\\nTime Off">`:
-        DC8 "\012Time Off"
+`?<Constant "\\nOFF     ">`:
+        DC8 "\012OFF     "
 
         SECTION `.near.rodata`:CONST:REORDER:NOROOT(0)
 `?<Constant "\\nExit OK ">`:
@@ -7081,9 +7088,9 @@ Key_Press:
         DC8 "\012+/-     "
 
         END
-// 1772 
-// 1773 
-// 1774 /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+// 1779 
+// 1780 
+// 1781 /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
 // 
 // 4 444 bytes in section .far_func.text
 //    98 bytes in section .near.bss

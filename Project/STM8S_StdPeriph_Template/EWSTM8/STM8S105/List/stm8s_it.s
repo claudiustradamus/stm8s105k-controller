@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                            /
-// IAR C/C++ Compiler V1.30.1.50036 for STM8            11/Sep/2013  21:25:48 /
+// IAR C/C++ Compiler V1.30.1.50036 for STM8            13/Sep/2013  20:08:12 /
 // Copyright 2010-2011 IAR Systems AB.                                        /
 //                                                                            /
 //    Source file  =  C:\Documents and Settings\Administrator\Desktop\stm8s10 /
@@ -695,9 +695,9 @@ _interrupt_17:
         LD        A, L:seconds
         INC       A
         LD        L:seconds, A
-//  332     if (seconds >=59)
+//  332     if (seconds >59)
         LD        A, L:seconds
-        CP        A, #0x3b
+        CP        A, #0x3c
         JRC       L:??TIM3_UPD_OVF_BRK_IRQHandler_0
 //  333     {
 //  334       seconds=0;
@@ -707,10 +707,10 @@ _interrupt_17:
         INC       A
         LD        L:minutes, A
 //  336     }
-//  337     if (minutes >= 59)
+//  337     if (minutes > 59)
 ??TIM3_UPD_OVF_BRK_IRQHandler_0:
         LD        A, L:minutes
-        CP        A, #0x3b
+        CP        A, #0x3c
         JRC       L:??TIM3_UPD_OVF_BRK_IRQHandler_1
 //  338     {
 //  339       minutes=0;
@@ -719,9 +719,9 @@ _interrupt_17:
         LD        A, L:hours
         INC       A
         LD        L:hours, A
-//  341       if(hours >=23) hours=0;
+//  341       if(hours > 23) hours=0;
         LD        A, L:hours
-        CP        A, #0x17
+        CP        A, #0x18
         JRC       L:??TIM3_UPD_OVF_BRK_IRQHandler_1
         CLR       L:hours
 //  342     }

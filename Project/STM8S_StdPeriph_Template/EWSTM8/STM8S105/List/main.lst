@@ -1,6 +1,6 @@
 ###############################################################################
 #                                                                             #
-# IAR C/C++ Compiler V1.30.1.50036 for STM8             11/Sep/2013  21:32:58 #
+# IAR C/C++ Compiler V1.30.1.50036 for STM8             13/Sep/2013  22:06:59 #
 # Copyright 2010-2011 IAR Systems AB.                                         #
 #                                                                             #
 #    Source file  =  C:\Documents and Settings\Administrator\Desktop\stm8s105 #
@@ -4230,8 +4230,8 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    1691              line_lcd=0;
    \                     ??CrossCallReturnLabel_40:
    \   000004 725F0000              CLR       L:line_lcd
-   1692              printf("\nTime ON ");
-   \   000008 AE0000                LDW       X, #`?<Constant "\\nTime ON ">`
+   1692              printf("\nON      ");
+   \   000008 AE0000                LDW       X, #`?<Constant "\\nON      ">`
    \   00000B 8D000000              CALLF     ?Subroutine34
    1693              line_lcd=1;
    1694              printf("\n%02d:%02d",daily_hour_on,daily_minute_on);
@@ -4288,8 +4288,8 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    1723              line_lcd=0;
    \                     ??Menu_1:
    \   000038 725F0000              CLR       L:line_lcd
-   1724              printf("\nTime Off");
-   \   00003C AE0000                LDW       X, #`?<Constant "\\nTime Off">`
+   1724              printf("\nOFF     ");
+   \   00003C AE0000                LDW       X, #`?<Constant "\\nOFF     ">`
    \   00003F 8D000000              CALLF     ?Subroutine34
    1725              line_lcd=1;
    1726              printf("\n%02d:%02d",daily_hour_off,daily_minute_off);
@@ -4326,19 +4326,26 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    1735                  }
    1736               goto exit;
    1737          
-   1738          Exit_Menu:
-   1739              line_lcd=0;
+   1738          
+   1739          
+   1740          
+   1741          
+   1742          
+   1743          
+   1744          
+   1745          Exit_Menu:
+   1746              line_lcd=0;
    \                     ??Menu_2:
    \   00006C 725F0000              CLR       L:line_lcd
-   1740              printf("\nExit OK ");
+   1747              printf("\nExit OK ");
    \   000070 AE0000                LDW       X, #`?<Constant "\\nExit OK ">`
    \   000073 8D000000              CALLF     ?Subroutine34
-   1741              line_lcd=1;
-   1742              printf("\n+/-     ");
+   1748              line_lcd=1;
+   1749              printf("\n+/-     ");
    \                     ??CrossCallReturnLabel_99:
    \   000077 AE0000                LDW       X, #`?<Constant "\\n+/-     ">`
    \   00007A 8D000000              CALLF     printf
-   1743                 switch (Key_Press())
+   1750                 switch (Key_Press())
    \   00007E 8D000000              CALLF     Key_Press
    \   000082 A002                  SUB       A, #0x2
    \   000084 2603                  JRNE      ??lb_0
@@ -4346,77 +4353,77 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \                     ??lb_0:
    \   000089 4A                    DEC       A
    \   00008A 27AC                  JREQ      L:??Menu_1
-   1744                  {
-   1745                  case 1: goto exit ;
-   1746                   break;
-   1747                  case 2: goto First_Menu ;
-   1748                   break;
-   1749                  case 3: goto Second_Menu;
-   1750                   break;
-   1751                  }
-   1752          
-   1753          exit:
-   1754             Clear_Line1();
+   1751                  {
+   1752                  case 1: goto exit ;
+   1753                   break;
+   1754                  case 2: goto First_Menu ;
+   1755                   break;
+   1756                  case 3: goto Second_Menu;
+   1757                   break;
+   1758                  }
+   1759          
+   1760          exit:
+   1761             Clear_Line1();
    \                     ??Menu_3:
    \   00008C 8D000000              CALLF     Clear_Line1
-   1755             Clear_Line2();
+   1762             Clear_Line2();
    \   000090 AC000000              JPF       Clear_Line2
-   1756          
-   1757          }
+   1763          
+   1764          }
 
    \                                 In section .far_func.text, align 1, keep-with-next
    \                     ?Subroutine34:
    \   000000 8D000000              CALLF     printf
    \   000004 35010000              MOV       L:line_lcd, #0x1
    \   000008 87                    RETF
-   1758          
-   1759          
+   1765          
+   1766          
 
    \                                 In section .far_func.text, align 1
-   1760          u8 Key_Press(void)
-   1761          {
+   1767          u8 Key_Press(void)
+   1768          {
    \                     Key_Press:
    \   000000 3B0000                PUSH      S:?b8
-   1762             u8 key_press =0;
+   1769             u8 key_press =0;
    \   000003 3F00                  CLR       S:?b8
-   1763             timer3=0;
+   1770             timer3=0;
    \   000005 5F                    CLRW      X
    \   000006 CF0000                LDW       L:timer3, X
-   1764             do {
-   1765                if (key_ok_on()) key_press=1;
+   1771             do {
+   1772                if (key_ok_on()) key_press=1;
    \                     ??Key_Press_0:
    \   000009 8D000000              CALLF     ?Subroutine18
    \                     ??CrossCallReturnLabel_51:
    \   00000D 2706                  JREQ      L:??Key_Press_1
    \   00000F 35010000              MOV       S:?b8, #0x1
    \   000013 201A                  JRA       L:??Key_Press_2
-   1766                 else if (key_plus_on())key_press=2;
+   1773                 else if (key_plus_on())key_press=2;
    \                     ??Key_Press_1:
    \   000015 8D000000              CALLF     key_plus_on
    \   000019 A100                  CP        A, #0x0
    \   00001B 2706                  JREQ      L:??Key_Press_3
    \   00001D 35020000              MOV       S:?b8, #0x2
    \   000021 200C                  JRA       L:??Key_Press_2
-   1767                  else if (key_minus_on())key_press=3;
+   1774                  else if (key_minus_on())key_press=3;
    \                     ??Key_Press_3:
    \   000023 8D000000              CALLF     key_minus_on
    \   000027 A100                  CP        A, #0x0
    \   000029 2704                  JREQ      L:??Key_Press_2
    \   00002B 35030000              MOV       S:?b8, #0x3
-   1768             } while ( (timer3<=time_menu) && !key_press);    //(timer3<=time_menu) &&
+   1775             } while ( (timer3<=time_menu) && !key_press);    //(timer3<=time_menu) &&
    \                     ??Key_Press_2:
    \   00002F 8D000000              CALLF     ?Subroutine21
    \                     ??CrossCallReturnLabel_68:
    \   000033 2404                  JRNC      L:??Key_Press_4
    \   000035 3D00                  TNZ       S:?b8
    \   000037 27D0                  JREQ      L:??Key_Press_0
-   1769          
-   1770             return key_press;
+   1776          
+   1777             return key_press;
    \                     ??Key_Press_4:
    \   000039 B600                  LD        A, S:?b8
    \   00003B 320000                POP       S:?b8
    \   00003E 87                    RETF
-   1771          }
+   1778          }
 
    \                                 In section .near.rodata, align 1
    \                     `?<Constant "\\nDS_Err_I">`:
@@ -4507,12 +4514,12 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \   000000 0A25642E2564          DC8 "\012%d.%d"
 
    \                                 In section .near.rodata, align 1
-   \                     `?<Constant "\\nTime ON ">`:
-   \   000000 0A54696D6520          DC8 "\012Time ON "
+   \                     `?<Constant "\\nON      ">`:
+   \   000000 0A4F4E202020          DC8 "\012ON      "
 
    \                                 In section .near.rodata, align 1
-   \                     `?<Constant "\\nTime Off">`:
-   \   000000 0A54696D6520          DC8 "\012Time Off"
+   \                     `?<Constant "\\nOFF     ">`:
+   \   000000 0A4F46462020          DC8 "\012OFF     "
 
    \                                 In section .near.rodata, align 1
    \                     `?<Constant "\\nExit OK ">`:
@@ -4521,9 +4528,9 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \                                 In section .near.rodata, align 1
    \                     `?<Constant "\\n+/-     ">`:
    \   000000 0A2B2F2D2020          DC8 "\012+/-     "
-   1772          
-   1773          
-   1774          /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+   1779          
+   1780          
+   1781          /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
 
    Section sizes:
 
@@ -4719,8 +4726,8 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
      ?<Constant "\nH Off:">            8
      ?<Constant "\nMin Off:">         10
      ?<Constant "\n%d.%d">             7
-     ?<Constant "\nTime ON ">         10
-     ?<Constant "\nTime Off">         10
+     ?<Constant "\nON      ">         10
+     ?<Constant "\nOFF     ">         10
      ?<Constant "\nExit OK ">         10
      ?<Constant "\n+/-     ">         10
 
