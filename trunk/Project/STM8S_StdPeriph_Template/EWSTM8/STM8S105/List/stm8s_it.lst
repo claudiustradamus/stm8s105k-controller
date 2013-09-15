@@ -1,6 +1,6 @@
 ###############################################################################
 #                                                                             #
-# IAR C/C++ Compiler V1.30.1.50036 for STM8             11/Sep/2013  21:25:48 #
+# IAR C/C++ Compiler V1.30.1.50036 for STM8             13/Sep/2013  20:08:13 #
 # Copyright 2010-2011 IAR Systems AB.                                         #
 #                                                                             #
 #    Source file  =  C:\Documents and Settings\Administrator\Desktop\stm8s105 #
@@ -484,9 +484,9 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \   00001E C60000                LD        A, L:seconds
    \   000021 4C                    INC       A
    \   000022 C70000                LD        L:seconds, A
-    332              if (seconds >=59)
+    332              if (seconds >59)
    \   000025 C60000                LD        A, L:seconds
-   \   000028 A13B                  CP        A, #0x3b
+   \   000028 A13C                  CP        A, #0x3c
    \   00002A 250B                  JRC       L:??TIM3_UPD_OVF_BRK_IRQHandler_0
     333              {
     334                seconds=0;
@@ -496,10 +496,10 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \   000033 4C                    INC       A
    \   000034 C70000                LD        L:minutes, A
     336              }
-    337              if (minutes >= 59)
+    337              if (minutes > 59)
    \                     ??TIM3_UPD_OVF_BRK_IRQHandler_0:
    \   000037 C60000                LD        A, L:minutes
-   \   00003A A13B                  CP        A, #0x3b
+   \   00003A A13C                  CP        A, #0x3c
    \   00003C 2516                  JRC       L:??TIM3_UPD_OVF_BRK_IRQHandler_1
     338              {
     339                minutes=0;
@@ -508,9 +508,9 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \   000042 C60000                LD        A, L:hours
    \   000045 4C                    INC       A
    \   000046 C70000                LD        L:hours, A
-    341                if(hours >=23) hours=0;
+    341                if(hours > 23) hours=0;
    \   000049 C60000                LD        A, L:hours
-   \   00004C A117                  CP        A, #0x17
+   \   00004C A118                  CP        A, #0x18
    \   00004E 2504                  JRC       L:??TIM3_UPD_OVF_BRK_IRQHandler_1
    \   000050 725F0000              CLR       L:hours
     342              }

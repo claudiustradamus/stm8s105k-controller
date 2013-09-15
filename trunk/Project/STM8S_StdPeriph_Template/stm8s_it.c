@@ -329,16 +329,16 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
    GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
    timer3++;
    seconds++;
-    if (seconds >=59)
+    if (seconds >59)
     {
       seconds=0;
       minutes++;
     }
-    if (minutes >= 59)
+    if (minutes > 59)
     {
       minutes=0;
       hours++;
-      if(hours >=23) hours=0;
+      if(hours > 23) hours=0;
     }
 
     Time_Display=TRUE;
