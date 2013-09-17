@@ -757,7 +757,10 @@ bool key_ok_on()
      {
      timer2=0;  // Key must be push for timer2 time
       while((timer2 < key_time) && !(GPIO_ReadInputData(GPIOA)& key_plus) );;
-        if (timer2>=key_time_press) return TRUE;
+        if (timer2>=key_time_press)
+        {
+          if (GPIO_ReadInputData(GPIOF)& key_ok)  return TRUE;
+        }
      }
 
   return FALSE;
@@ -770,7 +773,10 @@ bool key_ok_on()
      {
      timer2=0;  // Key must be push for timer2 time
       while((timer2 < key_time) && !(GPIO_ReadInputData(GPIOA)& key_minus) );;
-        if (timer2>=key_time_press) return TRUE;
+        if (timer2>=key_time_press)
+        {
+         if (GPIO_ReadInputData(GPIOF)& key_ok)  return TRUE;
+        }
      }
 
   return FALSE;
@@ -1679,36 +1685,36 @@ void Menu (void)
  // Clear Display
     LCDInstr(0x01); //Clear LCD
     Delay1(250);
+    //u8 key;
  /* First Line 1. Time On 2. Time off 3.Timer ON/OFF 4.Exit
     Wait for Plus,Minius or OK
     If plus next option from Menu on the end EXIT
     If minus previous option from Menu  on the end EXIT
     If OK enter to menu option
-    If time out about 20s exit from Menu
+    If time out about 10s exit from Menu
  */
+
+
+   /*
+      First_Menu();
+
+
+
+    */
+
+
+
+
+
+    do {
+
 
 First_Menu:
     line_lcd=0;
     printf("\nON      ");
     line_lcd=1;
     printf("\n%02d:%02d",daily_hour_on,daily_minute_on);
-     //Wait for key or timer end
-
-      /*
-    u8 select= Key_Press();
-    if (select==1) Set_Timer_On(); // Set Timer_On
-     else if (select==3) nop();// Menu Exit
-      else if (select==2)  //Dislpay next select
-      {
-         line_lcd=1;
-         printf("/nTimer OFF");
-         line_lcd=2;
-         printf("\n%02d:%02d",daily_hour_off,daily_minute_off);
-      }
-        */
-
-
-        switch (Key_Press())
+    switch (Key_Press())
         {
         case 1: Set_Timer_On();
          break;
@@ -1717,7 +1723,8 @@ First_Menu:
         case 3: goto Exit_Menu;
          break;
         }
-        goto exit;
+        break; //Exit Menu
+
 
 Second_Menu:
     line_lcd=0;
@@ -1728,14 +1735,28 @@ Second_Menu:
         {
         case 1: Set_Timer_Off();
          break;
-        case 2: goto Exit_Menu ;
+        case 2: goto Third_Menu ;
          break;
         case 3: goto First_Menu;
          break;
         }
-     goto exit;
+     break; //Exit Menu
 
-
+Third_Menu:
+    line_lcd=0;
+    printf("\nClock");
+    line_lcd=1;
+    printf("\n%02d:%02d:%02d",hours,minutes,seconds);
+      switch (Key_Press())
+        {
+        case 1:  Set_Clock();
+         break;
+        case 2: goto Exit_Menu ;
+         break;
+        case 3: goto Second_Menu;
+         break;
+        }
+     break; //Exit Menu
 
 
 
@@ -1749,15 +1770,16 @@ Exit_Menu:
     printf("\n+/-     ");
        switch (Key_Press())
         {
-        case 1: goto exit ;
+        case 1:
          break;
         case 2: goto First_Menu ;
          break;
-        case 3: goto Second_Menu;
+        case 3: goto Third_Menu;
          break;
         }
-
-exit:
+       break; //Exit Menu
+    }    while (1);
+    //exit:
    Clear_Line1();
    Clear_Line2();
 
