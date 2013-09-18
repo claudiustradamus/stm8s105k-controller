@@ -44,6 +44,7 @@ extern  volatile u8 seconds;
 extern  volatile u8 minutes;
 extern  volatile u8 hours;
 extern  bool Time_Display;
+
 //extern   u16  measure[data_size];
 
 /* Private function prototypes -----------------------------------------------*/
@@ -291,8 +292,6 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
  timer1++;
  timeout--;
   if (timeout<=0) timeout=0;
-
-
 
  //ADC1_Cmd (ENABLE); //Start convert
  TIM2_ClearITPendingBit(TIM2_IT_UPDATE);

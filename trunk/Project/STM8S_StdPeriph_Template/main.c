@@ -87,7 +87,7 @@
 //#define data_size 20
 #define key_time 8000
 #define key_time_ok 15000
-#define key_time_press 400
+#define key_time_press 4000
 #define key_time_release 400
 #define DS_Control  0x10  // Out 1s
 #define time_menu 10  // 5s
@@ -131,6 +131,7 @@ u8 l=0;
 u16 status_check;
 u8 test1;
 u8 test2;
+
 char line1[40];
 char string1[10];
 bool change;
@@ -750,6 +751,8 @@ bool key_ok_on()
   return FALSE;
 }
 
+
+
  bool key_plus_on()
 {
   //Read Key OK
@@ -765,6 +768,7 @@ bool key_ok_on()
 
   return FALSE;
 }
+
 
   bool key_minus_on()
 {
@@ -1792,7 +1796,7 @@ u8 Key_Press(void)
    timer3=0;
    do {
       if (key_ok_on()) key_press=1;
-       else if (key_plus_on())key_press=2;
+         else if (key_plus_on())key_press=2;
         else if (key_minus_on())key_press=3;
    } while ( (timer3<=time_menu) && !key_press);    //(timer3<=time_menu) &&
 
