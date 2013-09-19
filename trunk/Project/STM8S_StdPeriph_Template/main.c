@@ -114,7 +114,7 @@ u8 hours;
 u8 days=1;
 u8 date=1;
 u8 monts=1;
-int years;
+u8 years;
 u8 error;
 u8 temp_flag;
 u8 temp2;
@@ -133,7 +133,7 @@ u8 l=0;
 u16 status_check;
 u8 test1;
 u8 test2;
-u8 date_end;
+
 
 char line1[40];
 char string1[10];
@@ -1813,29 +1813,32 @@ u8 Key_Press(void)
 
 bool Set_Date(void)
 {
-   u8 leap=0;
+   u8 leap=0 ,date_end,month_start,date_start;
+   int y;
 
          //Clear Display
    LCDInstr(0x01);
    Delay1(1000);
    line_lcd=0;
     printf("\nYears:");
+    y=years;
       do
     {
      line_lcd=1;
-     printf("\n%02d:%02d:%02d",years,monts,date);
-       years=adj(0,99,years);
+     printf("\n%02d:%02d:%02d",y,monts,date);
+       years=adj(0,99,y);
     } while (!key_ok_on());
-        years+=2000;
-    if ( years%400==0 ||(years%100!=0 && years%4==0)) leap=1;
-        years-=2000;
+        y+=2000;
+    if ( y%400==0 ||(y%100!=0 && y%4==0)) leap=1;
+        y-=2000;
+         if(y==years) month_start=monts;
      line_lcd=0;
     printf("\nmonts:");
       do
     {
      line_lcd=1;
      printf("\n%02d:%02d:%02d",years,monts,date);
-       monts=adj(1,12,monts);
+       monts=adj(month_start,12,monts);
     } while (!key_ok_on());
 
     if ( monts == 1 || monts==3 || monts==5 ||monts==7||monts==8||monts==10||monts==12) date_end=31;
@@ -1845,7 +1848,7 @@ bool Set_Date(void)
          if(leap) date_end=29;
           else date_end=28;
        }
-       asm("nop");
+     if(y==years) date_start=date;
     LCDInstr(0x01);
      Delay1(1000);
       line_lcd=0;
@@ -1854,7 +1857,7 @@ bool Set_Date(void)
     {
      line_lcd=1;
      printf("\n%02d:%02d:%02d",years,monts,date);
-       date=adj(1,date_end,date);
+       date=adj(date_start,date_end,date);
     } while (!key_ok_on());
 
   /*
