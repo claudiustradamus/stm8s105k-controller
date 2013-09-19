@@ -31,7 +31,9 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm8s.h"
 #include "stdio.h"
+//#include <time.h>
 #include "string.h"
+
 /* Private defines -----------------------------------------------------------*/
 
 /* ================ LCD ======================= */
@@ -111,8 +113,8 @@ u8 minutes;
 u8 hours;
 u8 days=1;
 u8 date=1;
-u8 mounts=1;
-u8 years;
+u8 monts=1;
+int years;
 u8 error;
 u8 temp_flag;
 u8 temp2;
@@ -131,6 +133,7 @@ u8 l=0;
 u16 status_check;
 u8 test1;
 u8 test2;
+u8 date_end;
 
 char line1[40];
 char string1[10];
@@ -149,7 +152,8 @@ int volatile k=0;
    unsigned daily:1;
  }  volatile   status  ;
 
-
+//time_t  ltime;
+//struct tm ptim;
 
 
 
@@ -214,6 +218,7 @@ void Clear_Line2(void);
 void Menu(void);
 u8 Key_Press(void);
 void Display(void);
+bool Set_Date(void);
 
 u16  Average();
 
@@ -293,7 +298,7 @@ void main(void)
      //UART2_Cmd(DISABLE);  // Disable UART for the moment
 
      // Working fuction
-    //Set_DS1307(13,7,13,34,0);//u8 year ,u8 mounts,u8 hours,u8 minutes,u8 seconds)
+    //Set_DS1307(13,7,13,34,0);//u8 year ,u8 monts,u8 hours,u8 minutes,u8 seconds)
 
 
 
@@ -544,7 +549,7 @@ bool  ReadDS1307(void)
        I2C_AcknowledgeConfig(I2C_ACK_CURR);
        date = bcd2hex(I2C_RD());
        I2C_AcknowledgeConfig(I2C_ACK_CURR);
-       mounts = bcd2hex(I2C_RD());
+       monts = bcd2hex(I2C_RD());
        I2C_AcknowledgeConfig(I2C_ACK_NONE);
          I2C_GenerateSTOP(ENABLE);
           years= bcd2hex(I2C_RD());
@@ -597,7 +602,7 @@ bool Set_DS1307()
        if(!I2C_WD(convert_tobcd(hours))) return FALSE;
        if(!I2C_WD(convert_tobcd(days))) return FALSE;
        if(!I2C_WD(convert_tobcd(date))) return FALSE;
-       if(!I2C_WD(convert_tobcd(mounts))) return FALSE;
+       if(!I2C_WD(convert_tobcd(monts))) return FALSE;
        if(!I2C_WD(convert_tobcd(years)))return FALSE;
        if(!I2C_WD(DS_Control))return FALSE;
        if(!I2C_WD(0XAA)) return FALSE;  // Byte --> time is set by program
@@ -635,17 +640,17 @@ bool Set_Clock()
       do
     {
      line_lcd=1;
-     printf("\n%02d:%02d:%02d",years,mounts,date);
+     printf("\n%02d:%02d:%02d",years,monts,date);
        years=adj(0,99,years);
     } while (!key_ok_on());
 
      line_lcd=0;
-    printf("\nMounts:");
+    printf("\nmonts:");
       do
     {
      line_lcd=1;
-     printf("\n%02d:%02d:%02d",years,mounts,date);
-       mounts=adj(1,12,mounts);
+     printf("\n%02d:%02d:%02d",years,monts,date);
+       monts=adj(1,12,monts);
     } while (!key_ok_on());
 
     LCDInstr(0x01);
@@ -655,7 +660,7 @@ bool Set_Clock()
       do
     {
      line_lcd=1;
-     printf("\n%02d:%02d:%02d",years,mounts,date);
+     printf("\n%02d:%02d:%02d",years,monts,date);
        date=adj(1,31,date);
     } while (!key_ok_on());
 
@@ -1774,7 +1779,7 @@ Exit_Menu:
     printf("\n+/-     ");
        switch (Key_Press())
         {
-        case 1:
+        case 1: Set_Date();
          break;
         case 2: goto First_Menu ;
          break;
@@ -1802,6 +1807,99 @@ u8 Key_Press(void)
 
    return key_press;
 }
+
+
+
+
+bool Set_Date(void)
+{
+   u8 leap=0;
+
+         //Clear Display
+   LCDInstr(0x01);
+   Delay1(1000);
+   line_lcd=0;
+    printf("\nYears:");
+      do
+    {
+     line_lcd=1;
+     printf("\n%02d:%02d:%02d",years,monts,date);
+       years=adj(0,99,years);
+    } while (!key_ok_on());
+        years+=2000;
+    if ( years%400==0 ||(years%100!=0 && years%4==0)) leap=1;
+        years-=2000;
+     line_lcd=0;
+    printf("\nmonts:");
+      do
+    {
+     line_lcd=1;
+     printf("\n%02d:%02d:%02d",years,monts,date);
+       monts=adj(1,12,monts);
+    } while (!key_ok_on());
+
+    if ( monts == 1 || monts==3 || monts==5 ||monts==7||monts==8||monts==10||monts==12) date_end=31;
+     else if ( monts==4||monts==6 || monts==9 ||monts==11) date_end=30;
+      else
+       {
+         if(leap) date_end=29;
+          else date_end=28;
+       }
+       asm("nop");
+    LCDInstr(0x01);
+     Delay1(1000);
+      line_lcd=0;
+    printf("\nDate:");
+      do
+    {
+     line_lcd=1;
+     printf("\n%02d:%02d:%02d",years,monts,date);
+       date=adj(1,date_end,date);
+    } while (!key_ok_on());
+
+  /*
+    ptim.tm_sec=seconds;
+    ptim.tm_min=minutes;
+    ptim.tm_hour=hours;
+    ptim.tm_mday=date;
+    ptim.tm_mon=monts;
+    ptim.tm_year=years;
+
+     if( mktime(&ptim)==-1)
+     {
+        line_lcd=0;
+       printf("/nDate err");
+        line_lcd=1;
+       printf("/nRepair..");
+        while (!key_ok_on());
+     }
+     else
+     {
+        line_lcd=0;
+       printf("/nDate ok!");
+          while (!key_ok_on());
+     }
+    */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  return TRUE;
+}
+
 
 
 /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
