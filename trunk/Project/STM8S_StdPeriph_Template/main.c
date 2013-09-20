@@ -65,14 +65,15 @@
 
 //EEPROM Address;
 #define EEPROM_ADDR 0x4000
-#define EEPROM_ADR_STATUSH EEPROM_ADDR + 0
-#define EEPROM_ADR_STATUSL EEPROM_ADDR + 1
-#define EEPROM_ADR_TIME_ON_HOURS EEPROM_ADDR +2
-#define EEPROM_ADR_TIME_ON_MINUTES EEPROM_ADDR +3
-#define EEPROM_ADR_TIME_OFF_HOURS EEPROM_ADDR +4
+#define EEPROM_ADR_STATUSH          EEPROM_ADDR + 0
+#define EEPROM_ADR_STATUSL          EEPROM_ADDR + 1
+#define EEPROM_ADR_TIME_ON_HOURS    EEPROM_ADDR +2
+#define EEPROM_ADR_TIME_ON_MINUTES  EEPROM_ADDR +3
+#define EEPROM_ADR_TIME_OFF_HOURS   EEPROM_ADDR +4
 #define EEPROM_ADR_TIME_OFF_MINUTES EEPROM_ADDR +5
-
-
+#define EEPROM_ADR_MONTH_YEAR       EEPROM_ADDR +6
+#define EEPROM_ADR_MONTH_MONTH      EEPROM_ADDR +7
+#define EEPROM_ADR_MONTH_DATE       EEPROM_ADDR +8
 
 #ifdef __GNUC__
   /* With GCC/RAISONANCE, small printf (option LD Linker->Libraries->Small printf
@@ -113,16 +114,20 @@ u8 minutes;
 u8 hours;
 u8 days=1;
 u8 date=1;
-u8 monts=1;
-u8 years;
+u8 month=1;
+u8 year;
 u8 error;
+u8 y,m,d;
 u8 temp_flag;
 u8 temp2;
 u8 daily_hour_on;
 u8 daily_minute_on;
 u8 daily_hour_off;
 u8 daily_minute_off;
-u16 daily_long_on;
+u8 monthly_year;
+u8 monthly_month;
+u8 monthly_date;
+//u16 daily_long_on;
 u16 time_on;
 u16 time_off;
 u8 ttimer;
@@ -133,12 +138,15 @@ u8 l=0;
 u16 status_check;
 u8 test1;
 u8 test2;
+char  daily_dispaly,month_display;
 
 
-char line1[40];
-char string1[10];
+
+char line1[8];
+//char string1[10];
+//char string2[10];
 bool change;
-bool Time_Display;
+bool volatile Time_Display;
 
 //u8 index=0;
 float  result;
@@ -150,6 +158,7 @@ int volatile k=0;
    unsigned on:1;
    unsigned timer_on:1;
    unsigned daily:1;
+   unsigned monthly:1;
  }  volatile   status  ;
 
 //time_t  ltime;
@@ -234,27 +243,15 @@ void main(void)
     InitDelayTimer2();
     InitDelayTimer3();
     GpioConfiguration();
-    GPIO_WriteLow(GPIOD, power_pin );
+    GPIO_WriteLow(GPIOD, power_pin );  //Power Off
     //InitUart();
-    enableInterrupts();
-    GPIO_WriteLow(GPIOD,GPIO_PIN_7); //R/W Line Read Mode
-    InitLcd();
+     enableInterrupts();
+    // GPIO_WriteLow(GPIOD,GPIO_PIN_7); //R/W Line Read Mode
+     InitLcd();
     //InitAdc();
     InitI2C();
-    //Init DS18B20
-    DS18Set();
-    line_lcd=0;
-    if (!Read_DS18())
-    {
-     printf("\nDS_Err_I");
-      while (!key_ok_on());
-    }
 
-
-
-
-
-    //years=bcd2hex(13);
+    //year=bcd2hex(13);
     Delay1(1000);
      if (!ReadDS1307())
      {
@@ -295,10 +292,26 @@ void main(void)
        time_off= daily_hour_off*60+daily_minute_off;
      }
 
+
+      // Enable Timer3
+       TIM3_Cmd(ENABLE);
+
+           //Init DS18B20
+    DS18Set();
+    line_lcd=0;
+    if (!Read_DS18())
+    {
+     printf("\nDS_Err_I");
+      while (!key_ok_on());
+    }
+
+    daily_dispaly=' ';
+    month_display=' ';
+
      //UART2_Cmd(DISABLE);  // Disable UART for the moment
 
      // Working fuction
-    //Set_DS1307(13,7,13,34,0);//u8 year ,u8 monts,u8 hours,u8 minutes,u8 seconds)
+    //Set_DS1307(13,7,13,34,0);//u8 year ,u8 month,u8 hours,u8 minutes,u8 seconds)
 
 
 
@@ -312,10 +325,10 @@ void main(void)
        //sprintf(line1,"TIMER ON ");
     while(1)
     {
-      ADC1_Cmd (ENABLE);
+     // ADC1_Cmd (ENABLE);
 
       // GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
-         Delay2(10000);
+        // Delay2(10000);
          //ttimer++;
       // GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
       //   Delay2(5000);
@@ -336,12 +349,11 @@ void main(void)
      */
 
 
-      if (key_ok_on()) Menu();
-       //if(key_ok_plus()) Set_Delay_Allarm();  //Set Daily Allarm
+      if(key_ok_on()) Menu();
       if(key_plus_on()) Power_On();
       if(key_minus_on())Power_Off();
 
-
+      /*
       //Check for Allarm
           if (status.daily==1)
         {
@@ -360,12 +372,12 @@ void main(void)
           } while(!(time==time_off));
          };
 
-
+       */
             //Read Temperature
         // if( ttimer > 5 )
          //{
 
-
+           /*
             result1=temperature();
             if (result_old != result1) change=TRUE;
              //else  change=FALSE;
@@ -373,7 +385,7 @@ void main(void)
             result2=0;
             if(result1%2!=0) result2=5;
             result1/=2;
-
+           */
 
            // char result3;
            // ttimer=0;
@@ -383,14 +395,19 @@ void main(void)
 
            //Display
            // line_lcd=0;
-           if (status.daily==1)  sprintf(string1,"TIMER ON");
-            else sprintf(string1,"TIMER OFF");
+
+        /*
+           if (status.daily==1)  sprintf(string1,"TIMER On");
+            else sprintf(string1,"TIMER Off");
+           if (status.monthly==1) sprintf(string2,"Monthly On");
+             else sprintf(string2,"Monthly Off");
+        */
 
 
-
+         /*
              if (change)
              {
-            sprintf(line1,"%d.%dC %s ",result1,result2,string1);
+            sprintf(line1,"%d.%dC %s %s",result1,result2,string1,string2);
                change=FALSE;
              }
            line_lcd=0;
@@ -398,6 +415,9 @@ void main(void)
           line_lcd=1;
           printf("\n%02d:%02d:%02d",hours,minutes,seconds);
 
+         */
+
+            if(Time_Display) Display();  //
 
            if(status.on) GPIO_WriteHigh(GPIOD, power_pin );
              else   GPIO_WriteLow(GPIOD, power_pin );
@@ -412,10 +432,27 @@ void main(void)
 
 void Display(void)
 {
-  line_lcd=0;
+   //Clear_Line1 ();
+   result1=temperature();
+   result2=0;
+   if(result1%2!=0) result2=5;
+   result1/=2;
 
 
+   if (status.monthly) month_display='M';
+     //Blink D
+   //if (status.on && status.daily)
+   //{
+     if (daily_dispaly=='D') daily_dispaly=' ';
+      else daily_dispaly='D';
+   //}
+    //else  if (status.daily) d='D';
+   sprintf(line1,"\n%d.%dC %c%c ",result1,result2,daily_dispaly,month_display);
+   line_lcd=0;
+   printf(line1);
 
+   line_lcd=1;
+   printf("\n%02d:%02d:%02d",hours,minutes,seconds);
 
 
   Time_Display=FALSE;
@@ -432,7 +469,8 @@ void Power_On()
 void Power_Off()
 {
   status.on=0;
-  status.daily=0; //Off Daily timer
+  status.daily=0; //Off Daily alarm
+  status.monthly=0; //Off Monthly alarm
   Save_Status();
   change=TRUE;
 }
@@ -549,10 +587,10 @@ bool  ReadDS1307(void)
        I2C_AcknowledgeConfig(I2C_ACK_CURR);
        date = bcd2hex(I2C_RD());
        I2C_AcknowledgeConfig(I2C_ACK_CURR);
-       monts = bcd2hex(I2C_RD());
+       month = bcd2hex(I2C_RD());
        I2C_AcknowledgeConfig(I2C_ACK_NONE);
          I2C_GenerateSTOP(ENABLE);
-          years= bcd2hex(I2C_RD());
+          year= bcd2hex(I2C_RD());
 
      //  I2C_AcknowledgeConfig(I2C_ACK_CURR);
      //   u8 data1 = I2C_RD();
@@ -602,8 +640,8 @@ bool Set_DS1307()
        if(!I2C_WD(convert_tobcd(hours))) return FALSE;
        if(!I2C_WD(convert_tobcd(days))) return FALSE;
        if(!I2C_WD(convert_tobcd(date))) return FALSE;
-       if(!I2C_WD(convert_tobcd(monts))) return FALSE;
-       if(!I2C_WD(convert_tobcd(years)))return FALSE;
+       if(!I2C_WD(convert_tobcd(month))) return FALSE;
+       if(!I2C_WD(convert_tobcd(year)))return FALSE;
        if(!I2C_WD(DS_Control))return FALSE;
        if(!I2C_WD(0XAA)) return FALSE;  // Byte --> time is set by program
        I2C_GenerateSTOP(ENABLE);
@@ -636,31 +674,31 @@ bool Set_Clock()
    LCDInstr(0x01);
    Delay1(1000);
    line_lcd=0;
-    printf("\nYears:");
+    printf("\nYear>");
       do
     {
      line_lcd=1;
-     printf("\n%02d:%02d:%02d",years,monts,date);
-       years=adj(0,99,years);
+     printf("\n%02d:%02d:%02d",year,month,date);
+       year=adj(0,99,year);
     } while (!key_ok_on());
 
      line_lcd=0;
-    printf("\nmonts:");
+    printf("\nMonth>");
       do
     {
      line_lcd=1;
-     printf("\n%02d:%02d:%02d",years,monts,date);
-       monts=adj(1,12,monts);
+     printf("\n%02d:%02d:%02d",year,month,date);
+       month=adj(1,12,month);
     } while (!key_ok_on());
 
     LCDInstr(0x01);
      Delay1(1000);
       line_lcd=0;
-    printf("\nDate:");
+    printf("\nDate>");
       do
     {
      line_lcd=1;
-     printf("\n%02d:%02d:%02d",years,monts,date);
+     printf("\n%02d:%02d:%02d",year,month,date);
        date=adj(1,31,date);
     } while (!key_ok_on());
 
@@ -669,7 +707,7 @@ bool Set_Clock()
    LCDInstr(0x01);
    Delay1(1000);
    line_lcd=0;
-    printf("\nDays:");
+    printf("\nDays>");
       do
     {
       line_lcd=1;
@@ -683,7 +721,7 @@ bool Set_Clock()
    LCDInstr(0x01);
    Delay1(1000);
    line_lcd=0;
-    printf("\nHours:");
+    printf("\nHour>");
       do
     {
       line_lcd=1;
@@ -692,7 +730,7 @@ bool Set_Clock()
     } while (!key_ok_on());
 
      line_lcd=0;
-     printf("\nMinutes:");
+     printf("\nMinute>");
       do
     {
       line_lcd=1;
@@ -701,7 +739,7 @@ bool Set_Clock()
     } while (!key_ok_on());
 
     line_lcd=0;
-    printf("\nSeconds:");
+    printf("\nSeconds>");
     do
     {
       line_lcd=1;
@@ -812,7 +850,7 @@ bool Set_Timer_On()
    LCDInstr(0x01);
    Delay1(1000);
    line_lcd=0;
-   printf("\nH On:");
+   printf("\nH On>");
     timer3=0;
   do
     {
@@ -824,7 +862,7 @@ bool Set_Timer_On()
    LCDInstr(0x01);
    Delay1(1000);
    line_lcd=0;
-   printf("\nMin On:");
+   printf("\nMin On>");
     timer3=0;
   do
     {
@@ -855,7 +893,7 @@ bool Set_Timer_Off()
     LCDInstr(0x01);
     Delay1(1000);
     line_lcd=0;
-    printf("\nH Off:");
+    printf("\nH Off>");
      timer3=0;
   do
     {
@@ -867,7 +905,7 @@ bool Set_Timer_Off()
   LCDInstr(0x01);
    Delay1(1000);
    line_lcd=0;
-   printf("\nMin Off:");
+   printf("\nMin Off>");
    timer3=0;
   do
     {
@@ -961,23 +999,12 @@ bool Read_Allarm()
     if(daily_hour_off > 24) return FALSE;
    daily_minute_off=FLASH_ReadByte(EEPROM_ADR_TIME_OFF_MINUTES);
     if(daily_hour_off > 59) return FALSE;
-     // Computting daily_long_on
-      u8 hour=daily_hour_on;
-     u8 minute=daily_minute_on;
-     daily_long_on=0;
-     do
-     {
-          daily_long_on++;
-          minute++;
-          if (minute==60)
-          {
-            minute=0;
-            hour++;
-          }
-          if(hour==24) hour=0;
-
-     } while ( !((hour==daily_hour_off) & (minute==daily_minute_off)));
-
+   monthly_year=FLASH_ReadByte(EEPROM_ADR_MONTH_YEAR);
+    if(monthly_year >99) return FALSE;
+   monthly_month=FLASH_ReadByte(EEPROM_ADR_MONTH_MONTH);
+    if(monthly_month>12) return FALSE;
+   monthly_date=FLASH_ReadByte(EEPROM_ADR_MONTH_DATE);
+    if(monthly_date >31) return FALSE;
   return TRUE;
 }
 
@@ -1034,6 +1061,7 @@ void InitClk()
   CLK_CURRENTCLOCKSTATE_DISABLE);   // Disable the previous clock.
 
   CLK_PeripheralClockConfig(CLK_PERIPHERAL_TIMER2 , ENABLE);
+  CLK_PeripheralClockConfig(CLK_PERIPHERAL_TIMER3 , ENABLE);
   CLK_PeripheralClockConfig(CLK_PERIPHERAL_UART2,ENABLE);
   CLK_PeripheralClockConfig(CLK_PERIPHERAL_ADC,ENABLE);
   CLK_PeripheralClockConfig(CLK_PERIPHERAL_I2C,ENABLE);
@@ -1042,17 +1070,18 @@ void InitClk()
 }
 
 
+/*
 void InitAdc()
 {
      ADC1_DeInit();
      ADC1_StartConversion();
-     /*
-     ADC1_Init(ADC1_CONVERSIONMODE_SINGLE,
-                ADC1_CHANNEL_0,
-                ADC1_PRESSEL_FCPU_D4,
-                 ADC1_EXTTRIG_TIM,
 
-       */
+     //ADC1_Init(ADC1_CONVERSIONMODE_SINGLE,
+     //           ADC1_CHANNEL_0,
+     //           ADC1_PRESSEL_FCPU_D4,
+     //            ADC1_EXTTRIG_TIM,
+
+
      ADC1_PrescalerConfig(ADC1_PRESSEL_FCPU_D3);
      ADC1_ConversionConfig( ADC1_CONVERSIONMODE_SINGLE,
                             ADC1_CHANNEL_0,
@@ -1069,6 +1098,9 @@ void InitAdc()
      ADC1_ITConfig (ADC1_IT_EOCIE,ENABLE);
 
 }
+*/
+
+
 
 /*
 void InitUart()
@@ -1089,12 +1121,17 @@ void InitUart()
 }
   */
 
+
+/*
 void SendChar( u8 Char)
 {
    UART2->DR = Char;
   while (UART2_GetFlagStatus(UART2_FLAG_TXE) == RESET);;
 }
-  /*
+
+ */
+
+ /*
 void Send_Hello()
 {
   GPIO_WriteHigh(GPIOD,GPIO_PIN_7); //R_W Line
@@ -1111,10 +1148,10 @@ void Send_Hello()
 
 
 }
-    */
 
 
-    /*
+
+
 
 void SendData()
 {
@@ -1132,6 +1169,22 @@ void SendData()
   rx_data=0;
 }
 */
+
+
+ /*
+u16 Average()
+{
+ //Find average in measure
+  u8 i=0;
+  u16 Summa=0;
+  do
+  {
+   Summa+=measure[i++];
+  } while ( measure[i]!=0);
+   if(i!=0) Summa=Summa/i;
+   return Summa;
+}
+   */
 
 void LCDDataOut(u8 data)
 {
@@ -1303,26 +1356,6 @@ void LCD(u8 data)
                 Delay1(250);
               }
 
-
-    /*
-         line++;
-         if (line>3)
-         {
-           line=1;  //Line 0 for Time
-         }
-       switch(line)
-         {
-         case 1 :LCDInstr(0x80 | 0x40);break;  //Line 1
-         case 2 :LCDInstr(0x80 | 0x14);break;  //Line 2
-         case 3 :LCDInstr(0x80 | 0x54);break;  //Line 3
-         default : LCDInstr(0x80 | 0x40); // Line 1
-         }
-         Delay(1);
-         count=0;
-      }
-
-     */
-
      if (data > 0x1b)   //Display only valid data
      {
        LCDData(data);
@@ -1339,8 +1372,7 @@ void InitDelayTimer2()
        TIM2_TimeBaseInit(TIM2_PRESCALER_2,0X0050);
        //TIM2_PrescalerConfig(TIM2_PRESCALER_1, TIM2_PSCRELOADMODE_IMMEDIATE);
        TIM2_ITConfig(TIM2_IT_UPDATE, ENABLE);
-  //Enable TIM2
-       TIM2_Cmd(ENABLE);
+       TIM2_Cmd(ENABLE); //Enable TIM2
 
 }
 
@@ -1352,8 +1384,8 @@ void InitDelayTimer3()
        TIM3_TimeBaseInit(TIM3_PRESCALER_1024,15625);
        //TIM2_PrescalerConfig(TIM2_PRESCALER_1, TIM2_PSCRELOADMODE_IMMEDIATE);
        TIM3_ITConfig(TIM3_IT_UPDATE, ENABLE);
-  //Enable TIM2
-       TIM3_Cmd(ENABLE);
+
+     // TIM3_Cmd(ENABLE);  //Enable TIM3
 
 }
 
@@ -1521,31 +1553,8 @@ bool DS18Set ()
 
 
 
- /*
-u16 Average()
-{
- //Find average in measure
-  u8 i=0;
-  u16 Summa=0;
-  do
-  {
-   Summa+=measure[i++];
-  } while ( measure[i]!=0);
-   if(i!=0) Summa=Summa/i;
-   return Summa;
-}
-   */
 
-PUTCHAR_PROTOTYPE
-{
-  /* Place your implementation of fputc here */
-  /* e.g. write a character to the USART */
-      //USART_SendData(USART3, (u8) ch);
-     LCD(ch);
-   /* Loop until the end of transmission */
-    //while(USART_GetFlagStatus(USART3, USART_FLAG_TC) == RESET);;
-  return ch;
-}
+
 
 
 void Delay1(u16 Delay)
@@ -1573,39 +1582,6 @@ void Delay_us (u16 time) //1:3.2us,100:39us,200:77us,35:15.2us,120:45us,160:60us
     while (time);
   //enableInterrupts();
 }
-
-
-
-/*
-void Delay12 (u16 Delay)
-{
-  timer2=0;
-  while ( timer2 < Delay); ;
-}
-*/
-
-
-#ifdef USE_FULL_ASSERT
-
-/**
-  * @brief  Reports the name of the source file and the source line number
-  *   where the assert_param error has occurred.
-  * @param file: pointer to the source file name
-  * @param line: assert_param error line source number
-  * @retval : None
-  */
-void assert_failed(u8* file, u32 line)
-{
-  /* User can add his own implementation to report the file name and line number,
-     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-
-  /* Infinite loop */
-  while (1)
-  {
-
-  }
-}
-#endif
 
 
 void Display_Line(char* line)
@@ -1702,22 +1678,7 @@ void Menu (void)
     If OK enter to menu option
     If time out about 10s exit from Menu
  */
-
-
-   /*
-      First_Menu();
-
-
-
-    */
-
-
-
-
-
     do {
-
-
 First_Menu:
     line_lcd=0;
     printf("\nON      ");
@@ -1725,9 +1686,9 @@ First_Menu:
     printf("\n%02d:%02d",daily_hour_on,daily_minute_on);
     switch (Key_Press())
         {
-        case 1: Set_Timer_On();
+        case 1: goto Second_Menu ;
          break;
-        case 2: goto Second_Menu ;
+        case 2: Set_Timer_On();
          break;
         case 3: goto Exit_Menu;
          break;
@@ -1742,9 +1703,9 @@ Second_Menu:
     printf("\n%02d:%02d",daily_hour_off,daily_minute_off);
       switch (Key_Press())
         {
-        case 1: Set_Timer_Off();
+        case 1: goto Third_Menu ;
          break;
-        case 2: goto Third_Menu ;
+        case 2: Set_Timer_Off();
          break;
         case 3: goto First_Menu;
          break;
@@ -1752,24 +1713,69 @@ Second_Menu:
      break; //Exit Menu
 
 Third_Menu:
-    line_lcd=0;
-    printf("\nClock");
+      line_lcd=0;
+    printf("\nMonthly ");
     line_lcd=1;
-    printf("\n%02d:%02d:%02d",hours,minutes,seconds);
+    printf("\n%02d:%02d:%02d",monthly_year,monthly_month,monthly_date);
       switch (Key_Press())
         {
-        case 1:  Set_Clock();
+        case 1: goto Fourth_Menu;
          break;
-        case 2: goto Exit_Menu ;
-         break;
-        case 3: goto Second_Menu;
+        case 2:
+          {
+           Set_Date();
+           monthly_year=y;
+           monthly_month=m;
+           monthly_date=d;
+           status.monthly=1;
+           // Save Status and Date in EEPROM
+           EEPROM_INIT();
+           FLASH_ProgramByte(EEPROM_ADR_STATUSH,(u8)(*(u16*)(&status)>>8));
+           FLASH_ProgramByte(EEPROM_ADR_STATUSL,(u8)(*(u16*)(&status)));
+           FLASH_ProgramByte(EEPROM_ADR_MONTH_YEAR,y);
+           FLASH_ProgramByte(EEPROM_ADR_MONTH_MONTH,m);
+           FLASH_ProgramByte(EEPROM_ADR_MONTH_DATE,d);
+           FLASH_Lock(FLASH_MEMTYPE_DATA); //Locking  Flash Data
+           break;
+          }
+        case 3: goto Second_Menu ;
          break;
         }
      break; //Exit Menu
 
 
+Fourth_Menu:
+    line_lcd=0;
+    printf("\nClock   ");
+    line_lcd=1;
+    printf("\n%02d:%02d:%02d",hours,minutes,seconds);
+      switch (Key_Press())
+        {
+        case 1: goto Fifth_Menu ;
+         break;
+        case 2: Set_Clock();
+         break;
+        case 3: goto Third_Menu;
+         break;
+        }
+     break; //Exit Menu
 
 
+Fifth_Menu:
+    line_lcd=0;
+    printf("\nDate    ");
+    line_lcd=1;
+    printf("\n%02d:%02d:%02d",year,month,date);
+      switch (Key_Press())
+        {
+        case 1: goto Exit_Menu ;
+         break;
+        case 2: Set_Date();
+         break;
+        case 3: goto Fourth_Menu;
+         break;
+        }
+     break; //Exit Menu
 
 
 Exit_Menu:
@@ -1779,11 +1785,11 @@ Exit_Menu:
     printf("\n+/-     ");
        switch (Key_Press())
         {
-        case 1: Set_Date();
+        case 1: goto First_Menu;
          break;
-        case 2: goto First_Menu ;
+        case 2:
          break;
-        case 3: goto Third_Menu;
+        case 3: goto Fifth_Menu;
          break;
         }
        break; //Exit Menu
@@ -1814,95 +1820,86 @@ u8 Key_Press(void)
 bool Set_Date(void)
 {
    u8 leap=0 ,date_end,month_start,date_start;
-   int y;
+   int yy;
 
          //Clear Display
    LCDInstr(0x01);
    Delay1(1000);
    line_lcd=0;
-    printf("\nYears:");
-    y=years;
+    printf("\nYear>");
+    y=year;
       do
     {
      line_lcd=1;
-     printf("\n%02d:%02d:%02d",y,monts,date);
-       years=adj(0,99,y);
+     printf("\n%02d:%02d:%02d",y,month,date);
+       y=adj(0,99,y);
     } while (!key_ok_on());
-        y+=2000;
-    if ( y%400==0 ||(y%100!=0 && y%4==0)) leap=1;
-        y-=2000;
-         if(y==years) month_start=monts;
+        yy=y+2000;
+    if ( yy%400==0 ||(yy%100!=0 && yy%4==0)) leap=1;
+        y=yy-2000;
+         if(y==year) month_start=month;
      line_lcd=0;
-    printf("\nmonts:");
+    printf("\nMonth>");
       do
     {
      line_lcd=1;
-     printf("\n%02d:%02d:%02d",years,monts,date);
-       monts=adj(month_start,12,monts);
+     printf("\n%02d:%02d:%02d",year,month,date);
+      m=adj(month_start,12,month);
     } while (!key_ok_on());
 
-    if ( monts == 1 || monts==3 || monts==5 ||monts==7||monts==8||monts==10||monts==12) date_end=31;
-     else if ( monts==4||monts==6 || monts==9 ||monts==11) date_end=30;
+    if ( month == 1 || month==3 || month==5 ||month==7||month==8||month==10||month==12) date_end=31;
+     else if ( month==4||month==6 || month==9 ||month==11) date_end=30;
       else
        {
          if(leap) date_end=29;
           else date_end=28;
        }
-     if(y==years) date_start=date;
+     if(y==year) date_start=date;
     LCDInstr(0x01);
      Delay1(1000);
       line_lcd=0;
-    printf("\nDate:");
+    printf("\nDate>");
       do
     {
      line_lcd=1;
-     printf("\n%02d:%02d:%02d",years,monts,date);
-       date=adj(date_start,date_end,date);
+     printf("\n%02d:%02d:%02d",year,month,date);
+       d=adj(date_start,date_end,date);
     } while (!key_ok_on());
-
-  /*
-    ptim.tm_sec=seconds;
-    ptim.tm_min=minutes;
-    ptim.tm_hour=hours;
-    ptim.tm_mday=date;
-    ptim.tm_mon=monts;
-    ptim.tm_year=years;
-
-     if( mktime(&ptim)==-1)
-     {
-        line_lcd=0;
-       printf("/nDate err");
-        line_lcd=1;
-       printf("/nRepair..");
-        while (!key_ok_on());
-     }
-     else
-     {
-        line_lcd=0;
-       printf("/nDate ok!");
-          while (!key_ok_on());
-     }
-    */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   return TRUE;
 }
 
+ PUTCHAR_PROTOTYPE
+{
+  /* Place your implementation of fputc here */
+  /* e.g. write a character to the USART */
+      //USART_SendData(USART3, (u8) ch);
+     LCD(ch);
+   /* Loop until the end of transmission */
+    //while(USART_GetFlagStatus(USART3, USART_FLAG_TC) == RESET);;
+  return ch;
+}
 
+ #ifdef USE_FULL_ASSERT
+
+/**
+  * @brief  Reports the name of the source file and the source line number
+  *   where the assert_param error has occurred.
+  * @param file: pointer to the source file name
+  * @param line: assert_param error line source number
+  * @retval : None
+  */
+void assert_failed(u8* file, u32 line)
+{
+  /* User can add his own implementation to report the file name and line number,
+     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+
+  /* Infinite loop */
+  while (1)
+  {
+
+  }
+}
+#endif
 
 /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
