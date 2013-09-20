@@ -441,12 +441,13 @@ void Display(void)
 
    if (status.monthly) month_display='M';
      //Blink D
-   //if (status.on && status.daily)
-   //{
+   if (status.on && status.daily)
+   {
      if (daily_dispaly=='D') daily_dispaly=' ';
       else daily_dispaly='D';
-   //}
-    //else  if (status.daily) d='D';
+   }
+    else if (status.daily) daily_dispaly='D';
+     else daily_dispaly=' ';
    sprintf(line1,"\n%d.%dC %c%c ",result1,result2,daily_dispaly,month_display);
    line_lcd=0;
    printf(line1);

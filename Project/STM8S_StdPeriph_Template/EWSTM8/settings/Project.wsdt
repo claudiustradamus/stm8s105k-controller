@@ -25,7 +25,7 @@
     <Windows>
       
       
-    <Wnd2>
+    <Wnd0>
         <Tabs>
           <Tab>
             <Identity>TabID-6208-26359</Identity>
@@ -37,7 +37,7 @@
           </Tab>
         </Tabs>
         
-      <SelectedTab>0</SelectedTab></Wnd2><Wnd3>
+      <SelectedTab>0</SelectedTab></Wnd0><Wnd1>
         <Tabs>
           <Tab>
             <Identity>TabID-9115-26509</Identity>
@@ -47,7 +47,7 @@
           </Tab>
         <Tab><Identity>TabID-1581-20660</Identity><TabName>Debug Log</TabName><Factory>Debug-Log</Factory><Session/></Tab><Tab><Identity>TabID-24463-16233</Identity><TabName>Breakpoints</TabName><Factory>Breakpoints</Factory></Tab></Tabs>
         
-      <SelectedTab>0</SelectedTab></Wnd3></Windows>
+      <SelectedTab>0</SelectedTab></Wnd1></Windows>
     <Editor>
       
       
@@ -60,7 +60,7 @@
       
       
       
-    <Top><Row0><Sizes><Toolbar-012b1908><key>iaridepm.enu1</key></Toolbar-012b1908></Sizes></Row0><Row1><Sizes/></Row1></Top><Left><Row0><Sizes><Wnd2><Rect><Top>-2</Top><Left>-2</Left><Bottom>507</Bottom><Right>224</Right><x>-2</x><y>-2</y><xscreen>260</xscreen><yscreen>252</yscreen><sizeHorzCX>203125</sizeHorzCX><sizeHorzCY>346630</sizeHorzCY><sizeVertCX>176563</sizeVertCX><sizeVertCY>700138</sizeVertCY></Rect></Wnd2></Sizes></Row0></Left><Right><Row0><Sizes/></Row0></Right><Bottom><Row0><Sizes><Wnd3><Rect><Top>-2</Top><Left>-2</Left><Bottom>174</Bottom><Right>1282</Right><x>-2</x><y>-2</y><xscreen>1284</xscreen><yscreen>176</yscreen><sizeHorzCX>1003125</sizeHorzCX><sizeHorzCY>242091</sizeHorzCY><sizeVertCX>203125</sizeVertCX><sizeVertCY>346630</sizeVertCY></Rect></Wnd3></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
+    <Top><Row0><Sizes><Toolbar-012b1908><key>iaridepm.enu1</key></Toolbar-012b1908></Sizes></Row0><Row1><Sizes/></Row1></Top><Left><Row0><Sizes><Wnd0><Rect><Top>-2</Top><Left>-2</Left><Bottom>475</Bottom><Right>224</Right><x>-2</x><y>-2</y><xscreen>260</xscreen><yscreen>252</yscreen><sizeHorzCX>289532</sizeHorzCX><sizeHorzCY>362590</sizeHorzCY><sizeVertCX>251670</sizeVertCX><sizeVertCY>686331</sizeVertCY></Rect></Wnd0></Sizes></Row0></Left><Right><Row0><Sizes/></Row0></Right><Bottom><Row0><Sizes><Wnd1><Rect><Top>-2</Top><Left>-2</Left><Bottom>174</Bottom><Right>900</Right><x>-2</x><y>-2</y><xscreen>902</xscreen><yscreen>176</yscreen><sizeHorzCX>1004454</sizeHorzCX><sizeHorzCY>253237</sizeHorzCY><sizeVertCX>289532</sizeVertCX><sizeVertCY>362590</sizeVertCY></Rect></Wnd1></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
   </Desktop>
 </Workspace>
 
