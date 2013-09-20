@@ -43,7 +43,20 @@ extern  volatile u8 index=0;
 extern  volatile u8 seconds;
 extern  volatile u8 minutes;
 extern  volatile u8 hours;
-extern  bool Time_Display;
+extern  bool volatile  Time_Display;
+
+extern struct   status_reg
+ {
+   unsigned on:1;
+   unsigned timer_on:1;
+   unsigned daily:1;
+   unsigned monthly:1;
+ }  volatile   status  ;
+
+extern u16 time_on;
+extern u16 time_off;
+
+
 
 //extern   u16  measure[data_size];
 
@@ -341,6 +354,30 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
     }
 
     Time_Display=TRUE;
+
+      //Check for Alarm
+        if (status.daily==1)
+        {
+      u16 time_now=hours*60+minutes;
+      status.on=0;
+           u16 time=time_on;
+           do
+          {
+             if(time==time_now)
+             {
+               status.on=1;
+                break ;
+             }
+              time++;
+               if( time==1441) time=0;
+          } while(!(time==time_off));
+         };
+
+
+
+
+
+
    TIM3_ClearITPendingBit(TIM3_IT_UPDATE);
  }
 
