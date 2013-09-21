@@ -31,6 +31,7 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 #define data_size 10
+#define sync_time  30 //30s
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 extern  volatile u16 timer1;
@@ -40,10 +41,15 @@ extern  volatile u16 adcdata;
 extern  volatile u8 timeout;
 extern  volatile u8 rx_data;
 extern  volatile u8 index=0;
-extern  volatile u8 seconds;
-extern  volatile u8 minutes;
-extern  volatile u8 hours;
+extern   u8 seconds;
+extern   u8 minutes;
+extern   u8 hours;
+extern   u8 year;
+extern   u8 month;
+extern   u8 date;
 extern  bool volatile  Time_Display;
+volatile u8 sync=0;
+extern  bool volatile sync_time_ds1307;
 
 extern struct   status_reg
  {
@@ -55,6 +61,10 @@ extern struct   status_reg
 
 extern u16 time_on;
 extern u16 time_off;
+extern u8 monthly_year;
+extern u8 monthly_month;
+extern u8 monthly_date;
+
 
 
 
@@ -62,6 +72,7 @@ extern u16 time_off;
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
+extern void Save_Status();
 /* Public functions ----------------------------------------------------------*/
 
 #ifdef _COSMIC_
@@ -355,10 +366,24 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
 
     Time_Display=TRUE;
 
-      //Check for Alarm
-        if (status.daily==1)
+       // Check for Monthly Alarm
+          if ( status.monthly)
+          {
+            if( monthly_year==year && monthly_date==date && monthly_month==month)
+            {
+              status.daily=1;
+              status.monthly=0;
+              Save_Status();
+            }
+          }
+
+
+
+
+      //Check for Daily Alarm
+        if (status.daily)
         {
-      u16 time_now=hours*60+minutes;
+       u16 time_now=hours*60+minutes;
       status.on=0;
            u16 time=time_on;
            do
@@ -373,7 +398,12 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
           } while(!(time==time_off));
          };
 
-
+       sync++;
+       if (sync > sync_time)
+       {
+         sync_time_ds1307=TRUE;
+         sync=0;
+       }
 
 
 

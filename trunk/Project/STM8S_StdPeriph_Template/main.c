@@ -21,7 +21,7 @@
 
   Daily Allarm ON TimeLong(in minute for 24h 1440 minute 0x5A0)
 
-
+  Monthly alarm if enable disable daily alarm on  set date enable daily alarm
 
 
 */
@@ -94,6 +94,7 @@
 #define key_time_release 400
 #define DS_Control  0x10  // Out 1s
 #define time_menu 10  // 5s
+//#define sync_time 30 // 30s
 
 
 
@@ -138,7 +139,8 @@ u8 l=0;
 u16 status_check;
 u8 test1;
 u8 test2;
-char  daily_dispaly,month_display;
+char  daily_dispaly,month_display,sync_display;
+bool volatile sync_time_ds1307;
 
 
 
@@ -307,6 +309,7 @@ void main(void)
 
     daily_dispaly=' ';
     month_display=' ';
+    sync_time_ds1307= TRUE;
 
      //UART2_Cmd(DISABLE);  // Disable UART for the moment
 
@@ -418,6 +421,19 @@ void main(void)
          */
 
             if(Time_Display) Display();  //
+            if(sync_time_ds1307)  // Sync local time with DS1307
+            {
+               if (!ReadDS1307())
+                 {
+                   printf("\n E2:%d",error);
+                   //restart i2c
+                  // Reset the CPU: Enable the watchdog and wait until it expires
+                  IWDG->KR = IWDG_KEY_ENABLE;
+                   while ( 1 );    // Wait until reset occurs from IWDG
+                  }
+               sync_time_ds1307=FALSE;
+               sync_display='S';
+            }
 
            if(status.on) GPIO_WriteHigh(GPIOD, power_pin );
              else   GPIO_WriteLow(GPIOD, power_pin );
@@ -440,6 +456,7 @@ void Display(void)
 
 
    if (status.monthly) month_display='M';
+     else month_display=' ';
      //Blink D
    if (status.on && status.daily)
    {
@@ -448,7 +465,7 @@ void Display(void)
    }
     else if (status.daily) daily_dispaly='D';
      else daily_dispaly=' ';
-   sprintf(line1,"\n%d.%dC %c%c ",result1,result2,daily_dispaly,month_display);
+   sprintf(line1,"\n%d.%dC%c%c%c",result1,result2,sync_display,daily_dispaly,month_display);
    line_lcd=0;
    printf(line1);
 
@@ -456,15 +473,16 @@ void Display(void)
    printf("\n%02d:%02d:%02d",hours,minutes,seconds);
 
 
-  Time_Display=FALSE;
+   Time_Display=FALSE;
+   sync_display=' ';
 }
 
 void Power_On()
 {
   status.on=1;
   status.daily=0; //Off Daily timer
+  status.monthly=0; //Off Monthly alarm
   Save_Status();
-  change=TRUE;
 }
 
 void Power_Off()
@@ -473,7 +491,7 @@ void Power_Off()
   status.daily=0; //Off Daily alarm
   status.monthly=0; //Off Monthly alarm
   Save_Status();
-  change=TRUE;
+
 }
 
 void InitI2C(void)
@@ -873,7 +891,8 @@ bool Set_Timer_On()
     } while ((timer3<=time_menu)&& !key_ok_on());
 
    //Save data to eeprom
-     status.daily=1;
+     if (!status.monthly) status.daily=1;
+       else status.daily=0;
      EEPROM_INIT();
     //u8 temp =*(u8*)(&status);
     // FLASH_ProgramByte(EEPROM_ADR_STATUS,*(u8*)(&status)); //save Status to eeprom
@@ -916,7 +935,8 @@ bool Set_Timer_Off()
     } while (timer3<=time_menu && !key_ok_on());
 
   //Save data to eeprom
-     status.daily=1;
+     if (!status.monthly) status.daily=1;
+       else status.daily=0;
      EEPROM_INIT();
     //u8 temp =*(u8*)(&status);
     // FLASH_ProgramByte(EEPROM_ADR_STATUS,*(u8*)(&status)); //save Status to eeprom
@@ -1729,6 +1749,8 @@ Third_Menu:
            monthly_month=m;
            monthly_date=d;
            status.monthly=1;
+           status.daily=0;  // Disable Daily Alarm On date enable it
+           status.on=0;     // Power off
            // Save Status and Date in EEPROM
            EEPROM_INIT();
            FLASH_ProgramByte(EEPROM_ADR_STATUSH,(u8)(*(u16*)(&status)>>8));
@@ -1827,12 +1849,14 @@ bool Set_Date(void)
    LCDInstr(0x01);
    Delay1(1000);
    line_lcd=0;
-    printf("\nYear>");
-    y=year;
+   printf("\nYear>");
+   y=year;
+   m=month;
+   d=date;
       do
     {
      line_lcd=1;
-     printf("\n%02d:%02d:%02d",y,month,date);
+     printf("\n%02d:%02d:%02d",y,m,d);
        y=adj(0,99,y);
     } while (!key_ok_on());
         yy=y+2000;
@@ -1844,18 +1868,18 @@ bool Set_Date(void)
       do
     {
      line_lcd=1;
-     printf("\n%02d:%02d:%02d",year,month,date);
-      m=adj(month_start,12,month);
+     printf("\n%02d:%02d:%02d",y,m,d);
+      m=adj(month_start,12,m);
     } while (!key_ok_on());
 
-    if ( month == 1 || month==3 || month==5 ||month==7||month==8||month==10||month==12) date_end=31;
-     else if ( month==4||month==6 || month==9 ||month==11) date_end=30;
+    if ( m == 1 || m==3 || m==5 ||m==7||m==8||m==10||m==12) date_end=31;
+     else if ( m==4||m==6 || m==9 ||m==11) date_end=30;
       else
        {
          if(leap) date_end=29;
           else date_end=28;
        }
-     if(y==year) date_start=date;
+     if(y==year) date_start=d;
     LCDInstr(0x01);
      Delay1(1000);
       line_lcd=0;
@@ -1863,8 +1887,8 @@ bool Set_Date(void)
       do
     {
      line_lcd=1;
-     printf("\n%02d:%02d:%02d",year,month,date);
-       d=adj(date_start,date_end,date);
+     printf("\n%02d:%02d:%02d",y,m,d);
+       d=adj(date_start,date_end,d);
     } while (!key_ok_on());
 
   return TRUE;
