@@ -141,6 +141,7 @@ u8 test1;
 u8 test2;
 char  daily_dispaly,month_display,sync_display;
 bool volatile sync_time_ds1307;
+bool  ds_temperature;
 
 
 
@@ -231,6 +232,8 @@ u8 Key_Press(void);
 void Display(void);
 bool Set_Date(void);
 
+
+
 u16  Average();
 
 
@@ -303,9 +306,11 @@ void main(void)
     line_lcd=0;
     if (!Read_DS18())
     {
-     printf("\nDS_Err_I");
+     printf("\nDS_Err_T");
+       ds_temperature=FALSE;
       while (!key_ok_on());
     }
+     else ds_temperature=TRUE;
 
     daily_dispaly=' ';
     month_display=' ';
@@ -449,11 +454,13 @@ void main(void)
 void Display(void)
 {
    //Clear_Line1 ();
+  if(ds_temperature)
+  {
    result1=temperature();
    result2=0;
    if(result1%2!=0) result2=5;
    result1/=2;
-
+  }
 
    if (status.monthly) month_display='M';
      else month_display=' ';
