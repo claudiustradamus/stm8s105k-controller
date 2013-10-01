@@ -94,6 +94,7 @@
 #define key_time_release 400
 #define DS_Control  0x10  // Out 1s
 #define time_menu 10  // 5s
+#define TIMEOUT_DS18B20 1000
 //#define sync_time 30 // 30s
 
 
@@ -333,115 +334,28 @@ void main(void)
        //sprintf(line1,"TIMER ON ");
     while(1)
     {
-     // ADC1_Cmd (ENABLE);
-
-      // GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
-        // Delay2(10000);
-         //ttimer++;
-      // GPIO_WriteReverse(GPIOD, (GPIO_Pin_TypeDef)GPIO_PIN_0 );
-      //   Delay2(5000);
-
-           //status_check = *(u16*)(&status);
-
-
-      /*
-     if (!ReadDS1307())
-     {
-       printf("\n E2:%d",error);
-        //restart i2c
-      // Reset the CPU: Enable the watchdog and wait until it expires
-       IWDG->KR = IWDG_KEY_ENABLE;
-       while ( 1 );    // Wait until reset occurs from IWDG
-
-     }
-     */
 
 
       if(key_ok_on()) Menu();
       if(key_plus_on()) Power_On();
       if(key_minus_on())Power_Off();
+      if(Time_Display) Display();  //
+      if(sync_time_ds1307)  // Sync local time with DS1307
+         {
+          if (!ReadDS1307())
+              {
+             printf("\n E2:%d",error);
+             //restart i2c
+             // Reset the CPU: Enable the watchdog and wait until it expires
+             IWDG->KR = IWDG_KEY_ENABLE;
+             while ( 1 );    // Wait until reset occurs from IWDG
+              }
+         sync_time_ds1307=FALSE;
+         sync_display='S';
+         }
 
-      /*
-      //Check for Allarm
-          if (status.daily==1)
-        {
-      u16 time_now=hours*60+minutes;
-      status.on=0;
-           u16 time=time_on;
-           do
-          {
-             if(time==time_now)
-             {
-               status.on=1;
-                break ;
-             }
-              time++;
-               if( time==1441) time=0;
-          } while(!(time==time_off));
-         };
-
-       */
-            //Read Temperature
-        // if( ttimer > 5 )
-         //{
-
-           /*
-            result1=temperature();
-            if (result_old != result1) change=TRUE;
-             //else  change=FALSE;
-            result_old=result1;
-            result2=0;
-            if(result1%2!=0) result2=5;
-            result1/=2;
-           */
-
-           // char result3;
-           // ttimer=0;
-       //  }
-
-         //printf("\n%d.%d",result1,result2);
-
-           //Display
-           // line_lcd=0;
-
-        /*
-           if (status.daily==1)  sprintf(string1,"TIMER On");
-            else sprintf(string1,"TIMER Off");
-           if (status.monthly==1) sprintf(string2,"Monthly On");
-             else sprintf(string2,"Monthly Off");
-        */
-
-
-         /*
-             if (change)
-             {
-            sprintf(line1,"%d.%dC %s %s",result1,result2,string1,string2);
-               change=FALSE;
-             }
-           line_lcd=0;
-            Display_Line(line1);
-          line_lcd=1;
-          printf("\n%02d:%02d:%02d",hours,minutes,seconds);
-
-         */
-
-            if(Time_Display) Display();  //
-            if(sync_time_ds1307)  // Sync local time with DS1307
-            {
-               if (!ReadDS1307())
-                 {
-                   printf("\n E2:%d",error);
-                   //restart i2c
-                  // Reset the CPU: Enable the watchdog and wait until it expires
-                  IWDG->KR = IWDG_KEY_ENABLE;
-                   while ( 1 );    // Wait until reset occurs from IWDG
-                  }
-               sync_time_ds1307=FALSE;
-               sync_display='S';
-            }
-
-           if(status.on) GPIO_WriteHigh(GPIOD, power_pin );
-             else   GPIO_WriteLow(GPIOD, power_pin );
+      if(status.on) GPIO_WriteHigh(GPIOD, power_pin );
+       else   GPIO_WriteLow(GPIOD, power_pin );
 
 
 
@@ -454,13 +368,12 @@ void main(void)
 void Display(void)
 {
    //Clear_Line1 ();
-  if(ds_temperature)
-  {
-   result1=temperature();
-   result2=0;
-   if(result1%2!=0) result2=5;
-   result1/=2;
-  }
+    result1=temperature();
+     result2=0;
+      if(result1%2!=0) result2=5;
+       result1/=2;
+
+
 
    if (status.monthly) month_display='M';
      else month_display=' ';
@@ -472,7 +385,9 @@ void Display(void)
    }
     else if (status.daily) daily_dispaly='D';
      else daily_dispaly=' ';
-   sprintf(line1,"\n%d.%dC%c%c%c",result1,result2,sync_display,daily_dispaly,month_display);
+     if(ds_temperature)sprintf(line1,"\n%d.%dC%c%c%c",result1,result2,sync_display,daily_dispaly,month_display);
+      else sprintf(line1,"\n%c%c%c",sync_display,daily_dispaly,month_display);
+
    line_lcd=0;
    printf(line1);
 
@@ -1330,6 +1245,13 @@ void LCD(u8 data)
          {
          case 0:
            LCDInstr(0x80 | 0x00);
+            for( u8 i=0;i<8;i++)
+            {
+             LCDInstr(0x80 | i);
+              LCDData(' ');      //Erase Line
+               Delay1(1);
+            }
+           LCDInstr(0x80 | 0x00);
            count=0;
            break;
          case 1:
@@ -1472,11 +1394,24 @@ bool DS18_Reset()
     DS18(1);
     //Delay1(1);
     timer2=0;
-    while ((timer2 < 10000) && (GPIO_ReadInputPin(GPIOD, ds18_data)));;   //Wait for ack from DS18B20
-    if (timer2>=10000) return FALSE;
-    // Delay1(10);
-    Delay1(20);    //25=524us
+    while ((timer2 < TIMEOUT_DS18B20) && (GPIO_ReadInputPin(GPIOD, ds18_data)));;   //Wait for ack from DS18B20
+    if (timer2>=TIMEOUT_DS18B20)
+    {
+      ds_temperature=FALSE;
+      return FALSE;
+    }
 
+    timer2=0; // Then Wait for Release bus set to One
+     while ((timer2 < TIMEOUT_DS18B20) && (!GPIO_ReadInputPin(GPIOD, ds18_data)));;
+      if (timer2>=TIMEOUT_DS18B20)
+       {
+        ds_temperature=FALSE;
+        return FALSE;
+       }
+
+    // Delay1(10);
+    //Delay1(20);    //25=524us
+     ds_temperature=TRUE;
     return TRUE;
 }
 
@@ -1491,8 +1426,8 @@ u8 temperature ()
     DS18_Write(0x44);
     //Wait util end convert
     timer2=0;
-     while ((timer2 < 10000) && !(DS18_Read()));;
-      if (timer2>10000) return FALSE;
+     while ((timer2 < TIMEOUT_DS18B20) && !(DS18_Read()));;
+      if (timer2>TIMEOUT_DS18B20) return FALSE;
      //u8 temp8=timer2;
     //Init Reset Pulse
     if(!DS18_Reset()) return FALSE;
@@ -1519,8 +1454,8 @@ bool Read_DS18()
     DS18_Write(0x44);
     //Wait util end convert
     timer2=0;
-     while ((timer2 < 10000) && !(DS18_Read()));;
-      if (timer2>10000) return FALSE;
+     while ((timer2 < TIMEOUT_DS18B20) && !(DS18_Read()));;
+      if (timer2>TIMEOUT_DS18B20) return FALSE;
      //u8 temp8=timer2;
     //Init Reset Pulse
     if(!DS18_Reset()) return FALSE;
