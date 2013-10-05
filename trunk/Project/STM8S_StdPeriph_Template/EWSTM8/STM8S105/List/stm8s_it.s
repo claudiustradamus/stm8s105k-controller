@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                            /
-// IAR C/C++ Compiler V1.30.1.50036 for STM8            01/Oct/2013  18:36:18 /
+// IAR C/C++ Compiler V1.30.1.50036 for STM8            05/Oct/2013  19:05:40 /
 // Copyright 2010-2011 IAR Systems AB.                                        /
 //                                                                            /
 //    Source file  =  C:\Documents and Settings\Administrator\Desktop\stm8s10 /
@@ -823,13 +823,11 @@ _interrupt_17:
         JRNE      L:??TIM3_UPD_OVF_BRK_IRQHandler_2
 //  374             {
 //  375               u16 time_now=hours*60+minutes;
-//  376               if(time_now > time_on)
+//  376               if(time_now >= time_on)
         CALLF     ?Subroutine0
 ??CrossCallReturnLabel_0:
-        LDW       Y, L:time_on
-        LDW       S:?w0, X
-        CPW       Y, S:?w0
-        JRNC      L:??TIM3_UPD_OVF_BRK_IRQHandler_2
+        CPW       X, L:time_on
+        JRC       L:??TIM3_UPD_OVF_BRK_IRQHandler_2
 //  377               {
 //  378               status.daily=1;
         LDW       X, L:status
@@ -1282,10 +1280,10 @@ _interrupt_26:
 //  609 
 //  610 /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
 // 
-// 390 bytes in section .far_func.text
+// 384 bytes in section .far_func.text
 //   2 bytes in section .near.bss
 // 
-// 390 bytes of CODE memory
+// 384 bytes of CODE memory
 //   2 bytes of DATA memory
 //
 //Errors: none

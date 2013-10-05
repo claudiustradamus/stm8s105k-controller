@@ -309,7 +309,9 @@ void main(void)
     {
      printf("\nDS_Err_T");
        ds_temperature=FALSE;
-      while (!key_ok_on());
+
+       Key_Press();
+      //while (!key_ok_on());
     }
      else ds_temperature=TRUE;
 
@@ -332,6 +334,9 @@ void main(void)
     //  }
     //  while (!key_ok_on());
        //sprintf(line1,"TIMER ON ");
+
+     /* Main Loop*/
+
     while(1)
     {
 
@@ -344,6 +349,7 @@ void main(void)
          {
           if (!ReadDS1307())
               {
+                GPIO_WriteLow(GPIOD, power_pin );
              printf("\n E2:%d",error);
              //restart i2c
              // Reset the CPU: Enable the watchdog and wait until it expires

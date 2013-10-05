@@ -373,7 +373,7 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
             if( monthly_year==year && monthly_date==date && monthly_month==month)
             {
               u16 time_now=hours*60+minutes;
-              if(time_now > time_on)
+              if(time_now >= time_on)
               {
               status.daily=1;
               status.monthly=0;
