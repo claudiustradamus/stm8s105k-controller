@@ -1,6 +1,6 @@
 ###############################################################################
 #                                                                             #
-# IAR C/C++ Compiler V1.30.1.50036 for STM8             01/Oct/2013  18:36:18 #
+# IAR C/C++ Compiler V1.30.1.50036 for STM8             05/Oct/2013  19:05:40 #
 # Copyright 2010-2011 IAR Systems AB.                                         #
 #                                                                             #
 #    Source file  =  C:\Documents and Settings\Administrator\Desktop\stm8s105 #
@@ -550,42 +550,40 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
    \   000052 CE0000                LDW       X, L:status
    \   000055 9F                    LD        A, XL
    \   000056 A508                  BCP       A, #0x8
-   \   000058 273F                  JREQ      L:??TIM3_UPD_OVF_BRK_IRQHandler_2
+   \   000058 2739                  JREQ      L:??TIM3_UPD_OVF_BRK_IRQHandler_2
     372                    {
     373                      if( monthly_year==year && monthly_date==date && monthly_month==month)
    \   00005A C60000                LD        A, L:year
    \   00005D C10000                CP        A, L:monthly_year
-   \   000060 2637                  JRNE      L:??TIM3_UPD_OVF_BRK_IRQHandler_2
+   \   000060 2631                  JRNE      L:??TIM3_UPD_OVF_BRK_IRQHandler_2
    \   000062 C60000                LD        A, L:`date`
    \   000065 C10000                CP        A, L:monthly_date
-   \   000068 262F                  JRNE      L:??TIM3_UPD_OVF_BRK_IRQHandler_2
+   \   000068 2629                  JRNE      L:??TIM3_UPD_OVF_BRK_IRQHandler_2
    \   00006A C60000                LD        A, L:month
    \   00006D C10000                CP        A, L:monthly_month
-   \   000070 2627                  JRNE      L:??TIM3_UPD_OVF_BRK_IRQHandler_2
+   \   000070 2621                  JRNE      L:??TIM3_UPD_OVF_BRK_IRQHandler_2
     374                      {
     375                        u16 time_now=hours*60+minutes;
-    376                        if(time_now > time_on)
+    376                        if(time_now >= time_on)
    \   000072 8D000000              CALLF     ?Subroutine0
    \                     ??CrossCallReturnLabel_0:
-   \   000076 90CE0000              LDW       Y, L:time_on
-   \   00007A BF00                  LDW       S:?w0, X
-   \   00007C 90B300                CPW       Y, S:?w0
-   \   00007F 2418                  JRNC      L:??TIM3_UPD_OVF_BRK_IRQHandler_2
+   \   000076 C30000                CPW       X, L:time_on
+   \   000079 2518                  JRC       L:??TIM3_UPD_OVF_BRK_IRQHandler_2
     377                        {
     378                        status.daily=1;
-   \   000081 CE0000                LDW       X, L:status
-   \   000084 01                    RRWA      X, A
-   \   000085 AA04                  OR        A, #0x4
-   \   000087 02                    RLWA      X, A
-   \   000088 CF0000                LDW       L:status, X
+   \   00007B CE0000                LDW       X, L:status
+   \   00007E 01                    RRWA      X, A
+   \   00007F AA04                  OR        A, #0x4
+   \   000081 02                    RLWA      X, A
+   \   000082 CF0000                LDW       L:status, X
     379                        status.monthly=0;
-   \   00008B CE0000                LDW       X, L:status
-   \   00008E 01                    RRWA      X, A
-   \   00008F A4F7                  AND       A, #0xf7
-   \   000091 02                    RLWA      X, A
-   \   000092 CF0000                LDW       L:status, X
+   \   000085 CE0000                LDW       X, L:status
+   \   000088 01                    RRWA      X, A
+   \   000089 A4F7                  AND       A, #0xf7
+   \   00008B 02                    RLWA      X, A
+   \   00008C CF0000                LDW       L:status, X
     380                        Save_Status();
-   \   000095 8D000000              CALLF     Save_Status
+   \   00008F 8D000000              CALLF     Save_Status
     381                        }
     382                      }
     383                    }
@@ -596,66 +594,66 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
     388                //Check for Daily Alarm
     389                  if (status.daily)
    \                     ??TIM3_UPD_OVF_BRK_IRQHandler_2:
-   \   000099 CE0000                LDW       X, L:status
-   \   00009C 9F                    LD        A, XL
-   \   00009D A504                  BCP       A, #0x4
-   \   00009F 272F                  JREQ      L:??TIM3_UPD_OVF_BRK_IRQHandler_3
+   \   000093 CE0000                LDW       X, L:status
+   \   000096 9F                    LD        A, XL
+   \   000097 A504                  BCP       A, #0x4
+   \   000099 272F                  JREQ      L:??TIM3_UPD_OVF_BRK_IRQHandler_3
     390                  {
     391                 u16 time_now=hours*60+minutes;
-   \   0000A1 8D000000              CALLF     ?Subroutine0
+   \   00009B 8D000000              CALLF     ?Subroutine0
    \                     ??CrossCallReturnLabel_1:
-   \   0000A5 BF00                  LDW       S:?w0, X
+   \   00009F BF00                  LDW       S:?w0, X
     392                status.on=0;
-   \   0000A7 CE0000                LDW       X, L:status
-   \   0000AA 01                    RRWA      X, A
-   \   0000AB A4FE                  AND       A, #0xfe
-   \   0000AD 02                    RLWA      X, A
-   \   0000AE CF0000                LDW       L:status, X
+   \   0000A1 CE0000                LDW       X, L:status
+   \   0000A4 01                    RRWA      X, A
+   \   0000A5 A4FE                  AND       A, #0xfe
+   \   0000A7 02                    RLWA      X, A
+   \   0000A8 CF0000                LDW       L:status, X
     393                     u16 time=time_on;
-   \   0000B1 CE0000                LDW       X, L:time_on
+   \   0000AB CE0000                LDW       X, L:time_on
     394                     do
     395                    {
     396                       if(time==time_now)
    \                     ??TIM3_UPD_OVF_BRK_IRQHandler_4:
-   \   0000B4 B300                  CPW       X, S:?w0
-   \   0000B6 260C                  JRNE      L:??TIM3_UPD_OVF_BRK_IRQHandler_5
+   \   0000AE B300                  CPW       X, S:?w0
+   \   0000B0 260C                  JRNE      L:??TIM3_UPD_OVF_BRK_IRQHandler_5
     397                       {
     398                         status.on=1;
-   \   0000B8 CE0000                LDW       X, L:status
-   \   0000BB 01                    RRWA      X, A
-   \   0000BC AA01                  OR        A, #0x1
-   \   0000BE 02                    RLWA      X, A
-   \   0000BF CF0000                LDW       L:status, X
+   \   0000B2 CE0000                LDW       X, L:status
+   \   0000B5 01                    RRWA      X, A
+   \   0000B6 AA01                  OR        A, #0x1
+   \   0000B8 02                    RLWA      X, A
+   \   0000B9 CF0000                LDW       L:status, X
     399                          break ;
-   \   0000C2 200C                  JRA       L:??TIM3_UPD_OVF_BRK_IRQHandler_3
+   \   0000BC 200C                  JRA       L:??TIM3_UPD_OVF_BRK_IRQHandler_3
     400                       }
     401                        time++;
    \                     ??TIM3_UPD_OVF_BRK_IRQHandler_5:
-   \   0000C4 5C                    INCW      X
+   \   0000BE 5C                    INCW      X
     402                         if( time==1441) time=0;
-   \   0000C5 A305A1                CPW       X, #0x5a1
-   \   0000C8 2601                  JRNE      L:??TIM3_UPD_OVF_BRK_IRQHandler_6
-   \   0000CA 5F                    CLRW      X
+   \   0000BF A305A1                CPW       X, #0x5a1
+   \   0000C2 2601                  JRNE      L:??TIM3_UPD_OVF_BRK_IRQHandler_6
+   \   0000C4 5F                    CLRW      X
     403                    } while(!(time==time_off));
    \                     ??TIM3_UPD_OVF_BRK_IRQHandler_6:
-   \   0000CB C30000                CPW       X, L:time_off
-   \   0000CE 26E4                  JRNE      L:??TIM3_UPD_OVF_BRK_IRQHandler_4
+   \   0000C5 C30000                CPW       X, L:time_off
+   \   0000C8 26E4                  JRNE      L:??TIM3_UPD_OVF_BRK_IRQHandler_4
     404                   };
     405          
     406                 sync++;
    \                     ??TIM3_UPD_OVF_BRK_IRQHandler_3:
-   \   0000D0 C60000                LD        A, L:sync
-   \   0000D3 4C                    INC       A
-   \   0000D4 C70000                LD        L:sync, A
+   \   0000CA C60000                LD        A, L:sync
+   \   0000CD 4C                    INC       A
+   \   0000CE C70000                LD        L:sync, A
     407                 if (sync > sync_time)
-   \   0000D7 C60000                LD        A, L:sync
-   \   0000DA A11F                  CP        A, #0x1f
-   \   0000DC 2508                  JRC       L:??TIM3_UPD_OVF_BRK_IRQHandler_7
+   \   0000D1 C60000                LD        A, L:sync
+   \   0000D4 A11F                  CP        A, #0x1f
+   \   0000D6 2508                  JRC       L:??TIM3_UPD_OVF_BRK_IRQHandler_7
     408                 {
     409                   sync_time_ds1307=TRUE;
-   \   0000DE 35010000              MOV       L:sync_time_ds1307, #0x1
+   \   0000D8 35010000              MOV       L:sync_time_ds1307, #0x1
     410                   sync=0;
-   \   0000E2 725F0000              CLR       L:sync
+   \   0000DC 725F0000              CLR       L:sync
     411                 }
     412          
     413          
@@ -663,12 +661,12 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
     415          
     416             TIM3_ClearITPendingBit(TIM3_IT_UPDATE);
    \                     ??TIM3_UPD_OVF_BRK_IRQHandler_7:
-   \   0000E6 A601                  LD        A, #0x1
-   \   0000E8 8D000000              CALLF     TIM3_ClearITPendingBit
+   \   0000E0 A601                  LD        A, #0x1
+   \   0000E2 8D000000              CALLF     TIM3_ClearITPendingBit
     417           }
-   \   0000EC 8D000000              CALLF     L:?pop_l1
-   \   0000F0 8D000000              CALLF     L:?pop_l0
-   \   0000F4 80                    IRET
+   \   0000E6 8D000000              CALLF     L:?pop_l1
+   \   0000EA 8D000000              CALLF     L:?pop_l0
+   \   0000EE 80                    IRET
 
    \                                 In section .far_func.text, align 1
    \                     ?Subroutine0:
@@ -947,7 +945,7 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
      TIM1_CAP_COM_IRQHandler           1
      TIM2_UPD_OVF_BRK_IRQHandler      59
      TIM2_CAP_COM_IRQHandler           1
-     TIM3_UPD_OVF_BRK_IRQHandler     245
+     TIM3_UPD_OVF_BRK_IRQHandler     239
      ?Subroutine0                     30
      TIM3_CAP_COM_IRQHandler           1
      I2C_IRQHandler                    1
@@ -958,10 +956,10 @@ C:\Documents and Settings\Administrator\Desktop\stm8s105k-controller\Project\STM
      EEPROM_EEC_IRQHandler             1
 
  
- 390 bytes in section .far_func.text
+ 384 bytes in section .far_func.text
    2 bytes in section .near.bss
  
- 390 bytes of CODE memory
+ 384 bytes of CODE memory
    2 bytes of DATA memory
 
 Errors: none
