@@ -1541,7 +1541,7 @@
         <debug>1</debug>
         <option>
           <name>GenDeviceSelectMenu</name>
-          <state>STM8S105K4	STM8S105K4</state>
+          <state>STM8S105K6	STM8S105K6</state>
         </option>
         <option>
           <name>GenCodeModel</name>
