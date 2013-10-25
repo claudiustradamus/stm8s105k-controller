@@ -32,6 +32,7 @@
 /* Private define ------------------------------------------------------------*/
 #define data_size 10
 #define sync_time  30 //30s
+#define lcdLed GPIO_PIN_0
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 extern  volatile u16 timer1;
@@ -48,6 +49,7 @@ extern   u8 year;
 extern   u8 month;
 extern   u8 date;
 extern  bool volatile  Time_Display;
+
 volatile u8 sync=0;
 extern  bool volatile sync_time_ds1307;
 
@@ -59,11 +61,22 @@ extern struct   status_reg
    unsigned monthly:1;
  }  volatile   status  ;
 
+
+
+extern struct
+ {
+   unsigned ds1307:1;
+   unsigned ds18B20:1;
+   unsigned buzzer:1;
+   unsigned lcdLed:1;
+ }  volatile hardware ;
+
 extern u16 time_on;
 extern u16 time_off;
 extern u8 monthly_year;
 extern u8 monthly_month;
 extern u8 monthly_date;
+extern u8 lcdLedTimer;
 
 
 
@@ -312,6 +325,8 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
   /* In order to detect unexpected events during development,
      it is recommended to set a breakpoint on the following instruction.
   */
+   if(hardware.lcdLed) GPIO_WriteHigh(GPIOB,lcdLed);
+     else   GPIO_WriteLow(GPIOB,lcdLed);
  timer2++;
  timer1++;
  timeout--;
@@ -411,6 +426,8 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
        }
 
 
+      lcdLedTimer--;
+      if(lcdLedTimer <= 0) hardware.lcdLed=0;
 
 
    TIM3_ClearITPendingBit(TIM3_IT_UPDATE);

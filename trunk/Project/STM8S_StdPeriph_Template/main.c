@@ -48,6 +48,7 @@
 #define EN  GPIO_PIN_3
 #define RW  GPIO_PIN_1
 #define RS  GPIO_PIN_2
+#define lcdLed GPIO_PIN_0
 #define LCD_EN(x)  x ? GPIO_WriteHigh(LCD_PORT, EN): GPIO_WriteLow(LCD_PORT,EN); //GPIOB->ODR =(GPIOB->ODR &~PIN_EN)|(x ? PIN_EN :0);
 #define LCD_RW(x)  x ? GPIO_WriteHigh(LCD_PORT, RW): GPIO_WriteLow(LCD_PORT,RW);
 #define LCD_RS(x)  x ? GPIO_WriteHigh(LCD_PORT, RS): GPIO_WriteLow(LCD_PORT,RS);
@@ -95,6 +96,7 @@
 #define DS_Control  0x10  // Out 1s
 #define time_menu 10  // 5s
 #define TIMEOUT_DS18B20 1000
+#define LCDLEDON 10
 //#define sync_time 30 // 30s
 
 
@@ -142,7 +144,8 @@ u8 test1;
 u8 test2;
 char  daily_dispaly,month_display,sync_display;
 bool volatile sync_time_ds1307;
-bool  ds_temperature;
+u8 lcdLedTimer;
+//bool  ds_temperature;
 
 
 
@@ -164,6 +167,15 @@ int volatile k=0;
    unsigned daily:1;
    unsigned monthly:1;
  }  volatile   status  ;
+
+
+ struct
+ {
+   unsigned ds1307:1;
+   unsigned ds18B20:1;
+   unsigned buzzer:1;
+   unsigned lcdLed:1;
+ }  volatile hardware ;
 
 //time_t  ltime;
 //struct tm ptim;
@@ -229,9 +241,11 @@ void Display_Line(char * line);
 void Clear_Line1(void);
 void Clear_Line2(void);
 void Menu(void);
-u8 Key_Press(void);
+u8 pressKey(void);
 void Display(void);
-bool Set_Date(void);
+bool setData(void);
+void initBeep(void);
+void beep(u16 Interval);
 
 
 
@@ -250,33 +264,42 @@ void main(void)
     InitDelayTimer3();
     GpioConfiguration();
     GPIO_WriteLow(GPIOD, power_pin );  //Power Off
+    GPIO_WriteLow(GPIOB,lcdLed);
+    hardware.lcdLed=0;
     //InitUart();
      enableInterrupts();
+     initBeep();
     // GPIO_WriteLow(GPIOD,GPIO_PIN_7); //R/W Line Read Mode
      InitLcd();
     //InitAdc();
-    InitI2C();
+     InitI2C();
+
+
+    // Enable Timer3
+    TIM3_Cmd(ENABLE);
 
     //year=bcd2hex(13);
-    Delay1(1000);
+    //Delay1(10000);
      if (!ReadDS1307())
      {
        printf("\n E2:%d",error);
        // Reset the CPU: Enable the watchdog and wait until it expires
-       IWDG->KR = IWDG_KEY_ENABLE;
-       while ( 1 );    // Wait until reset occurs from IWDG
+        hardware.ds1307=0;
+         pressKey();
+      //IWDG->KR = IWDG_KEY_ENABLE;
+      // while ( 1 );    // Wait until reset occurs from IWDG
      }
      //Send_Hello();
     //line_lcd=0;
     //printf("\nHello");
-
+      hardware.lcdLed=1;
 
     if (!Check_DS1307())
     {
        if (error!=0)
        {
         printf("\n E:%d",error);
-         while (!key_ok_on());
+         pressKey();
 
        }
      line_lcd=0;
@@ -299,8 +322,6 @@ void main(void)
      }
 
 
-      // Enable Timer3
-       TIM3_Cmd(ENABLE);
 
            //Init DS18B20
     DS18Set();
@@ -308,12 +329,12 @@ void main(void)
     if (!Read_DS18())
     {
      printf("\nDS_Err_T");
-       ds_temperature=FALSE;
+       hardware.ds18B20=0;
 
-       Key_Press();
+       pressKey();
       //while (!key_ok_on());
     }
-     else ds_temperature=TRUE;
+     else hardware.ds18B20=1;
 
     daily_dispaly=' ';
     month_display=' ';
@@ -345,7 +366,7 @@ void main(void)
       if(key_plus_on()) Power_On();
       if(key_minus_on())Power_Off();
       if(Time_Display) Display();  //
-      if(sync_time_ds1307)  // Sync local time with DS1307
+      if(sync_time_ds1307 )  // Sync local time with DS1307
          {
           if (!ReadDS1307())
               {
@@ -362,6 +383,7 @@ void main(void)
 
       if(status.on) GPIO_WriteHigh(GPIOD, power_pin );
        else   GPIO_WriteLow(GPIOD, power_pin );
+
 
 
 
@@ -391,7 +413,7 @@ void Display(void)
    }
     else if (status.daily) daily_dispaly='D';
      else daily_dispaly=' ';
-     if(ds_temperature)sprintf(line1,"\n%d.%dC%c%c%c",result1,result2,sync_display,daily_dispaly,month_display);
+     if(hardware.ds18B20)sprintf(line1,"\n%d.%dC%c%c%c",result1,result2,sync_display,daily_dispaly,month_display);
       else sprintf(line1,"\n%c%c%c",sync_display,daily_dispaly,month_display);
 
    line_lcd=0;
@@ -411,6 +433,7 @@ void Power_On()
   status.daily=0; //Off Daily timer
   status.monthly=0; //Off Monthly alarm
   Save_Status();
+  //hardware.lcdLed=1;
 }
 
 void Power_Off()
@@ -419,6 +442,7 @@ void Power_Off()
   status.daily=0; //Off Daily alarm
   status.monthly=0; //Off Monthly alarm
   Save_Status();
+   //hardware.lcdLed=0;
 
 }
 
@@ -550,7 +574,7 @@ bool  ReadDS1307(void)
             seconds &= 0x7f;
             Set_DS1307();
           }
-
+        hardware.ds1307=1;
        return TRUE;
 }
 
@@ -558,6 +582,7 @@ bool Check_DS1307(void)
 {
    // Read  address 0x08 from DS1307 if not 0XAA clock is not set
        error=0;
+       if (!hardware.ds1307) return FALSE;    //If not DS1307
        if (!I2C_Start()) return FALSE;
        if(!I2C_WA(0xD0)) return FALSE;
        if(!I2C_WD(0x08)) return FALSE;
@@ -734,7 +759,13 @@ bool key_ok_on()
        if (timer2>=key_time_press) // min delay for one
        {
          timer2=0; // and next must be release
-          if (GPIO_ReadInputData(GPIOF)& key_ok)  return TRUE;   //if realease retrun true
+          if (GPIO_ReadInputData(GPIOF)& key_ok)
+          {
+             beep(2000);
+            hardware.lcdLed=1;
+           lcdLedTimer=LCDLEDON;
+            return TRUE;   //if realease retrun true
+          }
        }
    }
 
@@ -752,7 +783,14 @@ bool key_ok_on()
       while((timer2 < key_time) && !(GPIO_ReadInputData(GPIOA)& key_plus) );;
         if (timer2>=key_time_press)
         {
-          if (GPIO_ReadInputData(GPIOF)& key_ok)  return TRUE;
+          if (GPIO_ReadInputData(GPIOF)& key_ok)
+          {
+              beep(2000);
+             hardware.lcdLed=1;
+              lcdLedTimer=LCDLEDON;
+
+            return TRUE;
+          }
         }
      }
 
@@ -769,7 +807,13 @@ bool key_ok_on()
       while((timer2 < key_time) && !(GPIO_ReadInputData(GPIOA)& key_minus) );;
         if (timer2>=key_time_press)
         {
-         if (GPIO_ReadInputData(GPIOF)& key_ok)  return TRUE;
+         if (GPIO_ReadInputData(GPIOF)& key_ok)
+         {
+               beep(2000);
+           hardware.lcdLed=1;
+              lcdLedTimer=LCDLEDON;
+           return TRUE;
+         }
         }
      }
 
@@ -783,7 +827,10 @@ bool  key_ok_plus()
   {
       timer2=0;  // Key must be push for timer2 time
       while((timer2 < key_time) && !((GPIO_ReadInputData(GPIOF)& key_ok)|(GPIO_ReadInputData(GPIOA)& key_plus)));;
-       if (timer2>=key_time) return TRUE;
+       if (timer2>=key_time)
+         hardware.lcdLed=1;
+              lcdLedTimer=LCDLEDON;
+         return TRUE;
   }
 
  return FALSE;
@@ -992,10 +1039,14 @@ void GpioConfiguration()
   GPIO_Init(GPIOA,key_minus,GPIO_MODE_IN_PU_NO_IT);
 
   //Init DS18b20 data pin
-  GPIO_Init(GPIOD,ds18_data,GPIO_MODE_OUT_OD_HIZ_FAST);
+  GPIO_Init(GPIOD,ds18_data,GPIO_MODE_OUT_PP_HIGH_FAST);    //GPIO_MODE_OUT_OD_HIZ_FAST
 
   // Power Pin
    GPIO_Init(GPIOD,power_pin,GPIO_MODE_OUT_PP_HIGH_FAST);
+
+  // lcdLed Pin
+   GPIO_Init(GPIOB,lcdLed,GPIO_MODE_OUT_PP_HIGH_FAST);
+
 
 }
 
@@ -1403,7 +1454,7 @@ bool DS18_Reset()
     while ((timer2 < TIMEOUT_DS18B20) && (GPIO_ReadInputPin(GPIOD, ds18_data)));;   //Wait for ack from DS18B20
     if (timer2>=TIMEOUT_DS18B20)
     {
-      ds_temperature=FALSE;
+      hardware.ds18B20=0;
       return FALSE;
     }
 
@@ -1411,13 +1462,13 @@ bool DS18_Reset()
      while ((timer2 < TIMEOUT_DS18B20) && (!GPIO_ReadInputPin(GPIOD, ds18_data)));;
       if (timer2>=TIMEOUT_DS18B20)
        {
-        ds_temperature=FALSE;
+        hardware.ds18B20=0;
         return FALSE;
        }
 
     // Delay1(10);
     //Delay1(20);    //25=524us
-     ds_temperature=TRUE;
+     hardware.ds18B20=1;
     return TRUE;
 }
 
@@ -1512,6 +1563,15 @@ bool DS18Set ()
     DS18_Write(125);
     DS18_Write(0xDC); //-55
     DS18_Write(0x1F);
+
+   //Init Reset Pulse
+    if(!DS18_Reset()) return FALSE;
+    //Skip ROM Command 0xCC
+    DS18_Write(0xCC);
+    //Function   Store in Conf Reg
+    DS18_Write(0x48);
+
+
 
 
 
@@ -1653,7 +1713,7 @@ First_Menu:
     printf("\nON      ");
     line_lcd=1;
     printf("\n%02d:%02d",daily_hour_on,daily_minute_on);
-    switch (Key_Press())
+    switch (pressKey())
         {
         case 1: goto Second_Menu ;
          break;
@@ -1670,7 +1730,7 @@ Second_Menu:
     printf("\nOFF     ");
     line_lcd=1;
     printf("\n%02d:%02d",daily_hour_off,daily_minute_off);
-      switch (Key_Press())
+      switch (pressKey())
         {
         case 1: goto Third_Menu ;
          break;
@@ -1686,13 +1746,13 @@ Third_Menu:
     printf("\nMonthly ");
     line_lcd=1;
     printf("\n%02d:%02d:%02d",monthly_year,monthly_month,monthly_date);
-      switch (Key_Press())
+      switch (pressKey())
         {
         case 1: goto Fourth_Menu;
          break;
         case 2:
           {
-           Set_Date();
+           setData();
            monthly_year=y;
            monthly_month=m;
            monthly_date=d;
@@ -1720,7 +1780,7 @@ Fourth_Menu:
     printf("\nClock   ");
     line_lcd=1;
     printf("\n%02d:%02d:%02d",hours,minutes,seconds);
-      switch (Key_Press())
+      switch (pressKey())
         {
         case 1: goto Fifth_Menu ;
          break;
@@ -1737,11 +1797,11 @@ Fifth_Menu:
     printf("\nDate    ");
     line_lcd=1;
     printf("\n%02d:%02d:%02d",year,month,date);
-      switch (Key_Press())
+      switch (pressKey())
         {
         case 1: goto Exit_Menu ;
          break;
-        case 2: Set_Date();
+        case 2: setData();
          break;
         case 3: goto Fourth_Menu;
          break;
@@ -1754,7 +1814,7 @@ Exit_Menu:
     printf("\nExit OK ");
     line_lcd=1;
     printf("\n+/-     ");
-       switch (Key_Press())
+       switch (pressKey())
         {
         case 1: goto First_Menu;
          break;
@@ -1772,23 +1832,32 @@ Exit_Menu:
 }
 
 
-u8 Key_Press(void)
+u8 pressKey(void)
 {
-   u8 key_press =0;
+   u8 pressKey =0;
    timer3=0;
-   do {
-      if (key_ok_on()) key_press=1;
-         else if (key_plus_on())key_press=2;
-        else if (key_minus_on())key_press=3;
-   } while ( (timer3<=time_menu) && !key_press);    //(timer3<=time_menu) &&
+   hardware.lcdLed=1;
+   lcdLedTimer=LCDLEDON;
 
-   return key_press;
+   do {
+      if (key_ok_on())
+      {
+        pressKey=1;
+        //beep(5000);
+      }
+         else if (key_plus_on())pressKey=2;
+        else if (key_minus_on())pressKey=3;
+   } while ( (timer3<=time_menu) && !pressKey);    //(timer3<=time_menu) &&
+
+    if (pressKey==0) beep(10000);
+
+   return pressKey;
 }
 
 
 
 
-bool Set_Date(void)
+bool setData(void)
 {
    u8 leap=0 ,date_end,month_start,date_start;
    int yy;
@@ -1840,6 +1909,26 @@ bool Set_Date(void)
     } while (!key_ok_on());
 
   return TRUE;
+}
+
+
+void initBeep(void)
+{
+  BEEP_DeInit();
+  BEEP_Init(BEEP_FREQUENCY_2KHZ);
+   BEEP_Cmd(ENABLE);
+     Delay1(10000);
+   BEEP_Cmd(DISABLE);
+
+}
+
+void beep(u16 Interval)
+{
+
+ BEEP_Cmd(ENABLE);
+     Delay1(Interval);
+  BEEP_Cmd(DISABLE);
+
 }
 
  PUTCHAR_PROTOTYPE
