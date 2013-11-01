@@ -76,7 +76,7 @@ extern u16 time_off;
 extern u8 monthly_year;
 extern u8 monthly_month;
 extern u8 monthly_date;
-extern u8 lcdLedTimer;
+extern volatile u8 lcdLedTimer;
 
 
 
@@ -325,8 +325,8 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
   /* In order to detect unexpected events during development,
      it is recommended to set a breakpoint on the following instruction.
   */
-   if(hardware.lcdLed) GPIO_WriteHigh(GPIOB,lcdLed);
-     else   GPIO_WriteLow(GPIOB,lcdLed);
+   if(hardware.lcdLed) GPIO_WriteLow(GPIOB,lcdLed);
+     else   GPIO_WriteHigh(GPIOB,lcdLed);
  timer2++;
  timer1++;
  timeout--;
@@ -428,6 +428,8 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
 
       lcdLedTimer--;
       if(lcdLedTimer <= 0) hardware.lcdLed=0;
+      // else hardware.lcdLed=1;
+
 
 
    TIM3_ClearITPendingBit(TIM3_IT_UPDATE);

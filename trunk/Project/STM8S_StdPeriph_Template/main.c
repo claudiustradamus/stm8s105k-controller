@@ -96,7 +96,7 @@
 #define DS_Control  0x10  // Out 1s
 #define time_menu 10  // 5s
 #define TIMEOUT_DS18B20 1000
-#define LCDLEDON 10
+#define LCDLEDON 20
 //#define sync_time 30 // 30s
 
 
@@ -293,6 +293,8 @@ void main(void)
     //line_lcd=0;
     //printf("\nHello");
       hardware.lcdLed=1;
+       lcdLedTimer=LCDLEDON;
+        //GPIO_WriteLow(GPIOB,lcdLed);
 
     if (!Check_DS1307())
     {
@@ -383,7 +385,6 @@ void main(void)
 
       if(status.on) GPIO_WriteHigh(GPIOD, power_pin );
        else   GPIO_WriteLow(GPIOD, power_pin );
-
 
 
 
@@ -1045,7 +1046,7 @@ void GpioConfiguration()
    GPIO_Init(GPIOD,power_pin,GPIO_MODE_OUT_PP_HIGH_FAST);
 
   // lcdLed Pin
-   GPIO_Init(GPIOB,lcdLed,GPIO_MODE_OUT_PP_HIGH_FAST);
+   GPIO_Init(GPIOB,lcdLed,GPIO_MODE_OUT_OD_LOW_SLOW);//GPIO_MODE_OUT_PP_HIGH_FAST);
 
 
 }
@@ -1423,7 +1424,7 @@ u8  DS18_Read()
     //Init DS18b20 data pin as Input
 
   u8 data=0;
-    disableInterrupts();
+    disableInterrupts();    //01.10.2013
   for (u8 i=0;i<8;i++)
   {
     DS18(0);
