@@ -76,18 +76,6 @@ Editor Kind=PCB
 [Power.ERC]
 Editor Kind=Text
 Attributes=131072
-[Stm8s105K4S6.Sch Childlist]
-ChildCount=6
-Child1=STM105K4T6
-Child2=LCD
-Child3=MOC3083
-Child4=7805
-Child5=DS1307
-Child6=DS18B20
-[Power.Sch Childlist]
-ChildCount=2
-Child1=MOC3083
-Child2=7805
 [Preview Power.PPC]
 Editor Kind=PCBPrint
 [Current.ERC]
@@ -115,3 +103,14 @@ Editor Kind=PCBPrint
 ChildCount=2
 Child1=STM105K4T6
 Child2=7805
+[Stm8s105K4S6.Sch Childlist]
+ChildCount=6
+Child1=STM105K4T6
+Child2=LCD
+Child3=MOC3083
+Child4=7805
+Child5=DS1307
+Child6=DS18B20
+[Power.Sch Childlist]
+ChildCount=1
+Child1=7805

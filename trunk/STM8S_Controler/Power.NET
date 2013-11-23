@@ -39,17 +39,9 @@ DIODE
 
 ]
 [
-D3
-RAD0.1
-LED
+D2
 
-
-
-]
-[
-F1
-FUSE_PCB
-FUSE1
+DIODE
 
 
 
@@ -87,25 +79,25 @@ CON2
 
 ]
 [
-Q1
-TO-220
-BT139
+K1
+
+RELAY-SPST
 
 
 
 ]
 [
-R1
-AXIAL1.0
-330/2W
+Q1
+
+NPN
 
 
 
 ]
 [
 R2
-AXIAL1.0
-330/2W
+
+RES1
 
 
 
@@ -134,14 +126,6 @@ TO-252
 
 
 ]
-[
-ZCOTDO
-DIP6
-MOC3083
-
-
-
-]
 (
 GND
 C1-2
@@ -149,51 +133,48 @@ C3-2
 C4-2
 C7-2
 J5V-2
-J_ON_OFF-1
+J_ON_OFF-2
+Q1-3
+R2-2
 T1-4
 VR05-2
-ZCOTDO-2
 )
 (
-NetD1_2
-C1-1
-C4-1
-D1-2
-VR05-1
-)
-(
-NetD3_A
-D3-A
-R6-1
+NetD2_1
+D2-1
+K1-4
+Q1-1
 )
 (
 NetJLOAD_1
 JLOAD-1
-Q1-1
-R2-1
+K1-1
+)
+(
+NetJLOAD_2
+JLOAD-2
+K1-2
+)
+(
+NetJPower_1
+JPower-1
+T1-3
 )
 (
 NetJPower_2
-F1-1
 JPower-2
-)
-(
-NetQ1_2
-F1-2
-Q1-2
-R1-1
 T1-1
 )
 (
-NetQ1_3
-Q1-3
-R2-2
-ZCOTDO-4
+NetQ1_2
+Q1-2
+R2-1
+R6-2
 )
 (
-NetR6_2
-J_ON_OFF-2
-R6-2
+NetR6_1
+J_ON_OFF-1
+R6-1
 )
 (
 NetT1_2
@@ -201,25 +182,18 @@ D1-1
 T1-2
 )
 (
-NetZCOTDO_1
-D3-C
-ZCOTDO-1
-)
-(
-NetZCOTDO_6
-R1-2
-ZCOTDO-6
-)
-(
-VCC+5V
+NetVR05_3
 C3-1
 C7-1
 J5V-1
 VR05-3
 )
 (
-VCC_NEUTRAL
-JLOAD-2
-JPower-1
-T1-3
+VCC+12V
+C1-1
+C4-1
+D1-2
+D2-2
+K1-3
+VR05-1
 )
