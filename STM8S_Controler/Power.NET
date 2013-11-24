@@ -40,7 +40,7 @@ DIODE
 ]
 [
 D2
-
+RAD0.2
 DIODE
 
 
@@ -80,7 +80,7 @@ CON2
 ]
 [
 K1
-
+RELE_POWER
 RELAY-SPST
 
 
@@ -88,7 +88,7 @@ RELAY-SPST
 ]
 [
 Q1
-
+SIP3
 NPN
 
 
@@ -96,7 +96,7 @@ NPN
 ]
 [
 R2
-
+0805
 RES1
 
 
