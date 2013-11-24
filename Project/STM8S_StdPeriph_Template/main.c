@@ -98,6 +98,7 @@
 #define TIMEOUT_DS18B20 1000
 #define LCDLEDON 20
 //#define sync_time 30 // 30s
+#define power_jitter 3 //3s
 
 
 
@@ -113,13 +114,13 @@ volatile u8 rx_data;
 //u16  measure[data_size];
 u8 line_lcd;
 u8 count;
-u8 seconds;
-u8 minutes;
-u8 hours;
+u8  seconds;
+u8  minutes;
+u8  hours;
 u8 days=1;
-u8 date=1;
-u8 month=1;
-u8 year;
+u8  date=1;
+u8  month=1;
+u8  year;
 u8 error;
 u8 y,m,d;
 u8 temp_flag;
@@ -258,7 +259,6 @@ void main(void)
 {
     /*High speed internal clock prescaler: 1*/
     //CLK_HSIPrescalerConfig(CLK_PRESCALER_HSIDIV1);
-
     InitClk();
     InitDelayTimer2();
     InitDelayTimer3();
@@ -323,8 +323,6 @@ void main(void)
        time_off= daily_hour_off*60+daily_minute_off;
      }
 
-
-
            //Init DS18B20
     DS18Set();
     line_lcd=0;
@@ -332,15 +330,22 @@ void main(void)
     {
      printf("\nDS_Err_T");
        hardware.ds18B20=0;
-
-       pressKey();
-      //while (!key_ok_on());
+        pressKey();  //while (!key_ok_on());
     }
      else hardware.ds18B20=1;
 
     daily_dispaly=' ';
     month_display=' ';
     sync_time_ds1307= TRUE;
+
+          //Same delay if  power jitter
+    if (status.on)
+    {
+     line_lcd=0;
+     printf("\nWait 3s.");
+     timer3=0;
+     while (timer3<=power_jitter);
+    }
 
      //UART2_Cmd(DISABLE);  // Disable UART for the moment
 
@@ -368,6 +373,7 @@ void main(void)
       if(key_plus_on()) Power_On();
       if(key_minus_on())Power_Off();
       if(Time_Display) Display();  //
+
       if(sync_time_ds1307 )  // Sync local time with DS1307
          {
           if (!ReadDS1307())
@@ -540,7 +546,7 @@ bool Init_DS1307(void)
    */
 
 bool  ReadDS1307(void)
-{
+{        TIM3_Cmd(DISABLE);
        error=0;
        if (!I2C_Start()) return FALSE;
        if(!I2C_WA(0xD0))return FALSE;
@@ -576,6 +582,7 @@ bool  ReadDS1307(void)
             Set_DS1307();
           }
         hardware.ds1307=1;
+       TIM3_Cmd(ENABLE);
        return TRUE;
 }
 
@@ -1025,7 +1032,7 @@ void GpioConfiguration()
   GPIO_Init(GPIOB,GPIO_PIN_0,GPIO_MODE_IN_FL_NO_IT);
 
   // PD6/UART2_RX   PD5/UART2_TX  No need to init  PD7 485 R/W;
-  GPIO_Init(GPIOD,GPIO_PIN_7,GPIO_MODE_OUT_PP_HIGH_FAST);
+  //GPIO_Init(GPIOD,GPIO_PIN_7,GPIO_MODE_OUT_PP_HIGH_FAST);
 
   //PD0 Led
   GPIO_Init(GPIOD,GPIO_PIN_0,GPIO_MODE_OUT_PP_HIGH_FAST);
@@ -1043,7 +1050,7 @@ void GpioConfiguration()
   GPIO_Init(GPIOD,ds18_data,GPIO_MODE_OUT_PP_HIGH_FAST);    //GPIO_MODE_OUT_OD_HIZ_FAST
 
   // Power Pin
-   GPIO_Init(GPIOD,power_pin,GPIO_MODE_OUT_PP_HIGH_FAST);
+   GPIO_Init(GPIOD,power_pin,GPIO_MODE_OUT_PP_LOW_FAST);
 
   // lcdLed Pin
    GPIO_Init(GPIOB,lcdLed,GPIO_MODE_OUT_OD_LOW_SLOW);//GPIO_MODE_OUT_PP_HIGH_FAST);
@@ -1802,7 +1809,7 @@ Fifth_Menu:
         {
         case 1: goto Exit_Menu ;
          break;
-        case 2: setData();
+        case 2: Set_Clock();
          break;
         case 3: goto Fourth_Menu;
          break;
@@ -1860,7 +1867,7 @@ u8 pressKey(void)
 
 bool setData(void)
 {
-   u8 leap=0 ,date_end,month_start,date_start;
+   u8 leap=0 ,date_end,month_start=1,date_start=1;
    int yy;
 
          //Clear Display
@@ -1897,7 +1904,7 @@ bool setData(void)
          if(leap) date_end=29;
           else date_end=28;
        }
-     if(y==year) date_start=d;
+     if( y==year && m==month) date_start=d;
     LCDInstr(0x01);
      Delay1(1000);
       line_lcd=0;
@@ -1908,6 +1915,12 @@ bool setData(void)
      printf("\n%02d:%02d:%02d",y,m,d);
        d=adj(date_start,date_end,d);
     } while (!key_ok_on());
+
+      //Set clock keeper
+     //year=y;
+     //month=m;
+     //date=d;
+     //Set_DS1307();
 
   return TRUE;
 }

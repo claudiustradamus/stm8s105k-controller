@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                            /
-// IAR C/C++ Compiler V1.30.1.50036 for STM8            01/Nov/2013  19:16:48 /
+// IAR C/C++ Compiler V1.30.1.50036 for STM8            24/Nov/2013  18:38:46 /
 // Copyright 2010-2011 IAR Systems AB.                                        /
 //                                                                            /
 //    Source file  =  C:\Documents and Settings\Administrator\Desktop\stm8s10 /
@@ -249,12 +249,12 @@
 //   44 extern  volatile u8 index=0;
 index:
         DS8 1
-//   45 extern   u8 seconds;
-//   46 extern   u8 minutes;
-//   47 extern   u8 hours;
-//   48 extern   u8 year;
-//   49 extern   u8 month;
-//   50 extern   u8 date;
+//   45 extern    u8 seconds;
+//   46 extern    u8 minutes;
+//   47 extern    u8 hours;
+//   48 extern    u8 year;
+//   49 extern    u8 month;
+//   50 extern    u8 date;
 //   51 extern  bool volatile  Time_Display;
 //   52 
 

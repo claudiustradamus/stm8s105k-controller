@@ -42,12 +42,12 @@ extern  volatile u16 adcdata;
 extern  volatile u8 timeout;
 extern  volatile u8 rx_data;
 extern  volatile u8 index=0;
-extern   u8 seconds;
-extern   u8 minutes;
-extern   u8 hours;
-extern   u8 year;
-extern   u8 month;
-extern   u8 date;
+extern    u8 seconds;
+extern    u8 minutes;
+extern    u8 hours;
+extern    u8 year;
+extern    u8 month;
+extern    u8 date;
 extern  bool volatile  Time_Display;
 
 volatile u8 sync=0;
