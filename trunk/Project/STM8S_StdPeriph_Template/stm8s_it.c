@@ -55,6 +55,7 @@ extern  bool volatile sync_time_ds1307;
 
 extern struct   status_reg
  {
+   unsigned manu: 1;
    unsigned on:1;
    unsigned timer_on:1;
    unsigned daily:1;
@@ -383,7 +384,8 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
 
        // Check for Monthly Alarm      |------- time_now
       //                               |----timer_on
-          if ( status.monthly)
+    /*
+          if (!status.manu)
           {
             if( monthly_year==year && monthly_date==date && monthly_month==month)
             {
@@ -397,11 +399,11 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
             }
           }
 
-
+       */
 
 
       //Check for Daily Alarm
-        if (status.daily)
+        if (!status.manu)
         {
        u16 time_now=hours*60+minutes;
       status.on=0;
