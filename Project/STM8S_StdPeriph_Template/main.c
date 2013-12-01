@@ -68,13 +68,14 @@
 #define EEPROM_ADDR 0x4000
 #define EEPROM_ADR_STATUSH          EEPROM_ADDR + 0
 #define EEPROM_ADR_STATUSL          EEPROM_ADDR + 1
-#define EEPROM_ADR_TIME_ON_HOURS    EEPROM_ADDR +2
-#define EEPROM_ADR_TIME_ON_MINUTES  EEPROM_ADDR +3
-#define EEPROM_ADR_TIME_OFF_HOURS   EEPROM_ADDR +4
-#define EEPROM_ADR_TIME_OFF_MINUTES EEPROM_ADDR +5
-#define EEPROM_ADR_MONTH_YEAR       EEPROM_ADDR +6
-#define EEPROM_ADR_MONTH_MONTH      EEPROM_ADDR +7
-#define EEPROM_ADR_MONTH_DATE       EEPROM_ADDR +8
+#define EEPROM_ADR_PROGRAM          EEPROM_ADDR + 2
+//#define EEPROM_ADR_TIME_ON_HOURS    EEPROM_ADDR +2
+//#define EEPROM_ADR_TIME_ON_MINUTES  EEPROM_ADDR +3
+//#define EEPROM_ADR_TIME_OFF_HOURS   EEPROM_ADDR +4
+//#define EEPROM_ADR_TIME_OFF_MINUTES EEPROM_ADDR +5
+//#define EEPROM_ADR_MONTH_YEAR       EEPROM_ADDR +6
+//#define EEPROM_ADR_MONTH_MONTH      EEPROM_ADDR +7
+//#define EEPROM_ADR_MONTH_DATE       EEPROM_ADDR +8
 
 #ifdef __GNUC__
   /* With GCC/RAISONANCE, small printf (option LD Linker->Libraries->Small printf
@@ -143,9 +144,10 @@ u8 l=0;
 u16 status_check;
 u8 test1;
 u8 test2;
-char  daily_dispaly,month_display,sync_display;
+char  manu_display,sync_display,program_display;
 bool volatile sync_time_ds1307;
 u8 lcdLedTimer;
+u8 button;
 //bool  ds_temperature;
 
 
@@ -163,6 +165,7 @@ int volatile k=0;
 
  struct   status_reg
  {
+   unsigned manu:1;
    unsigned on:1;
    unsigned timer_on:1;
    unsigned daily:1;
@@ -177,6 +180,34 @@ int volatile k=0;
    unsigned buzzer:1;
    unsigned lcdLed:1;
  }  volatile hardware ;
+
+
+
+ typedef  struct
+  {
+    u8 day;
+    u8 onhour ;
+    u8 onminute ;
+    u8 offhour;
+    u8 offminute;
+
+  } volatile program ;
+
+         // = new proram[8];
+   program  programpoint[8];
+  /*
+   =
+ {
+   {0x0A,0x00,0x00,0x00,0x00},
+   {0x00,0x00,0x00,0x00,0x00},
+   {0x00,0x00,0x00,0x00,0x00},
+   {0x00,0x00,0x00,0x00,0x00},
+   {0x00,0x00,0x00,0x00,0x00},
+   {0x00,0x00,0x00,0x00,0x00},
+   {0x00,0x00,0x00,0x00,0x00},
+   {0x00,0x00,0x00,0x00,0xFF},
+ };
+    */
 
 //time_t  ltime;
 //struct tm ptim;
@@ -236,17 +267,22 @@ u8 adj(u8 min,u8 max,u8 now);
 u8 bcd2hex(u8 bcd);
 void Power_On(void);
 void Power_Off();
-void Save_Status();
+void SaveStatus();
 void Rotate_Line( char * line);
 void Display_Line(char * line);
 void Clear_Line1(void);
 void Clear_Line2(void);
 void Menu(void);
-u8 pressKey(void);
+void pressKey(void);
 void Display(void);
 bool setData(void);
 void initBeep(void);
 void beep(u16 Interval);
+void FirstMenu();
+void ProgramMenu();
+void SaveProgram();
+void ReadProgram();
+void ResetProgram();
 
 
 
@@ -273,11 +309,8 @@ void main(void)
      InitLcd();
     //InitAdc();
      InitI2C();
-
-
     // Enable Timer3
     TIM3_Cmd(ENABLE);
-
     //year=bcd2hex(13);
     //Delay1(10000);
      if (!ReadDS1307())
@@ -307,6 +340,7 @@ void main(void)
      line_lcd=0;
      printf("\nSetClock");
       Set_Clock();
+       // reset program point
 
     }
 
@@ -316,6 +350,8 @@ void main(void)
      //u16 status
      *(u16*)(&status)=(u16)(FLASH_ReadByte(EEPROM_ADR_STATUSH)*256)+(u16)FLASH_ReadByte(EEPROM_ADR_STATUSL);
       status_check = *(u16*)(&status);
+
+      ReadProgram ();
     //When Start Check for Allarm and computing Daily_long_on
      if ( Read_Allarm() == TRUE)
      {
@@ -334,8 +370,8 @@ void main(void)
     }
      else hardware.ds18B20=1;
 
-    daily_dispaly=' ';
-    month_display=' ';
+    //daily_dispaly=' ';
+    //month_display=' ';
     sync_time_ds1307= TRUE;
 
           //Same delay if  power jitter
@@ -369,7 +405,7 @@ void main(void)
     {
 
 
-      if(key_ok_on()) Menu();
+      if(key_ok_on()) FirstMenu();
       if(key_plus_on()) Power_On();
       if(key_minus_on())Power_Off();
       if(Time_Display) Display();  //
@@ -410,18 +446,19 @@ void Display(void)
 
 
 
-   if (status.monthly) month_display='M';
-     else month_display=' ';
+   if (status.manu) manu_display='M';
+     else manu_display='A';
      //Blink D
-   if (status.on && status.daily)
+   if (status.on && !status.manu)
    {
-     if (daily_dispaly=='D') daily_dispaly=' ';
-      else daily_dispaly='D';
+     if (program_display=='P') program_display=' ';
+      else program_display='P';
    }
-    else if (status.daily) daily_dispaly='D';
-     else daily_dispaly=' ';
-     if(hardware.ds18B20)sprintf(line1,"\n%d.%dC%c%c%c",result1,result2,sync_display,daily_dispaly,month_display);
-      else sprintf(line1,"\n%c%c%c",sync_display,daily_dispaly,month_display);
+
+    else if (status.on) program_display='P';
+     else program_display=' ';
+    if(hardware.ds18B20)sprintf(line1,"\n%d.%dC%c%c%c",result1,result2,sync_display,program_display,manu_display);
+      else sprintf(line1,"\n%c%c%c",sync_display,program_display,manu_display);
 
    line_lcd=0;
    printf(line1);
@@ -436,19 +473,18 @@ void Display(void)
 
 void Power_On()
 {
+  //status.auto=0;
   status.on=1;
-  status.daily=0; //Off Daily timer
-  status.monthly=0; //Off Monthly alarm
-  Save_Status();
+  status.manu=1; //Manu
+  SaveStatus();
   //hardware.lcdLed=1;
 }
 
 void Power_Off()
 {
   status.on=0;
-  status.daily=0; //Off Daily alarm
-  status.monthly=0; //Off Monthly alarm
-  Save_Status();
+  status.manu=1; //Manu
+  SaveStatus();
    //hardware.lcdLed=0;
 
 }
@@ -770,8 +806,15 @@ bool key_ok_on()
           if (GPIO_ReadInputData(GPIOF)& key_ok)
           {
              beep(2000);
-            hardware.lcdLed=1;
-           lcdLedTimer=LCDLEDON;
+              if(!hardware.lcdLed)
+              {
+               hardware.lcdLed=1;
+               lcdLedTimer=LCDLEDON;
+               return FALSE;
+              }
+             hardware.lcdLed=1;
+             lcdLedTimer=LCDLEDON;
+
             return TRUE;   //if realease retrun true
           }
        }
@@ -794,7 +837,13 @@ bool key_ok_on()
           if (GPIO_ReadInputData(GPIOF)& key_ok)
           {
               beep(2000);
-             hardware.lcdLed=1;
+              if(!hardware.lcdLed)
+              {
+               hardware.lcdLed=1;
+               lcdLedTimer=LCDLEDON;
+               return FALSE;
+              }
+              hardware.lcdLed=1;
               lcdLedTimer=LCDLEDON;
 
             return TRUE;
@@ -818,8 +867,14 @@ bool key_ok_on()
          if (GPIO_ReadInputData(GPIOF)& key_ok)
          {
                beep(2000);
-           hardware.lcdLed=1;
+           if(!hardware.lcdLed)
+             {
+              hardware.lcdLed=1;
               lcdLedTimer=LCDLEDON;
+              return FALSE;
+             }
+           hardware.lcdLed=1;
+           lcdLedTimer=LCDLEDON;
            return TRUE;
          }
         }
@@ -881,8 +936,8 @@ bool Set_Timer_On()
     // FLASH_ProgramByte(EEPROM_ADR_STATUS,*(u8*)(&status)); //save Status to eeprom
      FLASH_ProgramByte(EEPROM_ADR_STATUSH,(u8)(*(u16*)(&status)>>8));
      FLASH_ProgramByte(EEPROM_ADR_STATUSL,(u8)(*(u16*)(&status)));
-     FLASH_ProgramByte(EEPROM_ADR_TIME_ON_HOURS,daily_hour_on);
-     FLASH_ProgramByte(EEPROM_ADR_TIME_ON_MINUTES,daily_minute_on);
+     //FLASH_ProgramByte(EEPROM_ADR_TIME_ON_HOURS,daily_hour_on);
+     //FLASH_ProgramByte(EEPROM_ADR_TIME_ON_MINUTES,daily_minute_on);
      FLASH_Lock(FLASH_MEMTYPE_DATA); //Locking  Flash Data
       time_on=daily_hour_on*60+daily_minute_on;
        change=TRUE;
@@ -925,8 +980,8 @@ bool Set_Timer_Off()
     // FLASH_ProgramByte(EEPROM_ADR_STATUS,*(u8*)(&status)); //save Status to eeprom
      FLASH_ProgramByte(EEPROM_ADR_STATUSH,(u8)(*(u16*)(&status)>>8));
      FLASH_ProgramByte(EEPROM_ADR_STATUSL,(u8)(*(u16*)(&status)));
-     FLASH_ProgramByte(EEPROM_ADR_TIME_OFF_HOURS,daily_hour_off);
-     FLASH_ProgramByte(EEPROM_ADR_TIME_OFF_MINUTES,daily_minute_off);
+     //FLASH_ProgramByte(EEPROM_ADR_TIME_OFF_HOURS,daily_hour_off);
+     //FLASH_ProgramByte(EEPROM_ADR_TIME_OFF_MINUTES,daily_minute_off);
      FLASH_Lock(FLASH_MEMTYPE_DATA); //Locking  Flash Data
       time_off= daily_hour_off*60+daily_minute_off;
        change=TRUE;
@@ -985,7 +1040,7 @@ bool Set_Timer_Off()
 }
   */
 
-void Save_Status()
+void SaveStatus()
 {
   EEPROM_INIT();
   FLASH_ProgramByte(EEPROM_ADR_STATUSH,(u8)(*(u16*)(&status)>>8));
@@ -993,21 +1048,61 @@ void Save_Status()
   FLASH_Lock(FLASH_MEMTYPE_DATA); //Locking  Flash Data
 }
 
+
+void SaveProgram ()
+{
+     char *pp = (char*)&programpoint[0];
+    EEPROM_INIT();
+   for( u8 i=0;i< sizeof(programpoint);i++)
+   {
+    FLASH_ProgramByte( EEPROM_ADR_PROGRAM+i,*(pp+i));
+   }
+    FLASH_Lock(FLASH_MEMTYPE_DATA); //Locking  Flash Data
+}
+
+
+void ReadProgram()
+{
+    char *pp = (char*)&programpoint[0];
+  for( u8 i=0;i< sizeof(programpoint);i++)
+   {
+     *(pp+i)=FLASH_ReadByte( EEPROM_ADR_PROGRAM+i);
+   }
+}
+
+
+void ResetProgram()
+{
+  /*
+  programpoint[8]=
+  {
+   {0x0A,0x00,0x00,0x00,0x00},
+   {0x00,0x00,0x00,0x00,0x00},
+   {0x00,0x00,0x00,0x00,0x00},
+   {0x00,0x00,0x00,0x00,0x00},
+   {0x00,0x00,0x00,0x00,0x00},
+   {0x00,0x00,0x00,0x00,0x00},
+   {0x00,0x00,0x00,0x00,0x00},
+   {0x00,0x00,0x00,0x00,0xFF},
+ };
+    */
+}
+
 bool Read_Allarm()
 {
-   daily_hour_on=FLASH_ReadByte(EEPROM_ADR_TIME_ON_HOURS);
+   //daily_hour_on=FLASH_ReadByte(EEPROM_ADR_TIME_ON_HOURS);
     if(daily_hour_on > 24) return FALSE;
-   daily_minute_on=FLASH_ReadByte(EEPROM_ADR_TIME_ON_MINUTES);
+   //daily_minute_on=FLASH_ReadByte(EEPROM_ADR_TIME_ON_MINUTES);
     if(daily_minute_on > 59) return FALSE;
-   daily_hour_off=FLASH_ReadByte(EEPROM_ADR_TIME_OFF_HOURS);
+   //daily_hour_off=FLASH_ReadByte(EEPROM_ADR_TIME_OFF_HOURS);
     if(daily_hour_off > 24) return FALSE;
-   daily_minute_off=FLASH_ReadByte(EEPROM_ADR_TIME_OFF_MINUTES);
+   //daily_minute_off=FLASH_ReadByte(EEPROM_ADR_TIME_OFF_MINUTES);
     if(daily_hour_off > 59) return FALSE;
-   monthly_year=FLASH_ReadByte(EEPROM_ADR_MONTH_YEAR);
+   //monthly_year=FLASH_ReadByte(EEPROM_ADR_MONTH_YEAR);
     if(monthly_year >99) return FALSE;
-   monthly_month=FLASH_ReadByte(EEPROM_ADR_MONTH_MONTH);
+   //monthly_month=FLASH_ReadByte(EEPROM_ADR_MONTH_MONTH);
     if(monthly_month>12) return FALSE;
-   monthly_date=FLASH_ReadByte(EEPROM_ADR_MONTH_DATE);
+   //monthly_date=FLASH_ReadByte(EEPROM_ADR_MONTH_DATE);
     if(monthly_date >31) return FALSE;
   return TRUE;
 }
@@ -1700,6 +1795,55 @@ void Clear_Line2 ()
 
 
 
+void FirstMenu()
+{
+      // Clear Display
+    LCDInstr(0x01); //Clear LCD
+    Delay1(250);
+
+      line_lcd=0;
+      printf("\nManuAuto");
+      line_lcd=1;
+       if (!status.manu)
+      printf( "\nAuto");
+       else  printf("\nManu");
+
+       do
+       {
+       pressKey();
+
+        if(button==2)      // Plus Button
+        {
+          if(status.manu) status.manu=0;
+           else status.manu=1;
+          line_lcd=1;
+          if(status.manu)printf("\nManu");
+          else  printf("\nAuto");
+        }
+
+        if( button==3 || button==0 )      // Minus Button
+        {
+          SaveStatus();
+          return;
+        }
+
+
+       } while( button!=1);
+
+         SaveStatus();
+         button=0;
+         ProgramMenu();
+
+
+}
+
+
+
+void ProgramMenu()
+{
+  return;
+}
+
 
 
 void Menu (void)
@@ -1715,13 +1859,21 @@ void Menu (void)
     If OK enter to menu option
     If time out about 10s exit from Menu
  */
+
+
+
+
+
+
     do {
+
 First_Menu:
     line_lcd=0;
     printf("\nON      ");
     line_lcd=1;
     printf("\n%02d:%02d",daily_hour_on,daily_minute_on);
-    switch (pressKey())
+     pressKey();
+    switch (button)
         {
         case 1: goto Second_Menu ;
          break;
@@ -1738,7 +1890,8 @@ Second_Menu:
     printf("\nOFF     ");
     line_lcd=1;
     printf("\n%02d:%02d",daily_hour_off,daily_minute_off);
-      switch (pressKey())
+      pressKey();
+      switch (button)
         {
         case 1: goto Third_Menu ;
          break;
@@ -1754,7 +1907,8 @@ Third_Menu:
     printf("\nMonthly ");
     line_lcd=1;
     printf("\n%02d:%02d:%02d",monthly_year,monthly_month,monthly_date);
-      switch (pressKey())
+      pressKey();
+      switch (button)
         {
         case 1: goto Fourth_Menu;
          break;
@@ -1771,9 +1925,9 @@ Third_Menu:
            EEPROM_INIT();
            FLASH_ProgramByte(EEPROM_ADR_STATUSH,(u8)(*(u16*)(&status)>>8));
            FLASH_ProgramByte(EEPROM_ADR_STATUSL,(u8)(*(u16*)(&status)));
-           FLASH_ProgramByte(EEPROM_ADR_MONTH_YEAR,y);
-           FLASH_ProgramByte(EEPROM_ADR_MONTH_MONTH,m);
-           FLASH_ProgramByte(EEPROM_ADR_MONTH_DATE,d);
+          // FLASH_ProgramByte(EEPROM_ADR_MONTH_YEAR,y);
+          // FLASH_ProgramByte(EEPROM_ADR_MONTH_MONTH,m);
+          // FLASH_ProgramByte(EEPROM_ADR_MONTH_DATE,d);
            FLASH_Lock(FLASH_MEMTYPE_DATA); //Locking  Flash Data
            break;
           }
@@ -1788,7 +1942,8 @@ Fourth_Menu:
     printf("\nClock   ");
     line_lcd=1;
     printf("\n%02d:%02d:%02d",hours,minutes,seconds);
-      switch (pressKey())
+      pressKey();
+      switch (button)
         {
         case 1: goto Fifth_Menu ;
          break;
@@ -1805,7 +1960,8 @@ Fifth_Menu:
     printf("\nDate    ");
     line_lcd=1;
     printf("\n%02d:%02d:%02d",year,month,date);
-      switch (pressKey())
+      pressKey();
+      switch (button)
         {
         case 1: goto Exit_Menu ;
          break;
@@ -1822,7 +1978,8 @@ Exit_Menu:
     printf("\nExit OK ");
     line_lcd=1;
     printf("\n+/-     ");
-       switch (pressKey())
+       pressKey();
+      switch (button)
         {
         case 1: goto First_Menu;
          break;
@@ -1840,26 +1997,22 @@ Exit_Menu:
 }
 
 
-u8 pressKey(void)
+void pressKey(void)
 {
-   u8 pressKey =0;
+   button =0;
    timer3=0;
    hardware.lcdLed=1;
    lcdLedTimer=LCDLEDON;
+   do
+   {
+      if (key_ok_on()) button=1;
+         else if (key_plus_on())button=2;
+        else if (key_minus_on())button=3;
+   } while ( (timer3<=time_menu) && !button);    //(timer3<=time_menu) &&
 
-   do {
-      if (key_ok_on())
-      {
-        pressKey=1;
-        //beep(5000);
-      }
-         else if (key_plus_on())pressKey=2;
-        else if (key_minus_on())pressKey=3;
-   } while ( (timer3<=time_menu) && !pressKey);    //(timer3<=time_menu) &&
+    if (button==0) beep(10000);
 
-    if (pressKey==0) beep(10000);
-
-   return pressKey;
+   //return button;
 }
 
 
