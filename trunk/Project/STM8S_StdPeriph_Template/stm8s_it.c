@@ -87,6 +87,7 @@ extern volatile u8 lcdLedTimer;
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 extern void Save_Status();
+extern void CheckProgramPoint();
 /* Public functions ----------------------------------------------------------*/
 
 #ifdef _COSMIC_
@@ -402,11 +403,13 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
        */
 
 
+
+      /*
       //Check for Daily Alarm
         if (!status.manu)
         {
        u16 time_now=hours*60+minutes;
-      status.on=0;
+        status.on=0;
            u16 time=time_on;
            do
           {
@@ -419,6 +422,9 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
                if( time==1441) time=0;
           } while(!(time==time_off));
          };
+    */
+
+       CheckProgramPoint();
 
        sync++;
        if (sync > sync_time)

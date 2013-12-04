@@ -144,10 +144,11 @@ u8 l=0;
 u16 status_check;
 u8 test1;
 u8 test2;
-char  manu_display,sync_display,program_display;
+char  manu_display,sync_display,program_display,program_number;
 bool volatile sync_time_ds1307;
 u8 lcdLedTimer;
 u8 button;
+u8 power;
 //bool  ds_temperature;
 
 
@@ -161,7 +162,8 @@ bool volatile Time_Display;
 //u8 index=0;
 float  result;
 int volatile k=0;
-
+char *Day_Week[10] = {" Off"," Sun"," Mon"," Tues"," Wednes"," Thurs"," Fri"," Satur"," Daily"," Month" };
+//char *test[3] ={"18777","2","3"};
 
  struct   status_reg
  {
@@ -191,21 +193,21 @@ int volatile k=0;
     u8 offhour;
     u8 offminute;
 
-  } volatile program ;
+  }  program ;
 
          // = new proram[8];
    program  programpoint[8];
   /*
    =
  {
-   {0x0A,0x00,0x00,0x00,0x00},
    {0x00,0x00,0x00,0x00,0x00},
    {0x00,0x00,0x00,0x00,0x00},
    {0x00,0x00,0x00,0x00,0x00},
    {0x00,0x00,0x00,0x00,0x00},
    {0x00,0x00,0x00,0x00,0x00},
    {0x00,0x00,0x00,0x00,0x00},
-   {0x00,0x00,0x00,0x00,0xFF},
+   {0x00,0x00,0x00,0x00,0x00},
+   {0x00,0x00,0x00,0x00,0x00},
  };
     */
 
@@ -283,6 +285,7 @@ void ProgramMenu();
 void SaveProgram();
 void ReadProgram();
 void ResetProgram();
+void CheckProgramPoint();
 
 
 
@@ -352,12 +355,17 @@ void main(void)
       status_check = *(u16*)(&status);
 
       ReadProgram ();
+      //printf("%s",Day_Week[1]);
+      // pressKey();
+
+      /*
     //When Start Check for Allarm and computing Daily_long_on
      if ( Read_Allarm() == TRUE)
      {
        time_on=daily_hour_on*60+daily_minute_on;
        time_off= daily_hour_off*60+daily_minute_off;
      }
+        */
 
            //Init DS18B20
     DS18Set();
@@ -449,14 +457,20 @@ void Display(void)
    if (status.manu) manu_display='M';
      else manu_display='A';
      //Blink D
+
    if (status.on && !status.manu)
    {
-     if (program_display=='P') program_display=' ';
-      else program_display='P';
+     if (program_display==' ')  program_display='P';
+       else program_display=' ';
    }
 
-    else if (status.on) program_display='P';
-     else program_display=' ';
+
+
+
+
+   // else if (status.on) program_display='P';
+   //  else program_display=' ';
+
     if(hardware.ds18B20)sprintf(line1,"\n%d.%dC%c%c%c",result1,result2,sync_display,program_display,manu_display);
       else sprintf(line1,"\n%c%c%c",sync_display,program_display,manu_display);
 
@@ -469,6 +483,8 @@ void Display(void)
 
    Time_Display=FALSE;
    sync_display=' ';
+
+
 }
 
 void Power_On()
@@ -1073,20 +1089,62 @@ void ReadProgram()
 
 void ResetProgram()
 {
-  /*
-  programpoint[8]=
-  {
-   {0x0A,0x00,0x00,0x00,0x00},
-   {0x00,0x00,0x00,0x00,0x00},
-   {0x00,0x00,0x00,0x00,0x00},
-   {0x00,0x00,0x00,0x00,0x00},
-   {0x00,0x00,0x00,0x00,0x00},
-   {0x00,0x00,0x00,0x00,0x00},
-   {0x00,0x00,0x00,0x00,0x00},
-   {0x00,0x00,0x00,0x00,0xFF},
- };
-    */
+
+    EEPROM_INIT();
+   for( u8 i=0;i< sizeof(programpoint);i++)
+   {
+    FLASH_ProgramByte( EEPROM_ADR_PROGRAM+i,0);
+   }
+    FLASH_Lock(FLASH_MEMTYPE_DATA); //Locking  Flash Data
+
+     //Reload ProgrmaPoint
+   ReadProgram();
 }
+
+void CheckProgramPoint()
+{
+   if(status.manu) return;
+   u16 timenow=hours*60+minutes;
+   status.on=0;
+    //u8 daytoday;
+     for( u8 i=0; i<8;i++)
+     {
+        //For Daily Allarm
+       if(programpoint[i].day==8)
+       {
+        int timeon = programpoint[i].onhour * 60 + programpoint[i].onminute;
+        int timeoff= programpoint[i].offhour * 60 + programpoint[i].offminute;
+            do
+              {
+               if (timeon == timenow)
+                {
+                  power = i;
+                  status.on=1;
+                 break;
+                }
+               timeon ++;
+              if (timeon == 1441) timeon = 0;
+              } while (!(timeon==timeoff));
+        }
+
+           // for Day of the Week Allarm
+        else if (programpoint[i].day== days) //Point is Weekly Mode
+        {
+
+        }
+       // for Monthly Allarm
+        else if (programpoint[i].day == 9)//Point is Monthly Mode
+         {
+         }
+
+
+     }
+
+
+
+
+}
+
 
 bool Read_Allarm()
 {
