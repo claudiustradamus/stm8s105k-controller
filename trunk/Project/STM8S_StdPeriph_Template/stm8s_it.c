@@ -49,6 +49,7 @@ extern    u8 year;
 extern    u8 month;
 extern    u8 date;
 extern  bool volatile  Time_Display;
+extern   bool blink_flag;
 
 volatile u8 sync=0;
 extern  bool volatile sync_time_ds1307;
@@ -382,6 +383,8 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
     }
 
     Time_Display=TRUE;
+     if(blink_flag) blink_flag=FALSE;
+      else blink_flag=TRUE;
 
        // Check for Monthly Alarm      |------- time_now
       //                               |----timer_on
