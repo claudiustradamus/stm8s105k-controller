@@ -149,11 +149,13 @@ bool volatile sync_time_ds1307;
 u8 lcdLedTimer;
 u8 button;
 u8 power;
+bool blink_flag;
 //bool  ds_temperature;
 
 
 
-char line1[8];
+char line1[10];
+char line2[10];
 //char string1[10];
 //char string2[10];
 bool change;
@@ -162,7 +164,7 @@ bool volatile Time_Display;
 //u8 index=0;
 float  result;
 int volatile k=0;
-char *Day_Week[10] = {" Off"," Sun"," Mon"," Tues"," Wednes"," Thurs"," Fri"," Satur"," Daily"," Month" };
+char *Day_Week[11] = {" Off"," Sun"," Mon"," Tues"," Wednes"," Thurs"," Fri"," Satur"," Daily"," Month"};
 //char *test[3] ={"18777","2","3"};
 
  struct   status_reg
@@ -353,7 +355,7 @@ void main(void)
      //u16 status
      *(u16*)(&status)=(u16)(FLASH_ReadByte(EEPROM_ADR_STATUSH)*256)+(u16)FLASH_ReadByte(EEPROM_ADR_STATUSL);
       status_check = *(u16*)(&status);
-
+      //ResetProgram();
       ReadProgram ();
       //printf("%s",Day_Week[1]);
       // pressKey();
@@ -391,21 +393,6 @@ void main(void)
      while (timer3<=power_jitter);
     }
 
-     //UART2_Cmd(DISABLE);  // Disable UART for the moment
-
-     // Working fuction
-    //Set_DS1307(13,7,13,34,0);//u8 year ,u8 month,u8 hours,u8 minutes,u8 seconds)
-
-
-
-    // strcpy(line1,"Hello I am here! ");
-    //  while(1)
-    //  {
-    //     Display_Line(line1);
-    //     Delay2(20000);
-    //  }
-    //  while (!key_ok_on());
-       //sprintf(line1,"TIMER ON ");
 
      /* Main Loop*/
 
@@ -447,6 +434,7 @@ void main(void)
 void Display(void)
 {
    //Clear_Line1 ();
+    char power_display;
     result1=temperature();
      result2=0;
       if(result1%2!=0) result2=5;
@@ -460,19 +448,24 @@ void Display(void)
 
    if (status.on && !status.manu)
    {
-     if (program_display==' ')  program_display='P';
-       else program_display=' ';
+     if (program_display==' ')
+       {
+         program_display='P';
+         power_display=0x30 +power;
+       }
+     else
+       {
+         program_display=' ';
+         power_display=' ';
+       }
    }
-
-
-
 
 
    // else if (status.on) program_display='P';
    //  else program_display=' ';
 
-    if(hardware.ds18B20)sprintf(line1,"\n%d.%dC%c%c%c",result1,result2,sync_display,program_display,manu_display);
-      else sprintf(line1,"\n%c%c%c",sync_display,program_display,manu_display);
+    if(hardware.ds18B20)sprintf(line1,"\n%d.%dC%c%c%c%c",result1,result2,sync_display,manu_display,program_display,power_display);
+      else sprintf(line1,"\n%c%c%c%c",sync_display,manu_display,program_display,power_display);
 
    line_lcd=0;
    printf(line1);
@@ -579,23 +572,6 @@ u8 I2C_RD(void)
  return data;
 }
 
-  /*
-bool Init_DS1307(void)
-{
-   // Test DS1307
-    error=0;
-    if (!I2C_Start()) return FALSE;
-    if(!I2C_WA(0xD0)) return FALSE;
-    if(!I2C_WD(0x00)) return FALSE;
-    if(!I2C_WD(0x00)) return FALSE;
-    I2C_GenerateSTOP(ENABLE);
-
-    // timeout=100;  error=4;
-    ///   while(!(I2C_CheckEvent(I2C_EVENT_MASTER_BYTE_TRANSMITTED))&&timeout);
-    //    if (!timeout)return FALSE ;
-     return TRUE;
-}
-   */
 
 bool  ReadDS1307(void)
 {        TIM3_Cmd(DISABLE);
@@ -915,7 +891,7 @@ bool  key_ok_plus()
  return FALSE;
 }
 
-
+ /*
 bool Set_Timer_On()
 {
 
@@ -931,6 +907,7 @@ bool Set_Timer_On()
      printf("\n%02d:%02d",daily_hour_on,daily_minute_on);
        daily_hour_on=adj(0,23,daily_hour_on);
     } while ( timer3<=time_menu && !key_ok_on());
+
 
    LCDInstr(0x01);
    Delay1(1000);
@@ -960,6 +937,7 @@ bool Set_Timer_On()
 
    return TRUE;
 }
+ */
 
 bool Set_Timer_Off()
 {
@@ -1004,57 +982,7 @@ bool Set_Timer_Off()
      return TRUE;
 }
 
-/*
-     //Computing time_long_on
 
-     u8 hour=daily_hour_on;
-     u8 minute=daily_minute_on;
-     daily_long_on=0;
-     do
-     {
-          daily_long_on++;
-          minute++;
-          if (minute==60)
-          {
-            minute=0;
-            hour++;
-          }
-          if(hour==24) hour=0;
-
-     } while ( !((hour==daily_hour_off) & (minute==daily_minute_off)));
-
-      //Display daily_long_on
-    LCDInstr(0x01);
-    Delay1(1000);
-    line_lcd=0;
-    printf("\nLong :");
-
-      do
-    {
-     line_lcd=1;
-     printf("\n%d",daily_long_on);
-       //daily_long_on=adj(0,1440,daily_long_on);
-    } while (!key_ok_on());
-
-    time_on=daily_hour_on*60+daily_minute_on;
-    time_off= daily_hour_off*60+daily_minute_off;
-    //Save data to eeprom
-      status.daily=1;
-     EEPROM_INIT();
-    //u8 temp =*(u8*)(&status);
-    // FLASH_ProgramByte(EEPROM_ADR_STATUS,*(u8*)(&status)); //save Status to eeprom
-     FLASH_ProgramByte(EEPROM_ADR_STATUSH,(u8)(*(u16*)(&status)>>8));
-     FLASH_ProgramByte(EEPROM_ADR_STATUSL,(u8)(*(u16*)(&status)));
-     FLASH_ProgramByte(EEPROM_ADR_TIME_ON_HOURS,daily_hour_on);
-     FLASH_ProgramByte(EEPROM_ADR_TIME_ON_MINUTES,daily_minute_on);
-     FLASH_ProgramByte(EEPROM_ADR_TIME_OFF_HOURS,daily_hour_off);
-     FLASH_ProgramByte(EEPROM_ADR_TIME_OFF_MINUTES,daily_minute_off);
-     FLASH_Lock(FLASH_MEMTYPE_DATA); //Locking  Flash Data
-
-   return TRUE;
-
-}
-  */
 
 void SaveStatus()
 {
@@ -1899,7 +1827,114 @@ void FirstMenu()
 
 void ProgramMenu()
 {
-  return;
+    u8 program_number=0;
+   do
+   {
+     sprintf(line1,"\nP%d%s",program_number,Day_Week[programpoint[program_number].day]);
+     sprintf(line2,"\n%s",Day_Week[programpoint[program_number].day]);
+     Clear_Line2();
+     Clear_Line1();
+     line_lcd=0;
+     printf(line1);
+     line_lcd=1;
+     printf(line2);
+       do
+       {
+         pressKey();
+
+          if(button==2)   //Plus
+          {
+             programpoint[program_number].day++;
+              if( programpoint[program_number].day >=9) programpoint[program_number].day=0;
+                Clear_Line2();
+                 line_lcd=1;
+                 printf("\n%s",Day_Week[programpoint[program_number].day]);
+          }
+
+          if(button==3 || button==0 ) // Minus
+          {
+             SaveProgram();
+              button=0;
+             return;
+          }
+
+
+       } while (button != 1 && button != 0);
+
+           // Test programm is Active ?
+        if( programpoint[program_number].day !=0)
+        {
+              //Set On Hour
+           Clear_Line1();
+           line_lcd=0;
+           printf("\nP%d%s",program_number," On");
+           timer3=0;
+           Clear_Line2();
+           do
+            {
+             line_lcd=1;
+             if(blink_flag) printf("\n%02d:%02d",programpoint[program_number].onhour,programpoint[program_number].onminute);
+               else printf("\n  :%02d",programpoint[program_number].onminute);
+             programpoint[program_number].onhour =adj(0,23,programpoint[program_number].onhour);
+            } while ( timer3<=time_menu && !key_ok_on());
+
+              //Set On Minute
+            //Clear_Line1();
+            //line_lcd=0;
+            //printf("\nMin On>");
+           // printf("\nP%d%s",program_number," On");
+            timer3=0;
+          do
+            {
+             line_lcd=1;
+              if(blink_flag) printf("\n%02d:%02d",programpoint[program_number].onhour,programpoint[program_number].onminute);
+               else  printf("\n%02d:  ",programpoint[program_number].onhour);
+                 programpoint[program_number].onminute=adj(0,59,programpoint[program_number].onminute);
+            } while ((timer3<=time_menu)&& !key_ok_on());
+
+
+           // Set Off Hour
+
+           Clear_Line1();
+           line_lcd=0;
+           printf("\nP%d%s",program_number," Off");
+           timer3=0;
+           do
+            {
+             line_lcd=1;
+             if(blink_flag) printf("\n%02d:%02d",programpoint[program_number].offhour,programpoint[program_number].offminute);
+               else printf("\n  :%02d",programpoint[program_number].offminute);
+             programpoint[program_number].offhour =adj(0,23,programpoint[program_number].offhour);
+            } while ( timer3<=time_menu && !key_ok_on());
+
+          //Set Off Minute
+
+          timer3=0;
+          do
+            {
+             line_lcd=1;
+              if(blink_flag) printf("\n%02d:%02d",programpoint[program_number].offhour,programpoint[program_number].offminute);
+               else  printf("\n%02d:  ",programpoint[program_number].offhour);
+                 programpoint[program_number].offminute=adj(0,59,programpoint[program_number].offminute);
+            } while ((timer3<=time_menu)&& !key_ok_on());
+
+        }
+
+
+         program_number++;
+
+
+
+
+
+
+
+
+       } while ( (program_number < 8) && (button!=0));
+
+         SaveProgram();
+
+
 }
 
 
