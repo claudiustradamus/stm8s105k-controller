@@ -77,6 +77,10 @@
 //#define EEPROM_ADR_MONTH_MONTH      EEPROM_ADDR +7
 //#define EEPROM_ADR_MONTH_DATE       EEPROM_ADDR +8
 
+
+
+
+
 #ifdef __GNUC__
   /* With GCC/RAISONANCE, small printf (option LD Linker->Libraries->Small printf
      set to 'Yes') calls __io_putchar() */
@@ -150,6 +154,7 @@ u8 lcdLedTimer;
 u8 button;
 u8 power;
 bool blink_flag;
+u16 blink_time;
 //bool  ds_temperature;
 
 
