@@ -33,6 +33,7 @@
 #define data_size 10
 #define sync_time  30 //30s
 #define lcdLed GPIO_PIN_0
+#define BLINK_TIME 20000
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 extern  volatile u16 timer1;
@@ -79,6 +80,7 @@ extern u8 monthly_year;
 extern u8 monthly_month;
 extern u8 monthly_date;
 extern volatile u8 lcdLedTimer;
+extern volatile u16 blink_time;
 
 
 
@@ -328,12 +330,22 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
   /* In order to detect unexpected events during development,
      it is recommended to set a breakpoint on the following instruction.
   */
-   if(hardware.lcdLed) GPIO_WriteLow(GPIOB,lcdLed);
-     else   GPIO_WriteHigh(GPIOB,lcdLed);
+  // if(hardware.lcdLed) GPIO_WriteLow(GPIOB,lcdLed);
+    // else   GPIO_WriteHigh(GPIOB,lcdLed);
  timer2++;
  timer1++;
  timeout--;
   if (timeout<=0) timeout=0;
+
+  blink_time++;
+   if(blink_time >=BLINK_TIME)
+   {
+   if(blink_flag) blink_flag=FALSE;
+      else blink_flag=TRUE;
+       blink_time=0;
+   }
+
+
 
  //ADC1_Cmd (ENABLE); //Start convert
  TIM2_ClearITPendingBit(TIM2_IT_UPDATE);
@@ -383,8 +395,6 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
     }
 
     Time_Display=TRUE;
-     if(blink_flag) blink_flag=FALSE;
-      else blink_flag=TRUE;
 
        // Check for Monthly Alarm      |------- time_now
       //                               |----timer_on
