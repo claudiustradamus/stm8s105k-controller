@@ -51,6 +51,7 @@ extern    u8 month;
 extern    u8 date;
 extern  bool volatile  Time_Display;
 extern   bool blink_flag;
+extern  bool rotate_line2;
 
 volatile u8 sync=0;
 extern  bool volatile sync_time_ds1307;
@@ -91,6 +92,7 @@ extern volatile u16 blink_time;
 /* Private functions ---------------------------------------------------------*/
 extern void Save_Status();
 extern void CheckProgramPoint();
+extern void DisplayLine2();
 /* Public functions ----------------------------------------------------------*/
 
 #ifdef _COSMIC_
@@ -330,8 +332,8 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
   /* In order to detect unexpected events during development,
      it is recommended to set a breakpoint on the following instruction.
   */
-  // if(hardware.lcdLed) GPIO_WriteLow(GPIOB,lcdLed);
-    // else   GPIO_WriteHigh(GPIOB,lcdLed);
+    if(hardware.lcdLed) GPIO_WriteLow(GPIOB,lcdLed);
+    else   GPIO_WriteHigh(GPIOB,lcdLed);
  timer2++;
  timer1++;
  timeout--;
@@ -439,6 +441,8 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
 
        CheckProgramPoint();
 
+        //if(rotate_line2) DisplayLine2();
+
        sync++;
        if (sync > sync_time)
        {
@@ -449,6 +453,7 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
 
       lcdLedTimer--;
       if(lcdLedTimer <= 0) hardware.lcdLed=0;
+
       // else hardware.lcdLed=1;
 
 

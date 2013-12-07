@@ -95,7 +95,8 @@
 #define SpecialSymbol 0x1b //Esc to start message
 //#define data_size 20
 #define key_time 8000
-#define key_time_ok 15000
+#define KEY_TIME_ON 8000
+#define KEY_TIME_HOLD 65000
 #define key_time_press 4000
 #define key_time_release 400
 #define DS_Control  0x10  // Out 1s
@@ -155,6 +156,8 @@ u8 button;
 u8 power;
 bool blink_flag;
 u16 blink_time;
+bool key_ok_hold;
+bool rotate_line2=FALSE;
 //bool  ds_temperature;
 
 
@@ -169,7 +172,8 @@ bool volatile Time_Display;
 //u8 index=0;
 float  result;
 int volatile k=0;
-char *Day_Week[11] = {" Off"," Sun"," Mon"," Tues"," Wednes"," Thurs"," Fri"," Satur"," Daily"," Month"};
+char *day_week[11] = {" Off"," Sun"," Mon"," Tues"," Wednes"," Thurs"," Fri"," Satur"," Daily"," Month"};
+char *setup_menu[3] ={"\nPrgClear","\nSetClock","\nSetDate"};
 //char *test[3] ={"18777","2","3"};
 
  struct   status_reg
@@ -249,6 +253,7 @@ void PulseEnable();
 void SendChar(u8 Char);
 //void Send_Hello();
 bool Set_Clock();
+//bool key_ok_hold();
 bool key_ok_on();
 bool key_plus_on();
 bool key_minus_on();
@@ -279,6 +284,7 @@ void Power_Off();
 void SaveStatus();
 void Rotate_Line( char * line);
 void Display_Line(char * line);
+void DisplayLine2(void);
 void Clear_Line1(void);
 void Clear_Line2(void);
 void Menu(void);
@@ -293,6 +299,7 @@ void SaveProgram();
 void ReadProgram();
 void ResetProgram();
 void CheckProgramPoint();
+void SetupMenu();
 
 
 
@@ -405,7 +412,11 @@ void main(void)
     {
 
 
-      if(key_ok_on()) FirstMenu();
+      if(key_ok_on())
+      {
+         if( key_ok_hold) SetupMenu();
+          else FirstMenu();
+      }
       if(key_plus_on()) Power_On();
       if(key_minus_on())Power_Off();
       if(Time_Display) Display();  //
@@ -447,8 +458,22 @@ void Display(void)
 
 
 
-   if (status.manu) manu_display='M';
+   if (status.manu)
+   {
+     program_display=' ';
+     power_display=' ';
+     if(status.on)
+     {
+      if(manu_display=='M') manu_display=' ';
+       else manu_display='M';
+     }
+      else manu_display='M';
+   }
      else manu_display='A';
+
+
+
+
      //Blink D
 
    if (status.on && !status.manu)
@@ -464,6 +489,11 @@ void Display(void)
          power_display=' ';
        }
    }
+     else
+       {
+         program_display=' ';
+         power_display=' ';
+       }
 
 
    // else if (status.on) program_display='P';
@@ -579,7 +609,8 @@ u8 I2C_RD(void)
 
 
 bool  ReadDS1307(void)
-{        TIM3_Cmd(DISABLE);
+{        //TIM3_Cmd(DISABLE);
+         disableInterrupts();
        error=0;
        if (!I2C_Start()) return FALSE;
        if(!I2C_WA(0xD0))return FALSE;
@@ -615,7 +646,8 @@ bool  ReadDS1307(void)
             Set_DS1307();
           }
         hardware.ds1307=1;
-       TIM3_Cmd(ENABLE);
+       //TIM3_Cmd(ENABLE);
+        enableInterrupts();
        return TRUE;
 }
 
@@ -643,9 +675,13 @@ bool Set_DS1307()
 {
        // convert hex or decimal to bcd format
 
-
+       disableInterrupts();
        error=0;
-       if (!I2C_Start()) return FALSE;
+       if (!I2C_Start())
+       {
+         enableInterrupts();
+         return FALSE;
+       }
        if(!I2C_WA(0xD0)) return FALSE;
        if(!I2C_WD(0x00)) return FALSE;
        if(!I2C_WD(convert_tobcd(seconds))) return FALSE;
@@ -658,7 +694,7 @@ bool Set_DS1307()
        if(!I2C_WD(DS_Control))return FALSE;
        if(!I2C_WD(0XAA)) return FALSE;  // Byte --> time is set by program
        I2C_GenerateSTOP(ENABLE);
-
+       enableInterrupts();
 
    return TRUE;
 }
@@ -679,6 +715,59 @@ u8 bcd2hex(u8 bcd)
   bcd=0;
   return hex ;
 }
+
+
+void  SetupMenu()
+{
+     // Clear Display
+    LCDInstr(0x01); //Clear LCD
+    Delay1(250);
+
+    line_lcd=0;
+    printf("\nMenu +/-");
+     u8 mi=0;
+     u8 size_setup_menu = (sizeof(setup_menu)/2) -1;
+
+    do
+    {
+       //strcpy(line2,"\nPrgClear");
+        line_lcd=1;
+         printf(setup_menu[mi]);
+       pressKey();
+           if(button==2)    // Plus Key  Enter Menu
+           {
+              mi++;
+              if(mi > size_setup_menu) mi=0;
+               Clear_Line2();
+                line_lcd=1;
+                printf(setup_menu[mi]);
+
+           }
+
+            if (button==3)  // Minus Key  down Menu
+            {
+                 mi--;
+                if(mi==255) mi=size_setup_menu;
+                Clear_Line2();
+                line_lcd=1;
+                printf(setup_menu[mi]);
+
+            }
+
+
+
+           if(button==0)  // No key press
+           {
+             return;
+           }
+
+    } while ( button != 0);   //Ok Next Menu   button != 1 &&
+
+
+
+
+}
+
 
 
 bool Set_Clock()
@@ -796,9 +885,15 @@ bool key_ok_on()
   if (!(GPIO_ReadInputData(GPIOF)& key_ok))
    {
      timer2=0;  // Key must be push for timer2 time
-      while((timer2 < key_time_ok) && !(GPIO_ReadInputData(GPIOF)& key_ok) );;
+      key_ok_hold=FALSE;
+      while((timer2 < KEY_TIME_HOLD) && !(GPIO_ReadInputData(GPIOF)& key_ok) );;
        if (timer2>=key_time_press) // min delay for one
        {
+            if(timer2>=KEY_TIME_HOLD)
+            {
+              key_ok_hold=TRUE;
+               return TRUE;
+            }
          timer2=0; // and next must be release
           if (GPIO_ReadInputData(GPIOF)& key_ok)
           {
@@ -944,6 +1039,7 @@ bool Set_Timer_On()
 }
  */
 
+/*
 bool Set_Timer_Off()
 {
 
@@ -987,7 +1083,7 @@ bool Set_Timer_Off()
      return TRUE;
 }
 
-
+  */
 
 void SaveStatus()
 {
@@ -1103,8 +1199,6 @@ void EEPROM_INIT()
   FLASH_DeInit();
   FLASH_Unlock(FLASH_MEMTYPE_DATA);
   FLASH_SetProgrammingTime(FLASH_PROGRAMTIME_STANDARD);
-
-
 
 }
 
@@ -1664,12 +1758,6 @@ bool DS18Set ()
     DS18_Write(0xCC);
     //Function   Store in Conf Reg
     DS18_Write(0x48);
-
-
-
-
-
-
   return TRUE;
 }
 
@@ -1730,6 +1818,35 @@ void Display_Line(char* line)
    Rotate_Line(line1);
 
 }
+
+
+void DisplayLine2(void)
+{
+  char * line=line2;
+  char current_char=  *line++;
+  u8 count;
+    //Set Cursor to Second  Line
+   LCDInstr(0x80 | 0x40);
+   count=0;
+   Delay1(1);
+  do
+  {
+
+    if (current_char > 0x1b)   //Display only valid data
+     {
+       LCDData(current_char);
+        Delay1(1);
+       count++;
+     }
+     current_char=*line++;
+  }  while ((current_char != 0x00) && (count<7));
+
+   Rotate_Line(line2);
+
+}
+
+
+
 
 void Rotate_Line( char * line)
 {
@@ -1835,8 +1952,8 @@ void ProgramMenu()
     u8 program_number=0;
    do
    {
-     sprintf(line1,"\nP%d%s",program_number,Day_Week[programpoint[program_number].day]);
-     sprintf(line2,"\n%s",Day_Week[programpoint[program_number].day]);
+     sprintf(line1,"\nP%d%s",program_number,day_week[programpoint[program_number].day]);
+     sprintf(line2,"\n%s",day_week[programpoint[program_number].day]);
      Clear_Line2();
      Clear_Line1();
      line_lcd=0;
@@ -1853,7 +1970,7 @@ void ProgramMenu()
               if( programpoint[program_number].day >=9) programpoint[program_number].day=0;
                 Clear_Line2();
                  line_lcd=1;
-                 printf("\n%s",Day_Week[programpoint[program_number].day]);
+                 printf("\n%s",day_week[programpoint[program_number].day]);
           }
 
           if(button==3 || button==0 ) // Minus
