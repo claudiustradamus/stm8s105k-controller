@@ -333,7 +333,7 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
      it is recommended to set a breakpoint on the following instruction.
   */
     if(hardware.lcdLed) GPIO_WriteLow(GPIOB,lcdLed);
-    else   GPIO_WriteHigh(GPIOB,lcdLed);
+     else   GPIO_WriteHigh(GPIOB,lcdLed);
  timer2++;
  timer1++;
  timeout--;
@@ -345,6 +345,7 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
    if(blink_flag) blink_flag=FALSE;
       else blink_flag=TRUE;
        blink_time=0;
+
    }
 
 
