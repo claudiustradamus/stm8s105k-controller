@@ -1243,13 +1243,30 @@ void CheckProgramPoint()
         }
 
            // for Day of the Week Allarm
-        else if (programpoint[i].day== days) //Point is Weekly Mode
+        else if (programpoint[i].day== days+1) //Point is Weekly Mode
         {
-
+          int timeon = programpoint[i].onhour * 60 + programpoint[i].onminute;
+          int timeoff= programpoint[i].offhour * 60 + programpoint[i].offminute;
+            do
+              {
+               if (timeon == timenow)
+                {
+                  power = i;
+                  status.on=1;
+                 break;
+                }
+               timeon ++;
+              if (timeon == 1441) timeon = 0;
+              } while (!(timeon==timeoff));
         }
        // for Monthly Allarm
         else if (programpoint[i].day == 9)//Point is Monthly Mode
          {
+
+
+
+
+
          }
 
 
