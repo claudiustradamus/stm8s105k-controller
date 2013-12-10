@@ -25,7 +25,7 @@
     <Windows>
       
       
-    <Wnd0>
+    <Wnd1>
         <Tabs>
           <Tab>
             <Identity>TabID-9115-26509</Identity>
@@ -35,7 +35,7 @@
           </Tab>
         <Tab><Identity>TabID-1581-20660</Identity><TabName>Debug Log</TabName><Factory>Debug-Log</Factory><Session/></Tab><Tab><Identity>TabID-24463-16233</Identity><TabName>Breakpoints</TabName><Factory>Breakpoints</Factory></Tab></Tabs>
         
-      <SelectedTab>0</SelectedTab></Wnd0></Windows>
+      <SelectedTab>0</SelectedTab></Wnd1></Windows>
     <Editor>
       
       
@@ -48,7 +48,7 @@
       
       
       
-    <Top><Row0><Sizes><Toolbar-012b1988><key>iaridepm.enu1</key></Toolbar-012b1988></Sizes></Row0><Row1><Sizes/></Row1></Top><Left><Row0><Sizes/></Row0></Left><Right><Row0><Sizes/></Row0></Right><Bottom><Row0><Sizes><Wnd0><Rect><Top>-2</Top><Left>-2</Left><Bottom>146</Bottom><Right>1192</Right><x>-2</x><y>-2</y><xscreen>1194</xscreen><yscreen>148</yscreen><sizeHorzCX>1003361</sizeHorzCX><sizeHorzCY>205270</sizeHorzCY><sizeVertCX>320168</sizeVertCX><sizeVertCY>296810</sizeVertCY></Rect></Wnd0></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
+    <Top><Row0><Sizes><Toolbar-012b19b8><key>iaridepm.enu1</key></Toolbar-012b19b8></Sizes></Row0><Row1><Sizes/></Row1></Top><Left><Row0><Sizes/></Row0></Left><Right><Row0><Sizes/></Row0></Right><Bottom><Row0><Sizes><Wnd1><Rect><Top>-2</Top><Left>-2</Left><Bottom>146</Bottom><Right>1192</Right><x>-2</x><y>-2</y><xscreen>1194</xscreen><yscreen>148</yscreen><sizeHorzCX>1003361</sizeHorzCX><sizeHorzCY>205270</sizeHorzCY><sizeVertCX>320168</sizeVertCX><sizeVertCY>296810</sizeVertCY></Rect></Wnd1></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
   </Desktop>
 </Workspace>
 
