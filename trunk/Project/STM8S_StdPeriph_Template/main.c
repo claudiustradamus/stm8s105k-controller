@@ -1077,99 +1077,6 @@ bool  key_ok_plus()
  return FALSE;
 }
 
- /*
-bool Set_Timer_On()
-{
-
-   //clr
-   LCDInstr(0x01);
-   Delay1(1000);
-   line_lcd=0;
-   printf("\nH On>");
-    timer3=0;
-  do
-    {
-     line_lcd=1;
-     printf("\n%02d:%02d",daily_hour_on,daily_minute_on);
-       daily_hour_on=adj(0,23,daily_hour_on);
-    } while ( timer3<=time_menu && !key_ok_on());
-
-
-   LCDInstr(0x01);
-   Delay1(1000);
-   line_lcd=0;
-   printf("\nMin On>");
-    timer3=0;
-  do
-    {
-     line_lcd=1;
-     printf("\n%02d:%02d",daily_hour_on,daily_minute_on);
-       daily_minute_on=adj(0,59,daily_minute_on);
-    } while ((timer3<=time_menu)&& !key_ok_on());
-
-   //Save data to eeprom
-     if (!status.monthly) status.daily=1;
-       else status.daily=0;
-     EEPROM_INIT();
-    //u8 temp =*(u8*)(&status);
-    // FLASH_ProgramByte(EEPROM_ADR_STATUS,*(u8*)(&status)); //save Status to eeprom
-     FLASH_ProgramByte(EEPROM_ADR_STATUSH,(u8)(*(u16*)(&status)>>8));
-     FLASH_ProgramByte(EEPROM_ADR_STATUSL,(u8)(*(u16*)(&status)));
-     //FLASH_ProgramByte(EEPROM_ADR_TIME_ON_HOURS,daily_hour_on);
-     //FLASH_ProgramByte(EEPROM_ADR_TIME_ON_MINUTES,daily_minute_on);
-     FLASH_Lock(FLASH_MEMTYPE_DATA); //Locking  Flash Data
-      time_on=daily_hour_on*60+daily_minute_on;
-       change=TRUE;
-
-   return TRUE;
-}
- */
-
-/*
-bool Set_Timer_Off()
-{
-
-    LCDInstr(0x01);
-    Delay1(1000);
-    line_lcd=0;
-    printf("\nH Off>");
-     timer3=0;
-  do
-    {
-     line_lcd=1;
-     printf("\n%02d:%02d",daily_hour_off,daily_minute_off);
-       daily_hour_off=adj(0,23,daily_hour_off);
-    } while (timer3<=time_menu && !key_ok_on());
-
-  LCDInstr(0x01);
-   Delay1(1000);
-   line_lcd=0;
-   printf("\nMin Off>");
-   timer3=0;
-  do
-    {
-     line_lcd=1;
-     printf("\n%02d:%02d",daily_hour_off,daily_minute_off);
-       daily_minute_off=adj(0,59,daily_minute_off);
-    } while (timer3<=time_menu && !key_ok_on());
-
-  //Save data to eeprom
-     if (!status.monthly) status.daily=1;
-       else status.daily=0;
-     EEPROM_INIT();
-    //u8 temp =*(u8*)(&status);
-    // FLASH_ProgramByte(EEPROM_ADR_STATUS,*(u8*)(&status)); //save Status to eeprom
-     FLASH_ProgramByte(EEPROM_ADR_STATUSH,(u8)(*(u16*)(&status)>>8));
-     FLASH_ProgramByte(EEPROM_ADR_STATUSL,(u8)(*(u16*)(&status)));
-     //FLASH_ProgramByte(EEPROM_ADR_TIME_OFF_HOURS,daily_hour_off);
-     //FLASH_ProgramByte(EEPROM_ADR_TIME_OFF_MINUTES,daily_minute_off);
-     FLASH_Lock(FLASH_MEMTYPE_DATA); //Locking  Flash Data
-      time_off= daily_hour_off*60+daily_minute_off;
-       change=TRUE;
-     return TRUE;
-}
-
-  */
 
 void SaveStatus()
 {
@@ -1234,7 +1141,7 @@ void CheckProgramPoint()
                if (timeon == timenow)
                 {
                   power = i;
-                  status.on=1;
+                   status.on=1;
                  break;
                 }
                timeon ++;
@@ -1242,7 +1149,7 @@ void CheckProgramPoint()
               } while (!(timeon==timeoff));
         }
 
-           // for Day of the Week Allarm
+           // for Day of the Week Allarm or Next Day
         else if (programpoint[i].day== days+1) //Point is Weekly Mode
         {
           int timeon = programpoint[i].onhour * 60 + programpoint[i].onminute;
@@ -2005,7 +1912,16 @@ void ProgramMenu()
 
 
            // Set Off Hour
+             u8 time_off_min_hour=0;
+             u8 time_off_min_min=0;
 
+             /*
+                 if( programpoint[program_number].day !=8)    //If not Daily.You can't set toff to next day
+                 {
+                     time_off_min_hour = programpoint[program_number].onhour;
+
+                 }
+             */
            ClearLine1();
            line_lcd=0;
            printf("\nP%d%s",program_number," Off");
@@ -2015,18 +1931,26 @@ void ProgramMenu()
              line_lcd=1;
              if(blink_flag) printf("\n%02d:%02d",programpoint[program_number].offhour,programpoint[program_number].offminute);
                else printf("\n  :%02d",programpoint[program_number].offminute);
-             programpoint[program_number].offhour =adj(0,23,programpoint[program_number].offhour);
+             programpoint[program_number].offhour =adj(time_off_min_hour,23,programpoint[program_number].offhour);
             } while ( timer3<=time_menu && !key_ok_on());
 
           //Set Off Minute
-
+            /*
+             if( programpoint[program_number].day !=8)    //If not Daily.You can't set toff to next day
+             {
+                 if(programpoint[program_number].offhour=programpoint[program_number].onhour)
+                 {
+                   time_off_min_min  = programpoint[program_number].onminute;
+                 }
+             }
+           */
           timer3=0;
           do
             {
              line_lcd=1;
               if(blink_flag) printf("\n%02d:%02d",programpoint[program_number].offhour,programpoint[program_number].offminute);
                else  printf("\n%02d:  ",programpoint[program_number].offhour);
-                 programpoint[program_number].offminute=adj(0,59,programpoint[program_number].offminute);
+                 programpoint[program_number].offminute=adj(time_off_min_min,59,programpoint[program_number].offminute);
             } while ((timer3<=time_menu)&& !key_ok_on());
 
         }
@@ -2454,3 +2378,98 @@ u16 Average()
    return Summa;
 }
    */
+
+       /*
+bool Set_Timer_On()
+{
+
+   //clr
+   LCDInstr(0x01);
+   Delay1(1000);
+   line_lcd=0;
+   printf("\nH On>");
+    timer3=0;
+  do
+    {
+     line_lcd=1;
+     printf("\n%02d:%02d",daily_hour_on,daily_minute_on);
+       daily_hour_on=adj(0,23,daily_hour_on);
+    } while ( timer3<=time_menu && !key_ok_on());
+
+
+   LCDInstr(0x01);
+   Delay1(1000);
+   line_lcd=0;
+   printf("\nMin On>");
+    timer3=0;
+  do
+    {
+     line_lcd=1;
+     printf("\n%02d:%02d",daily_hour_on,daily_minute_on);
+       daily_minute_on=adj(0,59,daily_minute_on);
+    } while ((timer3<=time_menu)&& !key_ok_on());
+
+   //Save data to eeprom
+     if (!status.monthly) status.daily=1;
+       else status.daily=0;
+     EEPROM_INIT();
+    //u8 temp =*(u8*)(&status);
+    // FLASH_ProgramByte(EEPROM_ADR_STATUS,*(u8*)(&status)); //save Status to eeprom
+     FLASH_ProgramByte(EEPROM_ADR_STATUSH,(u8)(*(u16*)(&status)>>8));
+     FLASH_ProgramByte(EEPROM_ADR_STATUSL,(u8)(*(u16*)(&status)));
+     //FLASH_ProgramByte(EEPROM_ADR_TIME_ON_HOURS,daily_hour_on);
+     //FLASH_ProgramByte(EEPROM_ADR_TIME_ON_MINUTES,daily_minute_on);
+     FLASH_Lock(FLASH_MEMTYPE_DATA); //Locking  Flash Data
+      time_on=daily_hour_on*60+daily_minute_on;
+       change=TRUE;
+
+   return TRUE;
+}
+ */
+
+/*
+bool Set_Timer_Off()
+{
+
+    LCDInstr(0x01);
+    Delay1(1000);
+    line_lcd=0;
+    printf("\nH Off>");
+     timer3=0;
+  do
+    {
+     line_lcd=1;
+     printf("\n%02d:%02d",daily_hour_off,daily_minute_off);
+       daily_hour_off=adj(0,23,daily_hour_off);
+    } while (timer3<=time_menu && !key_ok_on());
+
+  LCDInstr(0x01);
+   Delay1(1000);
+   line_lcd=0;
+   printf("\nMin Off>");
+   timer3=0;
+  do
+    {
+     line_lcd=1;
+     printf("\n%02d:%02d",daily_hour_off,daily_minute_off);
+       daily_minute_off=adj(0,59,daily_minute_off);
+    } while (timer3<=time_menu && !key_ok_on());
+
+  //Save data to eeprom
+     if (!status.monthly) status.daily=1;
+       else status.daily=0;
+     EEPROM_INIT();
+    //u8 temp =*(u8*)(&status);
+    // FLASH_ProgramByte(EEPROM_ADR_STATUS,*(u8*)(&status)); //save Status to eeprom
+     FLASH_ProgramByte(EEPROM_ADR_STATUSH,(u8)(*(u16*)(&status)>>8));
+     FLASH_ProgramByte(EEPROM_ADR_STATUSL,(u8)(*(u16*)(&status)));
+     //FLASH_ProgramByte(EEPROM_ADR_TIME_OFF_HOURS,daily_hour_off);
+     //FLASH_ProgramByte(EEPROM_ADR_TIME_OFF_MINUTES,daily_minute_off);
+     FLASH_Lock(FLASH_MEMTYPE_DATA); //Locking  Flash Data
+      time_off= daily_hour_off*60+daily_minute_off;
+       change=TRUE;
+     return TRUE;
+}
+
+  */
+
