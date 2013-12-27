@@ -158,6 +158,8 @@ bool blink_flag;
 u16 blink_time;
 bool key_ok_hold;
 bool rotate_line2=FALSE;
+u8 size_status;
+//bool Daily;
 
 struct tm ptim;
 //bool  ds_temperature;
@@ -183,7 +185,7 @@ char *setup_menu[5] ={"\nPrgClear","\nSetClock","\nSetDate","\nSh Date","\nExit"
    unsigned manu:1;
    unsigned on:1;
    unsigned timer_on:1;
-   unsigned daily:1;
+   unsigned daily:4;
    unsigned monthly:1;
  }  volatile   status  ;
 
@@ -286,6 +288,7 @@ u8 bcd2hex(u8 bcd);
 void Power_On(void);
 void Power_Off();
 void SaveStatus();
+void ReadStatus();
 void Rotate_Line( char * line);
 void Display_Line(char * line);
 void DisplayLine2(void);
@@ -325,6 +328,7 @@ void main(void)
     GPIO_WriteHigh(GPIOB,lcdLed);
     hardware.lcdLed=1;
     lcdLedTimer=LCDLEDON;
+    //Daily=FALSE;
     //InitUart();
      enableInterrupts();
      initBeep();
@@ -369,8 +373,7 @@ void main(void)
        //Read Status register from eepom and update it
       //size=sizeof(status);
      //u16 status
-    *(u16*)(&status)=(u16)(FLASH_ReadByte(EEPROM_ADR_STATUSH)*256)+(u16)FLASH_ReadByte(EEPROM_ADR_STATUSL);
-    status_check = *(u16*)(&status);
+    ReadStatus();
     ReadProgram ();
 
     DS18Set();
@@ -785,7 +788,7 @@ void SelectMenu(u8 si)
        line_lcd=0;
        printf("\n%02d:%02d:%02d",year,month,date);
        line_lcd=1;
-       printf("\n%s",day_week[days+1]);
+       printf("\n%s",day_week[days]);
        pressKey();
        while(button !=0 && button !=1 && button !=2 && button !=3);;
         button=0;
@@ -880,8 +883,8 @@ bool SetData()
          printf("\nDay is");
          ClearLine2();
          line_lcd=1;
-         days= ptim.tm_wday;
-         printf("\n%s",day_week[days+1]);
+         days= ptim.tm_wday+1;   //int    tm_wday  day of week [0,6] (Sunday = 0)
+         printf("\n%s",day_week[days]);
 
       }
 
@@ -1081,9 +1084,16 @@ bool  key_ok_plus()
 void SaveStatus()
 {
   EEPROM_INIT();
+  size_status=sizeof(status);
   FLASH_ProgramByte(EEPROM_ADR_STATUSH,(u8)(*(u16*)(&status)>>8));
   FLASH_ProgramByte(EEPROM_ADR_STATUSL,(u8)(*(u16*)(&status)));
   FLASH_Lock(FLASH_MEMTYPE_DATA); //Locking  Flash Data
+}
+
+void ReadStatus()
+{
+   *(u16*)(&status)=(u16)(FLASH_ReadByte(EEPROM_ADR_STATUSH)*256)+(u16)FLASH_ReadByte(EEPROM_ADR_STATUSL);
+    status_check = *(u16*)(&status);
 }
 
 
@@ -1104,7 +1114,7 @@ void ReadProgram()
     char *pp = (char*)&programpoint[0];
   for( u8 i=0;i< sizeof(programpoint);i++)
    {
-     *(pp+i)=FLASH_ReadByte( EEPROM_ADR_PROGRAM+i);
+     *(pp+i)=FLASH_ReadByte(EEPROM_ADR_PROGRAM+i);
    }
 }
 
@@ -1120,6 +1130,9 @@ void ResetProgram()
     FLASH_Lock(FLASH_MEMTYPE_DATA); //Locking  Flash Data
 
      //Reload ProgrmaPoint
+    status.daily=0;
+    SaveStatus();
+    ReadStatus();
    ReadProgram();
 }
 
@@ -1143,15 +1156,23 @@ void CheckProgramPoint()
                   power = i;
                    status.on=1;
                  break;
-                }
+                 }
                timeon ++;
               if (timeon == 1441) timeon = 0;
               } while (!(timeon==timeoff));
+           continue;
         }
 
            // for Day of the Week Allarm or Next Day
-        else if (programpoint[i].day== days+1) //Point is Weekly Mode
+       if ((programpoint[i].day== days) || (status.daily==i))
         {
+             //ReadStatus();
+             if(status.daily!=i)
+             {
+              status.daily=i; //Point is Weekly Mode
+              SaveStatus();
+             }
+
           int timeon = programpoint[i].onhour * 60 + programpoint[i].onminute;
           int timeoff= programpoint[i].offhour * 60 + programpoint[i].offminute;
             do
@@ -1165,9 +1186,19 @@ void CheckProgramPoint()
                timeon ++;
               if (timeon == 1441) timeon = 0;
               } while (!(timeon==timeoff));
+            if(!status.on)
+            {
+              if(status.daily!=9)
+              {
+               status.daily=9;
+               SaveStatus();
+              }
+            }
+            continue;
+           // SaveStatus();
         }
        // for Monthly Allarm
-        else if (programpoint[i].day == 9)//Point is Monthly Mode
+        else if (programpoint[i].day == 10)//Point is Monthly Mode
          {
 
 
