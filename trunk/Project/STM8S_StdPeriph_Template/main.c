@@ -162,6 +162,7 @@ u8 size_status;
 //bool Daily;
 
 struct tm ptim;
+time_t  ltime;
 //bool  ds_temperature;
 
 
@@ -207,6 +208,7 @@ char *setup_menu[5] ={"\nPrgClear","\nSetClock","\nSetDate","\nSh Date","\nExit"
     u8 onminute ;
     u8 offhour;
     u8 offminute;
+    u8 dayoff;
 
   }  program ;
 
@@ -226,8 +228,8 @@ char *setup_menu[5] ={"\nPrgClear","\nSetClock","\nSetDate","\nSh Date","\nExit"
  };
     */
 
-//time_t  ltime;
-//struct tm ptim;
+
+
 
 
 
@@ -307,6 +309,7 @@ void ResetProgram();
 void CheckProgramPoint();
 void SetupMenu();
 void SelectMenu(u8 si);
+long local_time(u8 hour,u8 minute);
 
 
 
@@ -430,8 +433,30 @@ void main(void)
          //sync_display='S';
          }
 
-      if(status.on) GPIO_WriteHigh(GPIOD, power_pin );
-       else   GPIO_WriteLow(GPIOD, power_pin );
+          //Test for Power On or Off
+         if(power ==0 || power <=7)
+         {
+           //power On
+           GPIO_WriteHigh(GPIOD, power_pin );
+           if(status.on !=1)
+           {
+             status.on=1;
+             SaveStatus();
+           }
+         }
+          else
+          {
+            //power off
+             GPIO_WriteLow(GPIOD, power_pin );
+             if(status.on !=0)
+             {
+              status.on=0;
+              SaveStatus();
+             }
+
+          }
+
+
 
 
 
@@ -849,6 +874,22 @@ void SelectMenu(u8 si)
 }
 
 
+long local_time(u8 hour,u8 minute)
+{
+    ptim.tm_year=year+100;
+    ptim.tm_mon=month-1;
+    ptim.tm_mday=date;
+    ptim.tm_sec=seconds;
+    ptim.tm_min=minute;
+    ptim.tm_hour=hour;
+    ptim.tm_isdst=-1;
+    long local_time=mktime(&ptim);
+
+     return local_time;
+}
+
+
+
 bool SetData()
 {
     //Clear Display
@@ -1140,63 +1181,81 @@ void CheckProgramPoint()
 {
    if(status.manu) return;
    u16 timenow=hours*60+minutes;
-   status.on=0;
+   power=8; //power off
+   //status.on=0;
     //u8 daytoday;
      for( u8 i=0; i<8;i++)
      {
+
+       if (programpoint[i].day == 0) continue;  // Point is off goto next point
+
         //For Daily Allarm
        if(programpoint[i].day==8)
        {
         int timeon = programpoint[i].onhour * 60 + programpoint[i].onminute;
         int timeoff= programpoint[i].offhour * 60 + programpoint[i].offminute;
-            do
-              {
-               if (timeon == timenow)
-                {
-                  power = i;
-                   status.on=1;
-                 break;
-                 }
-               timeon ++;
-              if (timeon == 1441) timeon = 0;
-              } while (!(timeon==timeoff));
-           continue;
-        }
-
-           // for Day of the Week Allarm or Next Day
-       if ((programpoint[i].day== days) || (status.daily==i))
-        {
-             //ReadStatus();
-             if(status.daily!=i)
-             {
-              status.daily=i; //Point is Weekly Mode
-              SaveStatus();
-             }
-
-          int timeon = programpoint[i].onhour * 60 + programpoint[i].onminute;
-          int timeoff= programpoint[i].offhour * 60 + programpoint[i].offminute;
-            do
-              {
-               if (timeon == timenow)
-                {
-                  power = i;
-                  status.on=1;
-                 break;
-                }
-               timeon ++;
-              if (timeon == 1441) timeon = 0;
-              } while (!(timeon==timeoff));
-            if(!status.on)
+            if (timeoff > timeon)  // Time off is today
             {
-              if(status.daily!=9)
+              if ((timenow >= timeon) && (timenow < timeoff))
               {
-               status.daily=9;
-               SaveStatus();
+                power = i;
+                return;
+              }
+
+             }
+             else // Time off is next day
+             {
+              if (timenow >= timeon || timenow < timeoff)
+              {
+               power = i;
+               return;
               }
             }
             continue;
-           // SaveStatus();
-        }
+       }
+
+           // for Day of the Week Allarm or Next Day
+          if (programpoint[i].day != 8) //Point is Weekly Mode
+          {
+            if (programpoint[i].day == days)   // Check for On
+             {
+              int timeon = programpoint[i].onhour * 60 + programpoint[i].onminute;
+              int timeoff = programpoint[i].offhour * 60 + programpoint[i].offminute;
+               if (timeoff > timeon)  // Time off is today
+                  {
+                    if ((timenow >= timeon) && (timenow < timeoff))
+                     {
+                      power = i;
+                      return;
+                     }
+                  }
+                else                 // Time off is next day
+                  {
+
+                    if (timenow >= timeon || timenow < timeoff)
+                     {
+                     power = i;
+                     return;
+                     }
+                  }
+               continue;
+             }
+
+
+           if (programpoint[i].dayoff == days) //Check for off
+            {
+             int timeoff = programpoint[i].offhour * 60 + programpoint[i].offminute;
+             if (timenow < timeoff)
+              {
+                power = i; //On
+                return;
+              }
+              continue;
+            }
+         }
+
+
+
        // for Monthly Allarm
         else if (programpoint[i].day == 10)//Point is Monthly Mode
          {
@@ -1207,7 +1266,27 @@ void CheckProgramPoint()
 
          }
 
+    /*
+       exit_sub:
+         if (power !=8)
+         {
+           if (status.on==0)
+           {
+             status.on=1;
+             SaveStatus();
+           }
+         }
+          else
+          {
+           if(status.on==1)
+           {
+             status.on=0;
+             SaveStatus();
+           }
+          }
 
+          return;
+      */
      }
 
 
@@ -1984,6 +2063,18 @@ void ProgramMenu()
                  programpoint[program_number].offminute=adj(time_off_min_min,59,programpoint[program_number].offminute);
             } while ((timer3<=time_menu)&& !key_ok_on());
 
+
+               //Set Dayoff
+                int timeon = programpoint[program_number].onhour * 60 + programpoint[program_number].onminute;
+                int timeoff = programpoint[program_number].offhour * 60 + programpoint[program_number].offminute;
+                programpoint[program_number].dayoff = programpoint[program_number].day;
+                 if (timeoff < timeon)
+                  {
+                    programpoint[program_number].dayoff++;
+                    if (programpoint[program_number].dayoff >= 8) programpoint[program_number].dayoff =1;
+                  }
+
+
         }
 
 
@@ -1998,7 +2089,7 @@ void ProgramMenu()
 
        } while ( (program_number < 8) && (button!=0));
 
-         SaveProgram();
+      SaveProgram();
 
 
 }
