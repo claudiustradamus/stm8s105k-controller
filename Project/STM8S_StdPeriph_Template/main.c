@@ -1110,6 +1110,8 @@ void SaveStatus()
   FLASH_ProgramByte(EEPROM_ADR_STATUSH,(u8)(*(u16*)(&status)>>8));
   FLASH_ProgramByte(EEPROM_ADR_STATUSL,(u8)(*(u16*)(&status)));
   FLASH_Lock(FLASH_MEMTYPE_DATA); //Locking  Flash Data
+  hardware.lcdLed=1;
+  lcdLedTimer=LCDLEDON;
 }
 
 void ReadStatus()
