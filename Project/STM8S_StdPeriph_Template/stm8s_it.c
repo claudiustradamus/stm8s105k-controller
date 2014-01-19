@@ -49,6 +49,7 @@ extern    u8 hours;
 extern    u8 year;
 extern    u8 month;
 extern    u8 date;
+extern    u8 power;
 extern  bool volatile  Time_Display;
 extern   bool blink_flag;
 extern  bool rotate_line2;
@@ -93,6 +94,7 @@ extern volatile u16 blink_time;
 extern void Save_Status();
 extern void CheckProgramPoint();
 extern void DisplayLine2();
+extern void SaveStatus();
 /* Public functions ----------------------------------------------------------*/
 
 #ifdef _COSMIC_
@@ -440,8 +442,26 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
          };
     */
 
+     if(!status.manu)
+     {
        CheckProgramPoint();
-
+         if (power !=8)
+         {
+           if (status.on==0)
+           {
+             status.on=1;
+             SaveStatus();
+           }
+         }
+          else
+          {
+           if(status.on==1)
+           {
+             status.on=0;
+             SaveStatus();
+           }
+          }
+     }
         //if(rotate_line2) DisplayLine2();
 
        sync++;

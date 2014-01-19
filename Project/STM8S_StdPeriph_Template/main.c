@@ -433,29 +433,10 @@ void main(void)
          //sync_display='S';
          }
 
-          //Test for Power On or Off
-         if(power ==0 || power <=7)
-         {
-           //power On
-           GPIO_WriteHigh(GPIOD, power_pin );
-           if(status.on !=1)
-           {
-             status.on=1;
-             SaveStatus();
-           }
-         }
-          else
-          {
-            //power off
-             GPIO_WriteLow(GPIOD, power_pin );
-             if(status.on !=0)
-             {
-              status.on=0;
-              SaveStatus();
-             }
 
-          }
 
+             if(status.on) GPIO_WriteHigh(GPIOD, power_pin ) ;
+               else   GPIO_WriteLow(GPIOD, power_pin );
 
 
 
@@ -1199,6 +1180,7 @@ void CheckProgramPoint()
               if ((timenow >= timeon) && (timenow < timeoff))
               {
                 power = i;
+                 //goto exit_sub;
                 return;
               }
 
@@ -1208,6 +1190,7 @@ void CheckProgramPoint()
               if (timenow >= timeon || timenow < timeoff)
               {
                power = i;
+                //goto  exit_sub;
                return;
               }
             }
@@ -1226,6 +1209,7 @@ void CheckProgramPoint()
                     if ((timenow >= timeon) && (timenow < timeoff))
                      {
                       power = i;
+                       //goto exit_sub;
                       return;
                      }
                   }
@@ -1235,6 +1219,7 @@ void CheckProgramPoint()
                     if (timenow >= timeon || timenow < timeoff)
                      {
                      power = i;
+                     //goto exit_sub;
                      return;
                      }
                   }
@@ -1248,6 +1233,7 @@ void CheckProgramPoint()
              if (timenow < timeoff)
               {
                 power = i; //On
+                 //goto exit_sub;
                 return;
               }
               continue;
@@ -1265,28 +1251,6 @@ void CheckProgramPoint()
 
 
          }
-
-    /*
-       exit_sub:
-         if (power !=8)
-         {
-           if (status.on==0)
-           {
-             status.on=1;
-             SaveStatus();
-           }
-         }
-          else
-          {
-           if(status.on==1)
-           {
-             status.on=0;
-             SaveStatus();
-           }
-          }
-
-          return;
-      */
      }
 
 
